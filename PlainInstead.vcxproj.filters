@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Файлы исходного кода">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Заголовочные файлы">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Файлы ресурсов">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="tiny">
+      <UniqueIdentifier>{98a3b5c8-46bc-4350-a69d-2eaf29e99202}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tiny\instead">
+      <UniqueIdentifier>{36a48046-720a-40a3-aff1-be151e92d9f6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ColorPickerCB.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="CPCBTESTDlg.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalManager.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="IniFile.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="InterpreterController.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiSpeech.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="PlainInstead.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="PlainInsteadDoc.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="PlainInsteadView.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="SelectNewGameDialog.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="tiny_instead\libgen.cpp">
+      <Filter>tiny</Filter>
+    </ClCompile>
+    <ClCompile Include="tiny_instead\instead\cache.c">
+      <Filter>tiny\instead</Filter>
+    </ClCompile>
+    <ClCompile Include="tiny_instead\instead\idf.c">
+      <Filter>tiny\instead</Filter>
+    </ClCompile>
+    <ClCompile Include="tiny_instead\instead\instead.c">
+      <Filter>tiny\instead</Filter>
+    </ClCompile>
+    <ClCompile Include="tiny_instead\instead\lfs.c">
+      <Filter>tiny\instead</Filter>
+    </ClCompile>
+    <ClCompile Include="tiny_instead\instead\list.c">
+      <Filter>tiny\instead</Filter>
+    </ClCompile>
+    <ClCompile Include="tiny_instead\instead\tinymt32.c">
+      <Filter>tiny\instead</Filter>
+    </ClCompile>
+    <ClCompile Include="tiny_instead\instead\util.c">
+      <Filter>tiny\instead</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ColorPickerCB.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CPCBTESTDlg.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="global.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalManager.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="IniFile.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="InterpreterController.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiSpeech.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="PlainInstead.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="PlainInsteadDoc.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="PlainInsteadView.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="SelectNewGameDialog.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="Tolk.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_instead\dirent.h">
+      <Filter>tiny</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_instead\libgen.h">
+      <Filter>tiny</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_instead\unistd.h">
+      <Filter>tiny</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_instead\instead\cache.h">
+      <Filter>tiny\instead</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_instead\instead\idf.h">
+      <Filter>tiny\instead</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_instead\instead\instead.h">
+      <Filter>tiny\instead</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_instead\instead\list.h">
+      <Filter>tiny\instead</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_instead\instead\system.h">
+      <Filter>tiny\instead</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_instead\instead\tinymt32.h">
+      <Filter>tiny\instead</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_instead\instead\util.h">
+      <Filter>tiny\instead</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\PlainInstead.ico">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="res\PlainInsteadDoc.ico">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="res\TadsWrapperDoc.ico">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="res\Toolbar.bmp">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PlainInstead.rc">
+      <Filter>Файлы ресурсов</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\PlainInstead.rc2">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="res\text3.bin">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="res\txt1.bin">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

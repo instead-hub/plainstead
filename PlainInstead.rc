@@ -1,0 +1,507 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Русский (Россия) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)\r\n"
+    "LANGUAGE 25, 1\r\n"
+    "#pragma code_page(1251)\r\n"
+    "#include ""res\\PlainInstead.rc2""  // ресурсы, не редактируемые в Microsoft Visual C++\r\n"
+    "#include ""l.RUS\\afxres.rc""          // Стандартные компоненты\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\PlainInstead.ico"
+
+IDR_PLAININSTEADTYPE    ICON                    "res\\PlainInsteadDoc.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR 16, 15
+BEGIN
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
+    SEPARATOR
+    BUTTON      ID_EDIT_CUT
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_FILE_PRINT
+    BUTTON      ID_APP_ABOUT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU
+BEGIN
+    POPUP "&Файл"
+    BEGIN
+        MENUITEM "Новая игра из &библиотеки\tCtrl+L", ID_NEW_GAME
+        MENUITEM "&Открыть сохранение\tCtrl+O", ID_FILE_OPEN
+        MENUITEM "Со&хранить игру\tCtrl+S",     ID_FILE_SAVE_GAME
+        MENUITEM "Начать игру &заново\tCtrl+R", ID_RESTART_MENU
+        MENUITEM SEPARATOR
+        MENUITEM "&Сбросить все настройки",     ID_RESET_ALL_SETTINGS
+        MENUITEM "В&ыход",                      ID_APP_EXIT
+    END
+    POPUP "&Просмотр"
+    BEGIN
+        MENUITEM "На&стройка\tCtrl+T",          ID_ENTER_SETUP
+        MENUITEM "&Поиск\tCTRL+F",              ID_FIND_TEXT
+        MENUITEM "Найти &далее\tF3",            ID_FIND_NEXT
+        MENUITEM "&Обновить\t\tF5",             ID_UPDATE
+        MENUITEM "Перейти к списку о&бъектов \t\tALT+O", ID_GOTO_SCENE
+        MENUITEM "Перейти к списку &инвентаря\tALT+I", ID_GOTO_INV
+        MENUITEM "Перейти к списку п&утей\t ALT+W", ID_GOTO_WAYS
+    END
+    POPUP "&Справка"
+    BEGIN
+        MENUITEM "&О проекте PlainInstead...",  ID_APP_ABOUT
+    END
+    POPUP "&Звук", INACTIVE
+    BEGIN
+        MENUITEM "&Громче\tCTRL+",              ID_VOLUME_UP
+        MENUITEM "&Тише\tCTRL-",                ID_VOLUME_DOWN
+        MENUITEM "&Включить\tCTRL+F7",          ID_VOLUME_ON
+        MENUITEM "&Отключить\tCTRL+F8",         ID_VOLUME_OFF
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS
+BEGIN
+    VK_RETURN,      ID_ACCELERATOR32804,    VIRTKEY, NOINVERT
+    VK_OEM_COMMA,   ID_BACK_HIST,           VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    "T",            ID_ENTER_SETUP,         VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE_GAME,      VIRTKEY, CONTROL, NOINVERT
+    VK_F3,          ID_FIND_NEXT,           VIRTKEY, NOINVERT
+    "F",            ID_FIND_TEXT,           VIRTKEY, CONTROL, NOINVERT
+    VK_OEM_PERIOD,  ID_FORW_HIST,           VIRTKEY, CONTROL, NOINVERT
+    "H",            ID_FULL_HISTORY,        VIRTKEY, CONTROL, NOINVERT
+    "1",            ID_HISTORY_START,       VIRTKEY, CONTROL, NOINVERT
+    "2",            ID_HISTORY_STOP,        VIRTKEY, CONTROL, NOINVERT
+    "L",            ID_NEW_GAME,            VIRTKEY, CONTROL, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+    "R",            ID_RESTART_MENU,        VIRTKEY, CONTROL, NOINVERT
+    VK_F5,          ID_UPDATE,              VIRTKEY, NOINVERT
+    VK_F24,         ID_UPDATE_FORM,         VIRTKEY, NOINVERT
+    VK_SUBTRACT,    ID_VOLUME_DOWN,         VIRTKEY, CONTROL, NOINVERT
+    VK_F8,          ID_VOLUME_OFF,          VIRTKEY, CONTROL, NOINVERT
+    VK_F7,          ID_VOLUME_ON,           VIRTKEY, CONTROL, NOINVERT
+    VK_ADD,         ID_VOLUME_UP,           VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_GOTO_SCENE,          VIRTKEY, ALT, NOINVERT
+    "I",            ID_GOTO_INV,            VIRTKEY, ALT, NOINVERT
+    "W",            ID_GOTO_WAYS,           VIRTKEY, ALT, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 229, 137
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "О проекте PlainInstead"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
+    LTEXT           "PlainInstead, Версия:",IDC_STATIC,42,14,87,8,SS_NOPREFIX
+    LTEXT           "Обнаруженные экранные дикторы:",IDC_STATIC_VOICE_HELP,42,26,180,8
+    DEFPUSHBUTTON   "ОК",IDOK,172,116,50,14,WS_GROUP
+    LTEXT           "?.?",IDC_PROG_VER,127,15,17,8
+END
+
+IDD_PLAININSTEAD_FORM DIALOGEX 0, 0, 320, 200
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDIT_OUT,7,7,258,186,ES_MULTILINE | ES_READONLY | WS_VSCROLL
+    LISTBOX         IDC_LIST_SCENE,265,15,48,45,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LISTBOX         IDC_LIST_INV,265,70,48,51,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LISTBOX         IDC_LIST_WAYS,265,133,48,60,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Объекты",IDC_STATIC_SCENE,265,7,32,8
+    LTEXT           "Инвентарь",IDC_STATIC_INV,266,61,38,8
+    LTEXT           "Пути",IDC_STATIC_WAYS,266,123,18,8
+END
+
+IDD_DIALOG_NEW_GAME DIALOGEX 0, 0, 391, 218
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Выберите файл игры"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "&Выбор",IDOK,314,197,70,14
+    LISTBOX         IDC_LIST_GAMES,7,16,377,72,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Список игр:",IDC_STATIC,7,7,41,8
+    EDITTEXT        IDC_EDIT_ABOUT,7,90,377,103,ES_MULTILINE | WS_VSCROLL
+    PUSHBUTTON      "&Продолжить последнюю игру",IDC_BUTTON_START_LAST_GAME,119,197,192,14
+END
+
+IDD_CPCBTEST_DIALOG DIALOGEX 0, 0, 268, 173
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Настройки"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Цвет фона окна &вывода:",IDC_STATIC,4,58,90,12,SS_CENTERIMAGE
+    COMBOBOX        IDC_FOCUSEDCB,95,59,164,116,CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_SORT | CBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Цвет фона окна ввода:",IDC_STATIC,4,78,84,12,SS_CENTERIMAGE | WS_DISABLED
+    COMBOBOX        IDC_INACTIVECB,95,79,164,112,CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_SORT | CBS_HASSTRINGS | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Цвет шрифта вывода:",IDC_STATIC,4,98,82,12,SS_CENTERIMAGE
+    COMBOBOX        IDC_DISABLEDCB,95,99,166,76,CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_SORT | CBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Цвет шрифта ввода:",IDC_STATIC,4,118,76,12,SS_CENTERIMAGE | WS_DISABLED
+    COMBOBOX        IDC_DROPPEDCB,94,119,168,112,CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_SORT | CBS_HASSTRINGS | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,23,152,50,16
+    PUSHBUTTON      "Cancel",IDCANCEL,94,152,50,16
+    LTEXT           "Размер шрифта:",IDC_STATIC,4,37,62,12,SS_CENTERIMAGE
+    CTEXT           "Пример поля вывода",IDC_STATIC_EXAMPLE_OUT_FONT,6,135,125,17,WS_BORDER
+    CTEXT           "Пример поля ввода",IDC_STATIC_EXAMPLE_IN_FONT,138,135,124,17,WS_DISABLED | WS_BORDER
+    CONTROL         "Озвучивать новый текст через программу экранного доступа",IDC_CHECK_AUTOSAY,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,0,1,226,10
+    CONTROL         "Перемещать фокус на поле текстового вывода после ввода команды",IDC_CHECK_SET_FOCUS_OUT,
+                    "Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,0,13,255,10
+    COMBOBOX        IDC_COMBO_FONT_SIZE,61,36,48,30,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Автоматически записывать логи в папку logs",IDC_CHECK_AUTO_LOG,
+                    "Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,0,25,170,10
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "041904e3"
+        BEGIN
+            VALUE "CompanyName", "Ласточкин А. П."
+            VALUE "FileDescription", "интерпретатор менюшных квестов PlainInstead"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "PlainInstead.exe"
+            VALUE "LegalCopyright", "(c) 2016. Все права защищены."
+            VALUE "OriginalFilename", "PlainInstead.exe"
+            VALUE "ProductName", "интерпретатор менюшных квестов PlainInstead"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x419, 1251
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 222
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 130
+    END
+
+    IDD_PLAININSTEAD_FORM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 193
+    END
+
+    IDD_DIALOG_NEW_GAME, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 384
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 211
+    END
+
+    IDD_CPCBTEST_DIALOG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 262
+        BOTTOMMARGIN, 160
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_PLAININSTEAD_FORM AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_ABOUTBOX AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_CPCBTEST_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDP_OLE_INIT_FAILED     "Не удалось выполнить инициализацию OLE. Убедитесь в том, что используются правильные версии библиотек OLE."
+END
+
+STRINGTABLE
+BEGIN
+    IDR_MAINFRAME           "PlainInstead\n\nPlainInstead\n\n\nPlainInstead.Document\nPlainInstead.Document"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_APP_TITLE       "PlainInstead"
+    AFX_IDS_IDLEMESSAGE     "Готово"
+END
+
+STRINGTABLE
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE
+BEGIN
+    ID_FILE_NEW             "Создание нового документа\nСоздать"
+    ID_FILE_OPEN            "Открытие существующего документа\nОткрыть"
+    ID_FILE_CLOSE           "Закрытие активного документа\nЗакрыть"
+    ID_FILE_SAVE            "Сохранение активного документа\nСохранить"
+    ID_FILE_SAVE_AS         "Сохранение активного документа под новым именем\nСохранить как"
+END
+
+STRINGTABLE
+BEGIN
+    ID_APP_ABOUT            "Вывод сведений о программе, ее версии и авторских правах\nО программе"
+    ID_APP_EXIT             "Завершение работы приложения с запросом на сохранение документов\nВыход"
+END
+
+STRINGTABLE
+BEGIN
+    ID_FILE_MRU_FILE1       "Открытие данного документа"
+    ID_FILE_MRU_FILE2       "Открытие данного документа"
+    ID_FILE_MRU_FILE3       "Открытие данного документа"
+    ID_FILE_MRU_FILE4       "Открытие данного документа"
+    ID_FILE_MRU_FILE5       "Открытие данного документа"
+    ID_FILE_MRU_FILE6       "Открытие данного документа"
+    ID_FILE_MRU_FILE7       "Открытие данного документа"
+    ID_FILE_MRU_FILE8       "Открытие данного документа"
+    ID_FILE_MRU_FILE9       "Открытие данного документа"
+    ID_FILE_MRU_FILE10      "Открытие данного документа"
+    ID_FILE_MRU_FILE11      "Открытие данного документа"
+    ID_FILE_MRU_FILE12      "Открытие данного документа"
+    ID_FILE_MRU_FILE13      "Открытие данного документа"
+    ID_FILE_MRU_FILE14      "Открытие данного документа"
+    ID_FILE_MRU_FILE15      "Открытие данного документа"
+    ID_FILE_MRU_FILE16      "Открытие данного документа"
+END
+
+STRINGTABLE
+BEGIN
+    ID_NEXT_PANE            "Переход к следующей области окна\nСледующая область"
+    ID_PREV_PANE            "Возврат к предыдущей области окна\nПредыдущая область"
+END
+
+STRINGTABLE
+BEGIN
+    ID_WINDOW_SPLIT         "Разделение активного окна на области\nРазделить"
+END
+
+STRINGTABLE
+BEGIN
+    ID_EDIT_CLEAR           "Удаление выделенного фрагмента\nУдалить"
+    ID_EDIT_CLEAR_ALL       "Полное удаление содержимого документа\nУдалить все"
+    ID_EDIT_COPY            "Копирование выделенного фрагмента в буфер обмена\nКопировать"
+    ID_EDIT_CUT             "Удаление выделенного фрагмента в буфер обмена\nВырезать"
+    ID_EDIT_FIND            "Поиск указанного текста\nНайти"
+    ID_EDIT_PASTE           "Вставка содержимого буфера обмена\nВставить"
+    ID_EDIT_REPEAT          "Повторение последнего действия\nПовторить"
+    ID_EDIT_REPLACE         "Замена заданного текста другим текстом\nЗаменить"
+    ID_EDIT_SELECT_ALL      "Выделение всего документа\nВыделить все"
+    ID_EDIT_UNDO            "Отмена последнего действия\nОтменить"
+    ID_EDIT_REDO            "Повторное выполнение последнего отмененного действия\nВернуть"
+END
+
+STRINGTABLE
+BEGIN
+    ID_VIEW_TOOLBAR         "Отображение или скрытие панели инструментов\nПанель инструментов"
+    ID_VIEW_STATUS_BAR      "Отображение или скрытие строки состояния\nСтрока состояния"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_SCSIZE          "Изменение размера окна"
+    AFX_IDS_SCMOVE          "Изменение положения окна"
+    AFX_IDS_SCMINIMIZE      "Свертывание окна в значок"
+    AFX_IDS_SCMAXIMIZE      "Развертывание окна до полного размера"
+    AFX_IDS_SCNEXTWINDOW    "Переход к следующему окну документа"
+    AFX_IDS_SCPREVWINDOW    "Переход к предыдущему окну документа"
+    AFX_IDS_SCCLOSE         "Закрытие активного окна с запросом на сохранение документов"
+END
+
+STRINGTABLE
+BEGIN
+    AFX_IDS_SCRESTORE       "Восстановление исходных размеров окна"
+    AFX_IDS_SCTASKLIST      "Переход к списку задач"
+END
+
+STRINGTABLE
+BEGIN
+    strix_TADSRes           "&Ok"
+    strix_TADSRes2          "&Cancel"
+    strix_TADSRes3          "&Yes"
+    strix_TADSRes4          "&No"
+    strix_TADSRes5          "[Yy].*"
+    strix_TADSRes6          "[Nn].*"
+END
+
+#endif    // Русский (Россия) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+LANGUAGE 25, 1
+#pragma code_page(1251)
+#include "res\PlainInstead.rc2"  // ресурсы, не редактируемые в Microsoft Visual C++
+#include "l.RUS\afxres.rc"          // Стандартные компоненты
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
