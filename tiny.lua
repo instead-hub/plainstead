@@ -193,3 +193,27 @@ stead.objects.input =  function()
 		nam = 'input',
 	};
 end;
+
+--Мой iface
+iface.xref = function(self, str, obj)
+		local o = stead.ref(stead.here():srch(obj));
+		if not o then 
+			o = stead.ref(ways():srch(obj));
+		end
+		if not o then
+			o = stead.ref(stead.me():srch(obj));
+		end
+		if not o or not o.id then
+		    if isStatus(o) then
+			    str = string.gsub(str, "%^", " ");
+                return ("[a]"..(str or '').."#0[/a]");
+            end
+			return str;
+		end
+		local n = stead.tonum(stead.nameof(o))
+--      Новое отображение ссылок, для меню сдвиг на 1000
+		if (isMenu(o)) then 
+			return ("[a]"..(str or '').."#"..stead.tostr((n or o.id)+1000).."[/a]"); 
+		end
+		return ("[a]"..(str or '').."#"..stead.tostr(n or o.id).."[/a]");
+end;

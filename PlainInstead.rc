@@ -123,10 +123,10 @@ BEGIN
         MENUITEM "На&стройка\tCtrl+T",          ID_ENTER_SETUP
         MENUITEM "&Поиск\tCTRL+F",              ID_FIND_TEXT
         MENUITEM "Найти &далее\tF3",            ID_FIND_NEXT
-        MENUITEM "&Обновить\t\tF5",             ID_UPDATE
-        MENUITEM "Перейти к списку о&бъектов \t\tALT+O", ID_GOTO_SCENE
-        MENUITEM "Перейти к списку &инвентаря\tALT+I", ID_GOTO_INV
-        MENUITEM "Перейти к списку п&утей\t ALT+W", ID_GOTO_WAYS
+        MENUITEM "&Текст сцены\t\tF5",          ID_UPDATE
+        MENUITEM "Перейти к списку о&бъектов \t\tCTRL+1", ID_GOTO_SCENE
+        MENUITEM "Перейти к списку &инвентаря\tCTRL+2", ID_GOTO_INV
+        MENUITEM "Перейти к списку п&утей\t CTRL+3", ID_GOTO_WAYS
     END
     POPUP "&Справка"
     BEGIN
@@ -165,6 +165,9 @@ BEGIN
     "F",            ID_FIND_TEXT,           VIRTKEY, CONTROL, NOINVERT
     VK_OEM_PERIOD,  ID_FORW_HIST,           VIRTKEY, CONTROL, NOINVERT
     "H",            ID_FULL_HISTORY,        VIRTKEY, CONTROL, NOINVERT
+    "2",            ID_GOTO_INV,            VIRTKEY, CONTROL, NOINVERT
+    "1",            ID_GOTO_SCENE,          VIRTKEY, CONTROL, NOINVERT
+    "3",            ID_GOTO_WAYS,           VIRTKEY, CONTROL, NOINVERT
     "1",            ID_HISTORY_START,       VIRTKEY, CONTROL, NOINVERT
     "2",            ID_HISTORY_STOP,        VIRTKEY, CONTROL, NOINVERT
     "L",            ID_NEW_GAME,            VIRTKEY, CONTROL, NOINVERT
@@ -177,9 +180,6 @@ BEGIN
     VK_F8,          ID_VOLUME_OFF,          VIRTKEY, CONTROL, NOINVERT
     VK_F7,          ID_VOLUME_ON,           VIRTKEY, CONTROL, NOINVERT
     VK_ADD,         ID_VOLUME_UP,           VIRTKEY, CONTROL, NOINVERT
-    "O",            ID_GOTO_SCENE,          VIRTKEY, ALT, NOINVERT
-    "I",            ID_GOTO_INV,            VIRTKEY, ALT, NOINVERT
-    "W",            ID_GOTO_WAYS,           VIRTKEY, ALT, NOINVERT
 END
 
 
@@ -208,9 +208,9 @@ BEGIN
     LISTBOX         IDC_LIST_SCENE,265,15,48,45,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
     LISTBOX         IDC_LIST_INV,265,70,48,51,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
     LISTBOX         IDC_LIST_WAYS,265,133,48,60,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Объекты",IDC_STATIC_SCENE,265,7,32,8
-    LTEXT           "Инвентарь",IDC_STATIC_INV,266,61,38,8
-    LTEXT           "Пути",IDC_STATIC_WAYS,266,123,18,8
+    LTEXT           "Объекты",IDC_STATIC_SCENE,265,7,32,8,NOT WS_VISIBLE | WS_DISABLED
+    LTEXT           "Инвентарь",IDC_STATIC_INV,266,61,38,8,NOT WS_VISIBLE | WS_DISABLED
+    LTEXT           "Пути",IDC_STATIC_WAYS,266,123,18,8,NOT WS_VISIBLE | WS_DISABLED
 END
 
 IDD_DIALOG_NEW_GAME DIALOGEX 0, 0, 391, 218
@@ -247,7 +247,7 @@ BEGIN
     CONTROL         "Озвучивать новый текст через программу экранного доступа",IDC_CHECK_AUTOSAY,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,0,1,226,10
     CONTROL         "Перемещать фокус на поле текстового вывода после ввода команды",IDC_CHECK_SET_FOCUS_OUT,
-                    "Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,0,13,255,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,0,13,255,10
     COMBOBOX        IDC_COMBO_FONT_SIZE,61,36,48,30,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Автоматически записывать логи в папку logs",IDC_CHECK_AUTO_LOG,
                     "Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,0,25,170,10
@@ -260,8 +260,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,0
- PRODUCTVERSION 1,0,0,0
+ FILEVERSION 1,1,0,0
+ PRODUCTVERSION 1,1,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -278,12 +278,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ласточкин А. П."
             VALUE "FileDescription", "интерпретатор менюшных квестов PlainInstead"
-            VALUE "FileVersion", "1.0.0.0"
+            VALUE "FileVersion", "1.1.0.0"
             VALUE "InternalName", "PlainInstead.exe"
             VALUE "LegalCopyright", "(c) 2016. Все права защищены."
             VALUE "OriginalFilename", "PlainInstead.exe"
             VALUE "ProductName", "интерпретатор менюшных квестов PlainInstead"
-            VALUE "ProductVersion", "1.0.0.0"
+            VALUE "ProductVersion", "1.1.0.0"
         END
     END
     BLOCK "VarFileInfo"

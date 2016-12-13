@@ -190,14 +190,14 @@ void CPlainInsteadView::OnSize(UINT nType, int cx, int cy)
 	int h_list = (cy / 3 - h_static);
 	if (m_OutEdit.m_hWnd) m_OutEdit.SetWindowPos(NULL, 0, 0, cx - sz_list, cy, SWP_NOACTIVATE | SWP_NOZORDER);
 	
-	if (mStaticScene.m_hWnd) mStaticScene.SetWindowPos(NULL, cx - sz_list, dh_static_text, sz_list, h_static_text, SWP_NOACTIVATE | SWP_NOZORDER);
-	if (mListScene.m_hWnd) mListScene.SetWindowPos(NULL, cx - sz_list, h_static, sz_list, h_list, SWP_NOACTIVATE | SWP_NOZORDER);
+	//if (mStaticScene.m_hWnd) mStaticScene.SetWindowPos(NULL, 2+cx - sz_list, dh_static_text, sz_list, h_static_text, SWP_NOACTIVATE | SWP_NOZORDER);
+	if (mListScene.m_hWnd) mListScene.SetWindowPos(NULL, 2 + cx - sz_list,h_static, sz_list, h_list, SWP_NOACTIVATE | SWP_NOZORDER);
 	
-	if (mStaticInv.m_hWnd) mStaticInv.SetWindowPos(NULL, cx - sz_list, h_static +h_list + dh_static_text, sz_list, h_static_text, SWP_NOACTIVATE | SWP_NOZORDER);
-	if (mListInv.m_hWnd)   mListInv.SetWindowPos(NULL, cx - sz_list, h_static + h_list+h_static, sz_list, h_list, SWP_NOACTIVATE | SWP_NOZORDER);
+	//if (mStaticInv.m_hWnd) mStaticInv.SetWindowPos(NULL, 2 + cx - sz_list, h_static +h_list + dh_static_text, sz_list, h_static_text, SWP_NOACTIVATE | SWP_NOZORDER);
+	if (mListInv.m_hWnd)   mListInv.SetWindowPos(NULL, 2 + cx - sz_list, h_static + h_list+h_static, sz_list, h_list, SWP_NOACTIVATE | SWP_NOZORDER);
 	
-	if (mStaticWays.m_hWnd) mStaticWays.SetWindowPos(NULL, cx - sz_list, h_static + h_list+ h_static + h_list+ dh_static_text, sz_list, h_static_text, SWP_NOACTIVATE | SWP_NOZORDER);
-	if (mListWays.m_hWnd)  mListWays.SetWindowPos(NULL, cx - sz_list, h_static + h_list + h_static + h_list+ h_static, sz_list, h_list, SWP_NOACTIVATE | SWP_NOZORDER);
+	//if (mStaticWays.m_hWnd) mStaticWays.SetWindowPos(NULL, 2 + cx - sz_list, h_static + h_list+ h_static + h_list+ dh_static_text, sz_list, h_static_text, SWP_NOACTIVATE | SWP_NOZORDER);
+	if (mListWays.m_hWnd)  mListWays.SetWindowPos(NULL, 2 + cx - sz_list,h_static + h_list + h_static + h_list+ h_static, sz_list, h_list, SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
 static bool Utf8ToCString(CString& cstr, const char* utf8Str)
@@ -376,6 +376,7 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn)
 	m_OutEdit.SetWindowTextW(resout);
 	//UpdateFocusLogic();
 	if (m_auto_say) MultiSpeech::getInstance().Say(resout);
+	if (m_jump_to_out) m_OutEdit.SetFocus();
 }
 
 ////////////////////////
@@ -519,28 +520,35 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 		GetFocus() == &mListInv)
 	{
 		int sel_pos = mListInv.GetCurSel();
-		if (pos_id_inv.count(sel_pos)) {
+		if (pos_id_inv.count(sel_pos) ) {
 			CString res;
-			res.Format(L"%d", pos_id_inv[sel_pos]);
-			if (inv_save.IsEmpty()) {
+			bool isMenuItem = (pos_id_inv[sel_pos] > 1000);
+			if (isMenuItem) res.Format(L"%d", pos_id_inv[sel_pos]-1000);
+			else res.Format(L"%d", pos_id_inv[sel_pos]);
+			if (inv_save.IsEmpty() && !isMenuItem) {
 				inv_save = res;
 				CString currText;
-				currText = (LPWSTR)mListInv.GetItemDataPtr(sel_pos);
+				mListInv.GetText(sel_pos, currText);
 				currText += L" (выбран)";
-				mListInv.SetItemData(sel_pos, (DWORD_PTR)&currText);
-				//mListInv.GetDlgItemTextW(sel_pos, currText);
-				//mListInv.SetDlgItemTextW(sel_pos, currText + L" (выбран)");
-				UpdateData();
+				mListInv.SetDlgItemTextW(sel_pos, currText);
+				mListInv.DeleteString(sel_pos);
+				mListInv.InsertString(sel_pos, currText);
+				mListInv.SetCurSel(sel_pos);
+				//mListInv.UpdateData();
 				//MessageBeep(MB_OK);
 			}
 			else {
-				if (res != inv_save) res = inv_save + L"," + res;
+				if (res != inv_save && !inv_save.IsEmpty()) res = inv_save + L"," + res;
 				inv_save.Empty();
 				int total_list_sz = mListInv.GetCount();
 				TryInsteadCommand(res);
 				if (mListInv.GetCount() == total_list_sz) {
 					mListInv.SetCurSel(sel_pos);
 				}
+				else if (isMenuItem && (mListInv.GetCount() > sel_pos)) {
+					mListInv.SetCurSel(sel_pos);
+				}
+
 				if (mListInv.GetCurSel() == LB_ERR && mListInv.GetCount() > 0)
 				{
 					mListInv.SetCurSel(0);
@@ -1017,10 +1025,14 @@ void CPlainInsteadView::OnStnClickedStaticScene()
 
 void CPlainInsteadView::OnLbnSetfocusListScene()
 {
-	if (mListScene.GetCurSel() == LB_ERR && mListScene.GetCount() > 0)
+	if (GetFocus() == &mListScene)
 	{
 		mListInv.SetCurSel(-1);
 		mListWays.SetCurSel(-1);
+		MultiSpeech::getInstance().Say(L"объекты");
+	}
+	if (mListScene.GetCurSel() == LB_ERR && mListScene.GetCount() > 0)
+	{
 		mListScene.SetCurSel(0);
 	}
 }
@@ -1028,11 +1040,14 @@ void CPlainInsteadView::OnLbnSetfocusListScene()
 
 void CPlainInsteadView::OnLbnSetfocusListInv()
 {
+	if (GetFocus() == &mListInv) {
+		mListWays.SetCurSel(-1);
+		mListScene.SetCurSel(-1);
+		MultiSpeech::getInstance().Say(L"инвентарь");
+	}
 	// TODO: добавьте свой код обработчика уведомлений
 	if (mListInv.GetCurSel() == LB_ERR && mListInv.GetCount() > 0)
 	{
-		mListWays.SetCurSel(-1);
-		mListScene.SetCurSel(-1);
 		mListInv.SetCurSel(0);
 	}
 }
@@ -1040,11 +1055,15 @@ void CPlainInsteadView::OnLbnSetfocusListInv()
 
 void CPlainInsteadView::OnLbnSetfocusListWays()
 {
-	// TODO: добавьте свой код обработчика уведомлений
-	if (mListWays.GetCurSel() == LB_ERR && mListWays.GetCount() > 0)
+	if (GetFocus() == &mListWays)
 	{
 		mListInv.SetCurSel(-1);
 		mListScene.SetCurSel(-1);
+		MultiSpeech::getInstance().Say(L"пути");
+	}
+	// TODO: добавьте свой код обработчика уведомлений
+	if (mListWays.GetCurSel() == LB_ERR && mListWays.GetCount() > 0)
+	{
 		mListWays.SetCurSel(0);
 	}
 }
