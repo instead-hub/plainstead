@@ -479,7 +479,9 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 		int sel_pos = mListScene.GetCurSel();
 		if (pos_id_scene.count(sel_pos)) {
 			CString res;
-			res.Format(L"%d", pos_id_scene[sel_pos]);
+			int res_pos = pos_id_scene[sel_pos];
+			if (res_pos > 1000) res_pos -= 1000;
+			res.Format(L"%d", res_pos);
 			if (!inv_save.IsEmpty()) { res = inv_save + +L"," + res;  inv_save.Empty(); }
 			int total_list_sz = mListScene.GetCount();
 			TryInsteadCommand(res);
@@ -500,7 +502,9 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 		int sel_pos = mListWays.GetCurSel();
 		if (pos_id_ways.count(sel_pos)) {
 			CString res;
-			res.Format(L"%d", pos_id_ways[sel_pos]);
+			int res_pos = pos_id_ways[sel_pos];
+			if (res_pos > 1000) res_pos -= 1000;
+			res.Format(L"%d", res_pos);
 			if (!inv_save.IsEmpty()) { res = inv_save + +L"," + res;  inv_save.Empty(); }
 			inv_save.Empty(); //Нельзя применить предмет на пути
 			int total_list_sz = mListWays.GetCount();
