@@ -47,6 +47,8 @@
 #define IDC_COMBO_FONT_SIZE             1019
 #define IDC_CHECK_AUTO_LOG              1020
 #define IDC_LIST_SCENE                  1021
+#define IDC_CHECK_AUTO_LOG2             1021
+#define IDC_CHECK_SOUND_LIST            1021
 #define IDC_LIST_INV                    1022
 #define IDC_LIST_WAYS                   1023
 #define IDC_STATIC_SCENE                1024

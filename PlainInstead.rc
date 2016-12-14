@@ -132,12 +132,11 @@ BEGIN
     BEGIN
         MENUITEM "&О проекте PlainInstead...",  ID_APP_ABOUT
     END
-    POPUP "&Звук", INACTIVE
+    POPUP "&Звук"
     BEGIN
-        MENUITEM "&Громче\tCTRL+",              ID_VOLUME_UP
-        MENUITEM "&Тише\tCTRL-",                ID_VOLUME_DOWN
-        MENUITEM "&Включить\tCTRL+F7",          ID_VOLUME_ON
-        MENUITEM "&Отключить\tCTRL+F8",         ID_VOLUME_OFF
+        MENUITEM "&Громче\tCTRL+=",             ID_VOLUME_UP
+        MENUITEM "&Тише\tCTRL+-",               ID_VOLUME_DOWN
+        MENUITEM "&Включен\tCTRL+0",            ID_VOLUME_ON, CHECKED
     END
 END
 
@@ -176,10 +175,9 @@ BEGIN
     "R",            ID_RESTART_MENU,        VIRTKEY, CONTROL, NOINVERT
     VK_F5,          ID_UPDATE,              VIRTKEY, NOINVERT
     VK_F24,         ID_UPDATE_FORM,         VIRTKEY, NOINVERT
-    VK_SUBTRACT,    ID_VOLUME_DOWN,         VIRTKEY, CONTROL, NOINVERT
-    VK_F8,          ID_VOLUME_OFF,          VIRTKEY, CONTROL, NOINVERT
-    VK_F7,          ID_VOLUME_ON,           VIRTKEY, CONTROL, NOINVERT
-    VK_ADD,         ID_VOLUME_UP,           VIRTKEY, CONTROL, NOINVERT
+    VK_OEM_MINUS,   ID_VOLUME_DOWN,         VIRTKEY, CONTROL, NOINVERT
+    "0",            ID_VOLUME_ON,           VIRTKEY, CONTROL, NOINVERT
+    VK_OEM_PLUS,    ID_VOLUME_UP,           VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -225,32 +223,34 @@ BEGIN
     PUSHBUTTON      "&Продолжить последнюю игру",IDC_BUTTON_START_LAST_GAME,119,197,192,14
 END
 
-IDD_CPCBTEST_DIALOG DIALOGEX 0, 0, 268, 173
+IDD_CPCBTEST_DIALOG DIALOGEX 0, 0, 269, 181
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "Настройки"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    LTEXT           "Цвет фона окна &вывода:",IDC_STATIC,4,58,90,12,SS_CENTERIMAGE
-    COMBOBOX        IDC_FOCUSEDCB,95,59,164,116,CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_SORT | CBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Цвет фона окна ввода:",IDC_STATIC,4,78,84,12,SS_CENTERIMAGE | WS_DISABLED
-    COMBOBOX        IDC_INACTIVECB,95,79,164,112,CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_SORT | CBS_HASSTRINGS | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Цвет шрифта вывода:",IDC_STATIC,4,98,82,12,SS_CENTERIMAGE
-    COMBOBOX        IDC_DISABLEDCB,95,99,166,76,CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_SORT | CBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Цвет шрифта ввода:",IDC_STATIC,4,118,76,12,SS_CENTERIMAGE | WS_DISABLED
-    COMBOBOX        IDC_DROPPEDCB,94,119,168,112,CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_SORT | CBS_HASSTRINGS | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
-    DEFPUSHBUTTON   "OK",IDOK,23,152,50,16
-    PUSHBUTTON      "Cancel",IDCANCEL,94,152,50,16
-    LTEXT           "Размер шрифта:",IDC_STATIC,4,37,62,12,SS_CENTERIMAGE
-    CTEXT           "Пример поля вывода",IDC_STATIC_EXAMPLE_OUT_FONT,6,135,125,17,WS_BORDER
-    CTEXT           "Пример поля ввода",IDC_STATIC_EXAMPLE_IN_FONT,138,135,124,17,WS_DISABLED | WS_BORDER
+    LTEXT           "Цвет фона окна &вывода:",IDC_STATIC,4,66,90,12,SS_CENTERIMAGE
+    COMBOBOX        IDC_FOCUSEDCB,95,67,164,116,CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_SORT | CBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Цвет фона окна ввода:",IDC_STATIC,4,86,84,12,SS_CENTERIMAGE | WS_DISABLED
+    COMBOBOX        IDC_INACTIVECB,95,87,164,112,CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_SORT | CBS_HASSTRINGS | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Цвет шрифта вывода:",IDC_STATIC,4,106,82,12,SS_CENTERIMAGE
+    COMBOBOX        IDC_DISABLEDCB,95,107,166,76,CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_SORT | CBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Цвет шрифта ввода:",IDC_STATIC,4,126,76,12,SS_CENTERIMAGE | WS_DISABLED
+    COMBOBOX        IDC_DROPPEDCB,95,127,168,112,CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_SORT | CBS_HASSTRINGS | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,23,160,50,16
+    PUSHBUTTON      "Cancel",IDCANCEL,94,160,50,16
+    LTEXT           "Размер шрифта:",IDC_STATIC,4,45,62,12,SS_CENTERIMAGE
+    CTEXT           "Пример поля вывода",IDC_STATIC_EXAMPLE_OUT_FONT,6,143,125,17,WS_BORDER
+    CTEXT           "Пример поля ввода",IDC_STATIC_EXAMPLE_IN_FONT,139,143,124,17,WS_DISABLED | WS_BORDER
     CONTROL         "Озвучивать новый текст через программу экранного доступа",IDC_CHECK_AUTOSAY,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,0,1,226,10
     CONTROL         "Перемещать фокус на поле текстового вывода после ввода команды",IDC_CHECK_SET_FOCUS_OUT,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,0,13,255,10
-    COMBOBOX        IDC_COMBO_FONT_SIZE,61,36,48,30,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_FONT_SIZE,61,44,48,30,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Автоматически записывать логи в папку logs",IDC_CHECK_AUTO_LOG,
-                    "Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,0,25,170,10
+                    "Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,0,24,170,10
+    CONTROL         "Разрешить звуки изменения списков",IDC_CHECK_SOUND_LIST,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,0,34,144,10
 END
 
 
@@ -260,8 +260,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,1,0,0
- PRODUCTVERSION 1,1,0,0
+ FILEVERSION 1,2,0,0
+ PRODUCTVERSION 1,2,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -278,12 +278,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ласточкин А. П."
             VALUE "FileDescription", "интерпретатор менюшных квестов PlainInstead"
-            VALUE "FileVersion", "1.1.0.0"
+            VALUE "FileVersion", "1.2.0.0"
             VALUE "InternalName", "PlainInstead.exe"
             VALUE "LegalCopyright", "(c) 2016. Все права защищены."
             VALUE "OriginalFilename", "PlainInstead.exe"
             VALUE "ProductName", "интерпретатор менюшных квестов PlainInstead"
-            VALUE "ProductVersion", "1.1.0.0"
+            VALUE "ProductVersion", "1.2.0.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -327,8 +327,8 @@ BEGIN
 
     IDD_CPCBTEST_DIALOG, DIALOG
     BEGIN
-        RIGHTMARGIN, 262
-        BOTTOMMARGIN, 160
+        RIGHTMARGIN, 263
+        BOTTOMMARGIN, 168
     END
 END
 #endif    // APSTUDIO_INVOKED

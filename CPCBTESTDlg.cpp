@@ -45,6 +45,7 @@ void CCPCBTESTDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHECK_SET_FOCUS_OUT, m_CheckSetFocusToOut);
 	DDX_Control(pDX, IDC_COMBO_FONT_SIZE, m_ComboFontSize);
 	DDX_Control(pDX, IDC_CHECK_AUTO_LOG, mCheckAutoLog);
+	DDX_Control(pDX, IDC_CHECK_SOUND_LIST, mCheckSoundList);
 }
 
 BEGIN_MESSAGE_MAP(CCPCBTESTDlg, CDialog)
@@ -94,6 +95,7 @@ BOOL CCPCBTESTDlg::OnInitDialog()
 	m_CheckAutosay.SetCheck( mainSettings.GetInt(L"main", L"m_CheckAutosay", 1 ) );
 	m_CheckSetFocusToOut.SetCheck( mainSettings.GetInt(L"main", L"m_CheckSetFocusToOut", 0 ) );
 	mCheckAutoLog.SetCheck( mainSettings.GetInt(L"main", L"mCheckAutoLog", 0 ) );
+	mCheckSoundList.SetCheck(mainSettings.GetInt(L"main", L"mCheckSoundList", 1));
 
 	//m_editFontHeight.SetWindowTextW(fontH);
 
@@ -174,6 +176,7 @@ void CCPCBTESTDlg::OnBnClickedOk()
 	mainSettings.WriteNumber(L"main", L"m_CheckAutosay",  m_CheckAutosay.GetCheck() );
 	mainSettings.WriteNumber(L"main", L"m_CheckSetFocusToOut",  m_CheckSetFocusToOut.GetCheck() );
 	mainSettings.WriteNumber(L"main", L"mCheckAutoLog",  mCheckAutoLog.GetCheck() );
+	mainSettings.WriteNumber(L"main", L"mCheckSoundList", mCheckSoundList.GetCheck());
 
 	OnOK();
 }

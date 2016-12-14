@@ -68,6 +68,7 @@ public:
 	CComboBox m_ComboFontSize;
 	afx_msg void OnCbnSelchangeComboFontSize();
 	CButton mCheckAutoLog;
+	CButton mCheckSoundList;
 };
 
 //{{AFX_INSERT_LOCATION}}

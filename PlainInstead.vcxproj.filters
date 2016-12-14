@@ -81,6 +81,12 @@
     <ClCompile Include="tiny_instead\instead\util.c">
       <Filter>tiny\instead</Filter>
     </ClCompile>
+    <ClCompile Include="tiny_instead\tiny_sound.c">
+      <Filter>tiny</Filter>
+    </ClCompile>
+    <ClCompile Include="Wave.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ColorPickerCB.h">
@@ -160,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="tiny_instead\instead\util.h">
       <Filter>tiny\instead</Filter>
+    </ClInclude>
+    <ClInclude Include="Wave.h">
+      <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

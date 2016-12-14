@@ -22,6 +22,8 @@ private:
 	BOOL m_openGame;
 	CString currFilePath;
 	CString currFileName;
+	CString saveDir;
+	CString saveGameNameDir;
 	int soundBeforeMute;
 	bool isMute;
 

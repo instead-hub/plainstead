@@ -19,9 +19,18 @@
 #include "global.h"
 #include "Tolk.h"
 #pragma comment( lib, "Version.lib" )
+#include "bass.h"
+#pragma comment( lib, "bass.lib" )
+#include "bassmidi.h"
+#pragma comment( lib, "bassmidi.lib" )
 
 extern "C" {
 	#include "instead\instead.h"
+
+	extern int instead_sound_init(void);
+	extern void setGlobalSoundLevel(int volume);
+	extern int getGlobalSoundLevel();
+	extern int gBassInit;
 
 	static int tiny_init(void)
 	{
@@ -47,6 +56,7 @@ extern "C" {
 		if (p && *p)
 			printf("** %s", instead_cmd("inv", NULL));
 	}
+
 }
 
 #ifdef _DEBUG
@@ -146,6 +156,30 @@ BOOL CPlainInsteadApp::InitInstance()
 		AfxMessageBox(IDP_OLE_INIT_FAILED);
 		return FALSE;
 	}
+
+	//Инициализация BASS.dll
+	gBassInit = 1;
+	if (HIWORD(BASS_GetVersion()) != BASSVERSION) {
+		gBassInit = 0;
+	}
+
+	if (BASS_Init(-1, 44100, BASS_DEVICE_DEFAULT | BASS_DEVICE_FREQ, 0, NULL) == 0) {
+		gBassInit = 0;
+	}
+
+	//Подключение плагинов
+	BASS_PluginLoad("bassmidi.dll", 0);
+	//Шрифт для миди
+	HSOUNDFONT newfont = BASS_MIDI_FontInit("chorium.sf2", 0);
+	if (newfont) {
+		BASS_MIDI_FONT sf;
+		sf.font = newfont;
+		sf.preset = -1; // use all presets
+		sf.bank = 0; // use default bank(s)
+		BASS_MIDI_StreamSetFonts(0, &sf, 1);    // set default soundfont
+												//BASS_MIDI_FontFree(font);             // free old soundfont
+	}
+
 	// Стандартная инициализация
 	// Если эти возможности не используются и необходимо уменьшить размер
 	// конечного исполняемого файла, необходимо удалить из следующего
@@ -190,6 +224,9 @@ BOOL CPlainInsteadApp::InitInstance()
 	if (instead_extension(&ext)) {
 		std::cerr << "Failed set tiny" << std::endl;
 	}
+
+	//звуковая подсистема LUA
+	instead_sound_init();
 
 	currFilePath=L"";
 	currFileName=L"";
@@ -348,15 +385,15 @@ void CPlainInsteadApp::OnFileOpen()
 	if (Tolk_IsSpeaking()) Tolk_Silence();
 	for (int i = 0; i < 3; i++) //3 попытки сохранения
 	{
-		CFileDialog fileDialog(TRUE, NULL, currFilePath + L"\\1.sav", OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, L"Instead save file (*.sav)|*.sav");	//объект класса выбора файла
+		CFileDialog fileDialog(TRUE, NULL, saveDir + L"\\1.sav", OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, L"Instead save file (*.sav)|*.sav");	//объект класса выбора файла
 		int result = fileDialog.DoModal();	//запустить диалоговое окно
 		if (result == IDOK)	//если файл выбран
 		{
 			CString userFilePath = fileDialog.GetFolderPath();
-			if (userFilePath == currFilePath)
+			if (userFilePath == saveDir)
 			{
 				CString userFileName = fileDialog.GetFileName();
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + userFileName);
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + saveGameNameDir + L"/" + userFileName);
 				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"");
 				AfxMessageBox(L"Восстановлено!");
 				return;
@@ -380,10 +417,26 @@ void CPlainInsteadApp::StartNewGameFile(CString file, CString name)
 	int needAutoLog = mainSettings.GetInt(L"main", L"mCheckAutoLog", 0 );
 	int savedVol = mainSettings.GetInt(L"main", L"mSavedVol", 80 );
 	soundBeforeMute = savedVol;
-	//setGlobalSoundLevel(savedVol);
+	setGlobalSoundLevel(savedVol);
 	//Сохраняем параметры для автосохранения
 	mainSettings.WriteString(L"main", L"lastGameFile", file);
 	mainSettings.WriteString(L"main", L"lastGameName", name);
+	//Определяем путь для сохранения
+	TCHAR buff[MAX_PATH];
+	memset(buff, 0, MAX_PATH);
+	::GetModuleFileName(NULL, buff, sizeof(buff));
+	CString baseDir = buff;
+	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
+	CString gameName = file.Right(file.GetLength() - file.ReverseFind(_T('\\')) - 1);
+	saveGameNameDir = L"../../saves/" + gameName;
+	saveDir = baseDir + L"saves\\" + gameName;
+	//Создаем каталог для сохранения (если его еще не было)
+	if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) {
+		SHCreateDirectoryEx(NULL, saveDir, NULL);
+		if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) {
+			AfxMessageBox(L"Не могу создать директорию для сохранения!");
+		}
+	}
 
 	//closeAllChannels();
 	InterpreterController::startGameFile(file,name,needAutoLog);
@@ -407,15 +460,15 @@ void CPlainInsteadApp::OnFileSave()
 	if (Tolk_IsSpeaking()) Tolk_Silence();
 	for (int i = 0; i < 3; i++) //3 попытки сохранения
 	{
-		CFileDialog fileDialog(FALSE, NULL, currFilePath + L"\\1.sav", OFN_NOCHANGEDIR | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, L"Instead save file (*.sav)|*.sav");	//объект класса выбора файла
+		CFileDialog fileDialog(FALSE, L"sav", saveDir + L"\\1.sav", OFN_NOCHANGEDIR | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, L"Instead save file (*.sav)|*.sav");	//объект класса выбора файла
 		int result = fileDialog.DoModal();	//запустить диалоговое окно
 		if (result == IDOK)	//если файл выбран
 		{
 			CString userFilePath = fileDialog.GetFolderPath();
-			if (userFilePath == currFilePath)
+			if (userFilePath == saveDir)
 			{
 				CString userFileName = fileDialog.GetFileName();
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + userFileName);
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + saveGameNameDir + L"/" + userFileName);
 				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"");
 				AfxMessageBox(L"Сохранено!");
 				return;
@@ -610,6 +663,7 @@ void CPlainInsteadApp::OnAppExit()
 		{
 			GlobalManager::getInstance().isIgnoreExitDialog = true;
 			instead_done();
+			if (gBassInit) BASS_Free();
 			CWinApp::OnAppExit();
 		}
 		else if (res == IDNO)
@@ -634,6 +688,7 @@ void CPlainInsteadApp::OnAppExit()
 	else
 	{
 		instead_done();
+		if (gBassInit) BASS_Free();
 		CWinApp::OnAppExit();
 	}
 }
@@ -657,7 +712,6 @@ void CPlainInsteadApp::OnSysCommand(UINT nID, LPARAM lParam)
 
 void CPlainInsteadApp::OnVolumeDown()
 {
-	/*
 	if (getGlobalSoundLevel()>0){
 		int newLevel = getGlobalSoundLevel()-10;
 		soundBeforeMute = newLevel;
@@ -665,12 +719,10 @@ void CPlainInsteadApp::OnVolumeDown()
 		mainSettings.WriteNumber(L"main", L"mSavedVol", newLevel );
 		setGlobalSoundLevel(newLevel);
 	}
-	*/
 }
 
 void CPlainInsteadApp::OnVolumeUp()
 {
-	/*
 	if (getGlobalSoundLevel()<100){
 		int newLevel = getGlobalSoundLevel()+10;
 		soundBeforeMute = newLevel;
@@ -678,34 +730,46 @@ void CPlainInsteadApp::OnVolumeUp()
 		mainSettings.WriteNumber(L"main", L"mSavedVol", newLevel );
 		setGlobalSoundLevel(newLevel);
 	}
-	*/
 }
 
 void CPlainInsteadApp::OnVolumeOff()
 {
 	//setGlobalSoundLevel(0);
-	isMute = true;
+	//isMute = true;
 }
 
 void CPlainInsteadApp::OnVolumeOn()
 {
-	//setGlobalSoundLevel(soundBeforeMute);
-	isMute = false;
+	CMenu *pMenu = m_pMainWnd->GetMenu();
+	if (pMenu != NULL)
+	{
+		if (isMute) {
+			setGlobalSoundLevel(soundBeforeMute);
+			isMute = false;
+			pMenu->CheckMenuItem(ID_VOLUME_ON, MF_CHECKED | MF_BYCOMMAND);
+		}
+		else
+		{
+			setGlobalSoundLevel(0);
+			isMute = true;
+			pMenu->CheckMenuItem(ID_VOLUME_ON, MF_UNCHECKED | MF_BYCOMMAND);
+		}
+	}
 }
 
 void CPlainInsteadApp::OnUpdateVolumeUp(CCmdUI *pCmdUI)
 {
-	//pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && !isMute && (getGlobalSoundLevel()<100));
+	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && !isMute && (getGlobalSoundLevel()<100));
 }
 
 void CPlainInsteadApp::OnUpdateVolumeDown(CCmdUI *pCmdUI)
 {
-	//pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && !isMute && (getGlobalSoundLevel()>0));
+	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && !isMute && (getGlobalSoundLevel()>0));
 }
 
 void CPlainInsteadApp::OnUpdateVolumeOn(CCmdUI *pCmdUI)
 {
-	//pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && isMute);
+	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame());
 }
 
 void CPlainInsteadApp::OnUpdateVolumeOff(CCmdUI *pCmdUI)

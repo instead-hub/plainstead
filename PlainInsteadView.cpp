@@ -92,10 +92,16 @@ CPlainInsteadView::CPlainInsteadView()
 	m_jump_to_out = false;
 	m_pFindDialog = NULL;
 	wasFind = false;
+	wave_inv = 0;
+	wave_ways = 0;
+	wave_scene = 0;
 }
 
 CPlainInsteadView::~CPlainInsteadView()
 {
+	if (wave_inv) delete wave_inv;
+	if (wave_ways) delete wave_ways;
+	if (wave_scene) delete wave_scene;
 }
 
 void CPlainInsteadView::DoDataExchange(CDataExchange* pDX)
@@ -149,6 +155,17 @@ void CPlainInsteadView::OnInitialUpdate()
 
 	updateEdit = &m_OutEdit;
 
+	if (!wave_inv) wave_inv = new Wave("sounds\\inventory.wav");
+	if (!wave_scene) wave_scene = new Wave("sounds\\scene.wav");
+	if (!wave_ways) wave_ways = new Wave("sounds\\ways.wav");
+
+	//TCHAR buff[MAX_PATH];
+	//memset(buff, 0, MAX_PATH);
+	//::GetModuleFileName(NULL, buff, sizeof(buff));
+	//CString baseSoundDir(buff);
+	//baseSoundDir = baseSoundDir.Left(baseSoundDir.ReverseFind(_T('\\')) + 1);
+	//baseSoundDir += L"sounds\\";
+	//baseSoundDir + _T("ways.wav")
 	//mListInv.SetWindowTextW(L"Инвентарь");
 }
 
@@ -275,7 +292,11 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn)
 	CString resout;
 	CString tmp;
 	char *p;
+	std::map<int, int> prev_map;
+
+
 	mListScene.ResetContent();
+	prev_map = pos_id_scene;
 	pos_id_scene.clear();
 	if (!textIn.IsEmpty())
 	{
@@ -326,15 +347,12 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn)
 			resout.Append(L"\n");
 		}
 	}
-
-	//if (mListScene.GetCount() == 0) mListScene.EnableWindow(false);
-	//else {
-	//	mListScene.EnableWindow(true);
-	//	if (mListScene.GetCurSel() == LB_ERR) mListScene.SetCurSel(0);
-	//}
-	//if ((mListScene.GetCount()>0) && (mListScene.GetCurSel() == LB_ERR)) mListScene.SetCurSel(0);
+	if (m_BeepList && prev_map.size() != pos_id_scene.size()) {
+		wave_scene->play();
+	}
 
 	mListWays.ResetContent();
+	prev_map = pos_id_ways;
 	pos_id_ways.clear();
 	p = instead_cmd("way", NULL);
 	if (p && *p) {
@@ -346,15 +364,13 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn)
 		std::wstring buf = tmp.GetBuffer();
 		std::wstring result = process_instead_text(buf, mListWays, pos_id_ways);
 	}
-	//if (mListWays.GetCount() == 0) mListWays.EnableWindow(false);
-	//else {
-	//	mListWays.EnableWindow(true);
-	//	if (mListWays.GetCurSel() == LB_ERR) mListWays.SetCurSel(0);
-	//}
-	//if ((mListWays.GetCount()>0) && (mListWays.GetCurSel() == LB_ERR)) mListWays.SetCurSel(0);
+	if (m_BeepList && prev_map.size() != pos_id_ways.size()) {
+		wave_ways->play();
+	}
 
 	p = instead_cmd("inv", NULL);
 	mListInv.ResetContent();
+	prev_map = pos_id_inv;
 	pos_id_inv.clear();
 	if (p && *p) {
 		Utf8ToCString(tmp, instead_cmd("inv", NULL));
@@ -365,16 +381,14 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn)
 		std::wstring buf = tmp.GetBuffer();
 		std::wstring result = process_instead_text(buf, mListInv, pos_id_inv);
 	}
-	//if (mListInv.GetCount() == 0) mListInv.EnableWindow(false);
-	//else {
-	//	mListInv.EnableWindow(true);
-	//	if (mListInv.GetCurSel() == LB_ERR) mListInv.SetCurSel(0);
-	//}
-	//if ((mListInv.GetCount()>0) && (mListInv.GetCurSel() == LB_ERR)) mListInv.SetCurSel(0);
+	if (m_BeepList && prev_map.size() != pos_id_inv.size()) {
+		//PlaySound(baseSoundDir+_T("inventory.wav"), NULL, SND_MEMORY | SND_FILENAME | SND_ASYNC | SND_NOSTOP);
+		wave_inv->play();
+	}
 
 	resout.Replace(L"\n", L"\r\n");
 	m_OutEdit.SetWindowTextW(resout);
-	//UpdateFocusLogic();
+	if (!m_jump_to_out) UpdateFocusLogic();
 	if (m_auto_say) MultiSpeech::getInstance().Say(resout);
 	if (m_jump_to_out) m_OutEdit.SetFocus();
 }
@@ -385,63 +399,6 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 {
 	static bool was_enter = false;
     // TODO: добавьте специализированный код или вызов базового класса
-	/*
-    if (pMsg->message == WM_KEYDOWN &&
-        pMsg->wParam == VK_RETURN &&
-        GetFocus() == &m_InputEdit)
-    {
-		if (GlobalManager::getInstance().isUserStartGame())
-		{
-			was_enter = true;
-			//Добавляем новую команду
-			CString textIn;
-			m_InputEdit.GetWindowTextW(textIn);
-			GlobalManager::getInstance().appendCommand(textIn);
-			//Проверяем на специальные команды
-			CString textCheck = textIn;
-			textCheck.MakeLower();
-			textCheck.Trim();
-			
-			if (textCheck==L"выход")
-			{
-				//AfxMessageBox(L"Набрали выход!!!");
-				AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_APP_EXIT, 0L);
-				m_InputEdit.SetWindowTextW(L"");
-				return TRUE;
-			}
-			TryInsteadCommand(textIn);
-		}
-		else
-		{
-			AfxMessageBox(L"Никакая игра не выбрана. \nПожалуйста, начните новую игру");
-		}
-        return TRUE; // this doesn't need processing anymore
-    }
-	else 
-	if (pMsg->message == WM_KEYDOWN && ::GetKeyState(VK_CONTROL) < 0 &&
-		    ( ( GetFocus() == &m_OutEdit ) || (GetFocus() == &m_InputEdit) ) )
-	{
-		CEdit* currEdit = (CEdit*)GetFocus();
-		switch (pMsg->wParam)
-		{
-		case 'Z':
-			currEdit->Undo();
-			return TRUE;
-		case 'X':
-			currEdit->Cut();
-			return TRUE;
-		case 'C':
-			currEdit->Copy();
-			return TRUE;
-		case 'V':
-			currEdit->Paste();
-			return TRUE;
-		case 'A':
-			currEdit->SetSel(0, -1);
-			return TRUE;
-		}
-	}
-	else */
 	if ((pMsg->message == WM_CHAR) && ( GetFocus() == &m_OutEdit ) )
 	{
 		//Автоматически перескакиваем на поле ввода если начинаем набирать текст
@@ -453,44 +410,31 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 		//int len = str.GetLength();
 		//m_InputEdit.SetSel(len,len);
 	}
-	/*
-	else if (pMsg->message == WM_KEYDOWN &&
-			 pMsg->wParam == VK_UP &&
-			 GetFocus() == &m_InputEdit)
-    {
-		if (!was_enter) GlobalManager::getInstance().previosCommandMove();//) MessageBeep(MB_ICONSTOP);
-		else was_enter=false;
-		m_InputEdit.SetWindowText(GlobalManager::getInstance().commandData());
-		m_InputEdit.SetSel(0,0);
-	}
-	else if (pMsg->message == WM_KEYDOWN &&
-			 pMsg->wParam == VK_DOWN &&
-			 GetFocus() == &m_InputEdit)
-    {
-		if (!was_enter) GlobalManager::getInstance().nextCommandMove();//) MessageBeep(MB_ICONSTOP);
-		else was_enter=false;
-		m_InputEdit.SetWindowText(GlobalManager::getInstance().commandData());
-		m_InputEdit.SetSel(0,0);
-	}*/
 	else if (pMsg->message == WM_KEYDOWN &&
 		pMsg->wParam == VK_RETURN &&
 		GetFocus() == &mListScene)
 	{
 		int sel_pos = mListScene.GetCurSel();
 		if (pos_id_scene.count(sel_pos)) {
-			CString res;
-			int res_pos = pos_id_scene[sel_pos];
-			if (res_pos > 1000) res_pos -= 1000;
-			res.Format(L"%d", res_pos);
-			if (!inv_save.IsEmpty()) { res = inv_save + +L"," + res;  inv_save.Empty(); }
-			int total_list_sz = mListScene.GetCount();
-			TryInsteadCommand(res);
-			if (mListScene.GetCount() == total_list_sz) {
-				mListScene.SetCurSel(sel_pos);
+			if (pos_id_scene[sel_pos] == 0) {
+				//Это статус, по нему нельзя жмакать, просто сообщаем гудком
+				MessageBeep(MB_OK);
 			}
-			if (mListScene.GetCurSel() == LB_ERR && mListScene.GetCount() > 0)
-			{
-				mListScene.SetCurSel(0);
+			else {
+				CString res;
+				int res_pos = pos_id_scene[sel_pos];
+				if (res_pos > 1000) res_pos -= 1000;
+				res.Format(L"%d", res_pos);
+				if (!inv_save.IsEmpty()) { res = inv_save + +L"," + res;  inv_save.Empty(); }
+				int total_list_sz = mListScene.GetCount();
+				TryInsteadCommand(res);
+				if (mListScene.GetCount() == total_list_sz) {
+					mListScene.SetCurSel(sel_pos);
+				}
+				if (mListScene.GetCurSel() == LB_ERR && mListScene.GetCount() > 0)
+				{
+					mListScene.SetCurSel(0);
+				}
 			}
 		}
 		
@@ -501,20 +445,26 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 	{
 		int sel_pos = mListWays.GetCurSel();
 		if (pos_id_ways.count(sel_pos)) {
-			CString res;
-			int res_pos = pos_id_ways[sel_pos];
-			if (res_pos > 1000) res_pos -= 1000;
-			res.Format(L"%d", res_pos);
-			if (!inv_save.IsEmpty()) { res = inv_save + +L"," + res;  inv_save.Empty(); }
-			inv_save.Empty(); //Нельзя применить предмет на пути
-			int total_list_sz = mListWays.GetCount();
-			TryInsteadCommand(res);
-			if (mListWays.GetCount() == total_list_sz) {
-				mListWays.SetCurSel(sel_pos);
+			if (pos_id_ways[sel_pos] == 0) {
+				//Это статус, по нему нельзя жмакать, просто сообщаем гудком
+				MessageBeep(MB_OK);
 			}
-			if (mListWays.GetCurSel() == LB_ERR && mListWays.GetCount() > 0)
-			{
-				mListWays.SetCurSel(0);
+			else {
+				CString res;
+				int res_pos = pos_id_ways[sel_pos];
+				if (res_pos > 1000) res_pos -= 1000;
+				res.Format(L"%d", res_pos);
+				if (!inv_save.IsEmpty()) { res = inv_save + +L"," + res;  inv_save.Empty(); }
+				inv_save.Empty(); //Нельзя применить предмет на пути
+				int total_list_sz = mListWays.GetCount();
+				TryInsteadCommand(res);
+				if (mListWays.GetCount() == total_list_sz) {
+					mListWays.SetCurSel(sel_pos);
+				}
+				if (mListWays.GetCurSel() == LB_ERR && mListWays.GetCount() > 0)
+				{
+					mListWays.SetCurSel(0);
+				}
 			}
 		}
 
@@ -525,37 +475,41 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 	{
 		int sel_pos = mListInv.GetCurSel();
 		if (pos_id_inv.count(sel_pos) ) {
-			CString res;
-			bool isMenuItem = (pos_id_inv[sel_pos] > 1000);
-			if (isMenuItem) res.Format(L"%d", pos_id_inv[sel_pos]-1000);
-			else res.Format(L"%d", pos_id_inv[sel_pos]);
-			if (inv_save.IsEmpty() && !isMenuItem) {
-				inv_save = res;
-				CString currText;
-				mListInv.GetText(sel_pos, currText);
-				currText += L" (выбран)";
-				mListInv.SetDlgItemTextW(sel_pos, currText);
-				mListInv.DeleteString(sel_pos);
-				mListInv.InsertString(sel_pos, currText);
-				mListInv.SetCurSel(sel_pos);
-				//mListInv.UpdateData();
-				//MessageBeep(MB_OK);
+			if (pos_id_inv[sel_pos] == 0) {
+				//Это статус, по нему нельзя жмакать, просто сообщаем гудком
+				MessageBeep(MB_OK);
 			}
 			else {
-				if (res != inv_save && !inv_save.IsEmpty()) res = inv_save + L"," + res;
-				inv_save.Empty();
-				int total_list_sz = mListInv.GetCount();
-				TryInsteadCommand(res);
-				if (mListInv.GetCount() == total_list_sz) {
+				CString res;
+				bool isMenuItem = (pos_id_inv[sel_pos] > 1000);
+				if (isMenuItem) res.Format(L"%d", pos_id_inv[sel_pos] - 1000);
+				else res.Format(L"%d", pos_id_inv[sel_pos]);
+				if (inv_save.IsEmpty() && !isMenuItem) {
+					inv_save = res;
+					CString currText;
+					mListInv.GetText(sel_pos, currText);
+					currText += L" (выбран)";
+					mListInv.SetDlgItemTextW(sel_pos, currText);
+					mListInv.DeleteString(sel_pos);
+					mListInv.InsertString(sel_pos, currText);
 					mListInv.SetCurSel(sel_pos);
 				}
-				else if (isMenuItem && (mListInv.GetCount() > sel_pos)) {
-					mListInv.SetCurSel(sel_pos);
-				}
+				else {
+					if (res != inv_save && !inv_save.IsEmpty()) res = inv_save + L"," + res;
+					inv_save.Empty();
+					int total_list_sz = mListInv.GetCount();
+					TryInsteadCommand(res);
+					if (mListInv.GetCount() == total_list_sz) {
+						mListInv.SetCurSel(sel_pos);
+					}
+					else if (isMenuItem && (mListInv.GetCount() > sel_pos)) {
+						mListInv.SetCurSel(sel_pos);
+					}
 
-				if (mListInv.GetCurSel() == LB_ERR && mListInv.GetCount() > 0)
-				{
-					mListInv.SetCurSel(0);
+					if (mListInv.GetCurSel() == LB_ERR && mListInv.GetCount() > 0)
+					{
+						mListInv.SetCurSel(0);
+					}
 				}
 			}
 		}
@@ -607,6 +561,10 @@ void CPlainInsteadView::InitFocusLogic()
 
 void CPlainInsteadView::UpdateFocusLogic()
 {
+	if (!mListScene.IsWindowEnabled() && mListScene.GetCount() > 0) mListScene.EnableWindow(true);
+	if (!mListInv.IsWindowEnabled() && mListInv.GetCount() > 0) mListInv.EnableWindow(true);
+	if (!mListWays.IsWindowEnabled() && mListWays.GetCount() > 0) mListWays.EnableWindow(true);
+
 	if ((GetFocus() == &mListScene) && (mListScene.GetCount() == 0))
 	{
 		if (mListInv.GetCount() > 0) mListInv.SetFocus();
@@ -625,6 +583,10 @@ void CPlainInsteadView::UpdateFocusLogic()
 		else if (mListInv.GetCount() > 0) mListInv.SetFocus();
 		else m_OutEdit.SetFocus();
 	}
+
+	if (mListScene.GetCount() == 0) mListScene.EnableWindow(false);
+	if (mListInv.GetCount() == 0) mListInv.EnableWindow(false);
+	if (mListWays.GetCount() == 0) mListWays.EnableWindow(false);
 }
 
 void CPlainInsteadView::OnEnSetfocusEditOut()
@@ -653,6 +615,7 @@ void CPlainInsteadView::UpdateSettings()
 	CIniFile mainSettings(L".\\settings.ini", 1024);
 	m_auto_say = mainSettings.GetInt(L"main", L"m_CheckAutosay", 1 );
 	m_jump_to_out = mainSettings.GetInt(L"main", L"m_CheckSetFocusToOut", 0 );
+	m_BeepList = mainSettings.GetInt(L"main", L"mCheckSoundList", 1);
 	UpdateFontSize();
 }
 
@@ -1016,7 +979,29 @@ void CPlainInsteadView::OnUpdateOutView()
 	// TODO: добавьте свой код обработчика команд
 	if (GlobalManager::getInstance().isUserStartGame())
 	{
+		int sel_pos = 0;
+		CListBox* curr_box = 0;
+		if (GetFocus() == &mListInv) {
+			sel_pos = mListInv.GetCurSel();
+			curr_box = &mListInv;
+		}
+		else if (GetFocus() == &mListScene) {
+			sel_pos = mListScene.GetCurSel();
+			curr_box = &mListScene;
+		}
+		else if (GetFocus() == &mListWays) {
+			sel_pos = mListWays.GetCurSel();
+			curr_box = &mListWays;
+		}
+
 		TryInsteadCommand(L"");
+
+		if (!m_jump_to_out && curr_box)
+		{
+			if (curr_box->GetCount() > sel_pos) {
+				curr_box->SetCurSel(sel_pos);
+			}
+		}
 	}
 }
 

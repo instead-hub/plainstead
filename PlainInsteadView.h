@@ -8,7 +8,7 @@
 #define ID_TIMER_2 101
 
 #include <map>
-
+#include "Wave.h"
 
 class CPlainInsteadView : public CFormView
 {
@@ -59,6 +59,7 @@ protected:
 	CString m_newText;
 	BOOL m_auto_say;
 	BOOL m_jump_to_out;
+	BOOL m_BeepList;
 // Созданные функции схемы сообщений
 protected:
 	DECLARE_MESSAGE_MAP()
@@ -118,6 +119,10 @@ public:
 	afx_msg void OnGotoScene();
 	afx_msg void OnGotoInv();
 	afx_msg void OnGotoWays();
+	CString baseSoundDir;
+	Wave* wave_inv;
+	Wave* wave_scene;
+	Wave* wave_ways;
 };
 
 #ifndef _DEBUG  // отладочная версия в PlainInsteadView.cpp

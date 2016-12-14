@@ -108,7 +108,7 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>Tolk.lib;lua\lua53.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>WinMM.lib;Tolk.lib;lua\lua53.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -140,6 +140,8 @@
     <ClCompile Include="tiny_instead\instead\tinymt32.c" />
     <ClCompile Include="tiny_instead\instead\util.c" />
     <ClCompile Include="tiny_instead\libgen.cpp" />
+    <ClCompile Include="tiny_instead\tiny_sound.c" />
+    <ClCompile Include="Wave.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ColorPickerCB.h" />
@@ -168,6 +170,7 @@
     <ClInclude Include="tiny_instead\libgen.h" />
     <ClInclude Include="tiny_instead\unistd.h" />
     <ClInclude Include="Tolk.h" />
+    <ClInclude Include="Wave.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\PlainInstead.ico" />

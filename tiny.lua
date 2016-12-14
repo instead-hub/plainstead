@@ -84,22 +84,37 @@ function menu(v)
 	return obj(v);
 end
 
--- fake audio and timer
+-- Audio
 stead.get_music = function()
-	return '', 0
+	return game._music, game._music_loop;
 end
 
 stead.get_music_loop = function()
-	return 0
+	return game._music_loop;
 end
 
 stead.save_music = function(s)
+	if s == nil then
+		s = self
+	end
+	s.__old_music__ = stead.get_music();
+	s.__old_loop__ = stead.get_music_loop();
 end
 
 stead.restore_music = function(s)
+	if s == nil then
+		s = self
+	end
+	stead.set_music(s.__old_music__, s.__old_loop__);
 end
 
 stead.set_music = function(s, count)
+	game._music = s;
+	if not stead.tonum(count) then
+		game._music_loop = 0;
+	else
+		game._music_loop = stead.tonum(count);
+	end
 end
 
 stead.set_music_fading = function(o, i)
@@ -109,37 +124,77 @@ stead.get_music_fading = function()
 end
 
 stead.stop_music = function()
+	stead.set_music(nil, -1);
 end
 
 stead.is_music = function()
-	return false
+	return game._music ~= nil and game._music_loop ~= -1
 end
 
 function instead_sound()
-	return false
+	return true
 end
 
-stead.is_sound = instead_sound
+stead.is_sound = true
 
 stead.get_sound = function()
-	return 
+	return game._sound, game._sound_channel, game._sound_loop; 
 end
 
 stead.get_sound_chan = function()
-	return 0
+	return game._sound_channel
 end
 
 stead.get_sound_loop = function()
-	return 0
+	return game._sound_loop
 end
 
 stead.stop_sound = function(chan, fo)
+	if not stead.tonum(chan) then
+		if stead.tonum(fo) then
+			stead.set_sound('@-1,'..stead.tostr(fo));
+		else
+			stead.set_sound('@-1');
+		end
+		return
+	end
+	if stead.tonum(fo) then
+		stead.add_sound('@'..stead.tostr(chan)..','..stead.tostr(fo));
+	else
+		stead.add_sound('@'..stead.tostr(chan));
+	end
 end
 
 stead.add_sound = function(s, chan, loop)
+   if stead.type(s) ~= 'string' then
+		return
+	end
+	if stead.type(game._sound) == 'string' then
+		if stead.tonum(chan) then
+			s = s..'@'..stead.tostr(chan);
+		end
+		if stead.tonum(loop) then
+			s = s..','..stead.tostr(loop)
+		end
+		stead.set_sound(game._sound..';'..s, stead.get_sound_chan(), stead.get_sound_loop());
+	else
+		stead.set_sound(s, chan, loop);
+	end
 end
 
 stead.set_sound = function(s, chan, loop)
+  game._sound = s;
+	if not stead.tonum(loop) then
+		game._sound_loop = 1;
+	else
+		game._sound_loop = stead.tonum(loop);
+	end
+
+	if not stead.tonum(chan) then
+		game._sound_channel = -1;
+	else
+		game._sound_channel = stead.tonum(chan);
+	end
 end
 
 -- those are sill in global space
@@ -164,6 +219,8 @@ restore_music = stead.restore_music
 
 is_music = stead.is_music
 
+
+--Fake timer
 stead.set_timer = function() end
 
 stead.timer = function()
@@ -193,6 +250,11 @@ stead.objects.input =  function()
 		nam = 'input',
 	};
 end;
+
+--Место сохранений
+function instead_savepath()
+    return "../../" --Разрешаем сохранять на 2 уровня выше
+end
 
 --Мой iface
 iface.xref = function(self, str, obj)

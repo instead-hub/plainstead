@@ -9,6 +9,12 @@
 #include "MultiSpeech.h"
 #include "IniFile.h"
 #include "InterpreterController.h"
+#include "bass.h"
+
+extern "C" {
+	#include "instead\instead.h"
+	extern int gBassInit;
+}
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -114,6 +120,8 @@ void CMainFrame::OnClose()
 		}
 	}
 
+	instead_done();
+	if (gBassInit) BASS_Free();
 	MultiSpeech::getInstance().Unload();
 
 	WINDOWPLACEMENT wp;
