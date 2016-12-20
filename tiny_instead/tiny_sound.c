@@ -23,7 +23,14 @@ static int sound_init(void)
 static char play_mus[1024];
 static HSAMPLE back_music;
 static HCHANNEL back_channel;
+static HMUSIC back_mod;
 static float global_snd_lvl = 1.0f;
+
+static const char *get_filename_ext(const char *filename) {
+	const char *dot = strrchr(filename, '.');
+	if (!dot || dot == filename) return "";
+	return dot + 1;
+}
 
 //Проигрывание музыки
 static void game_music_player(void)
@@ -68,15 +75,31 @@ static void game_music_player(void)
 		{
 			if (back_channel) BASS_ChannelStop(back_channel);
 			strcpy(play_mus, mus);
+
 			DWORD loop_flag = 0;
 			if (loop <= 0) loop_flag |= BASS_SAMPLE_LOOP;
-			back_music = BASS_SampleLoad(FALSE, mus, 0, 0, 1, loop_flag);
-			if (back_music) {
-				back_channel = BASS_SampleGetChannel(back_music, FALSE);
-				if (back_channel) {
-					BASS_ChannelSetAttribute(back_channel, BASS_ATTRIB_VOL, global_snd_lvl);
-					BASS_ChannelPlay(back_channel, FALSE);
+			if ((strcmp(get_filename_ext(mus),"xm")==0) ||
+				(strcmp(get_filename_ext(mus),"s3m")==0) ||
+				(strcmp(get_filename_ext(mus),"mod")==0) ||
+				(strcmp(get_filename_ext(mus), "mo3") == 0) ||
+				(strcmp(get_filename_ext(mus), "it") == 0) ||
+				(strcmp(get_filename_ext(mus), "mtm") == 0) ||
+				(strcmp(get_filename_ext(mus), "umx") == 0)
+				)
+			{
+				back_channel = BASS_MusicLoad(FALSE, mus, 0, 0, loop_flag, 0);
+			}
+			else
+			{
+				back_music = BASS_SampleLoad(FALSE, mus, 0, 0, 1, loop_flag);
+				if (back_music) {
+					back_channel = BASS_SampleGetChannel(back_music, FALSE);
 				}
+			}
+			
+			if (back_channel) {
+				BASS_ChannelSetAttribute(back_channel, BASS_ATTRIB_VOL, global_snd_lvl);
+				BASS_ChannelPlay(back_channel, FALSE);
 			}
 		}
 		
@@ -146,6 +169,11 @@ static struct instead_ext ext = {
 int instead_sound_init(void)
 {
 	return instead_extension(&ext);
+}
+
+void stopAllSound()
+{
+	if (back_channel) BASS_ChannelStop(back_channel);
 }
 
 //Установить уровень звука для музыки+звуков

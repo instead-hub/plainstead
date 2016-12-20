@@ -30,6 +30,7 @@ extern "C" {
 	extern int instead_sound_init(void);
 	extern void setGlobalSoundLevel(int volume);
 	extern int getGlobalSoundLevel();
+	extern void stopAllSound();
 	extern int gBassInit;
 
 	static int tiny_init(void)
@@ -417,6 +418,7 @@ void CPlainInsteadApp::StartNewGameFile(CString file, CString name)
 	int needAutoLog = mainSettings.GetInt(L"main", L"mCheckAutoLog", 0 );
 	int savedVol = mainSettings.GetInt(L"main", L"mSavedVol", 80 );
 	soundBeforeMute = savedVol;
+	stopAllSound();
 	setGlobalSoundLevel(savedVol);
 	//Сохраняем параметры для автосохранения
 	mainSettings.WriteString(L"main", L"lastGameFile", file);

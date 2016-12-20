@@ -439,6 +439,19 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 		}
 		
 	}
+	else if (pMsg->message == WM_KEYDOWN && ::GetKeyState(VK_CONTROL) < 0 && (GetFocus() == &m_OutEdit))
+	{
+		CEdit* currEdit = (CEdit*)GetFocus();
+		switch (pMsg->wParam)
+		{
+		case 'C':
+			currEdit->Copy();
+			return TRUE;
+		case 'A':
+			currEdit->SetSel(0, -1);
+			return TRUE;
+		}
+	}
 	else if (pMsg->message == WM_KEYDOWN &&
 		pMsg->wParam == VK_RETURN &&
 		GetFocus() == &mListWays)
