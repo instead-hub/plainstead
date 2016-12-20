@@ -1,0 +1,10 @@
+ConsoleInstead.exe
+PlainInstead_debug.exe
+exlude_build_list.txt
+.bat
+.ilk
+.iobj
+.ipdb
+.pdb
+settings.ini
+saves/
