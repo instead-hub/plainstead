@@ -30,12 +30,8 @@ typedef uint32_t Uint32;
 #ifdef S60
 #define	UINT32_C(c)	(c ## U)
 #else
-#if _MSC_VER <= 1500
-//#define	UINT32_C(c)	(c ## U)
-#else
 #include <stdint.h>
 #include <inttypes.h>
-#endif
 #endif
 
 #define TINYMT32_MEXP 127

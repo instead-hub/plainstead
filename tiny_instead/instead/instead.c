@@ -425,7 +425,7 @@ int instead_function(char *s, struct instead_args *args)
 }
 
 #ifdef _HAVE_ICONV
-static char *curcp = "CP1251";
+static char *curcp = "UTF-8";
 static char *fromcp = NULL;
 #endif
 
@@ -532,8 +532,10 @@ int instead_load(char **info)
 	rc = instead_function("game:ini", NULL);
 	if (rc)
 		goto err2;
-	if (info)
+	if (info) {
 		*info = instead_retval(0);
+		*info = instead_fromgame(*info);
+	}
 	instead_clear();
 	return rc;
 err2:
@@ -905,9 +907,15 @@ int instead_init_lua(const char *path)
 	instead_platform();
 /*	instead_set_lang(opt_lang); */
 	if (debug_sw)
-		instead_eval("DEBUG=true"); instead_clear();
+		instead_eval("DEBUG=true");
+	else
+		instead_eval("DEBUG=false");
+	instead_clear();
 	if (standalone_sw)
-		instead_eval("STANDALONE=true"); instead_clear();
+		instead_eval("STANDALONE=true");
+	else
+		instead_eval("STANDALONE=false");
+	instead_clear();
 	srand(time(NULL));
 	mt_random_init();
 	luaopen_lfs(L);
@@ -983,7 +991,8 @@ int instead_api_register(const luaL_Reg *api)
 
 void instead_done(void)
 {
-	if (L)
+	int wasL = !!L;
+	if (wasL)
 		extensions_hook(done);
 #ifdef _USE_SDL
 	if (sem)
@@ -1003,7 +1012,8 @@ void instead_done(void)
 	if (data_idf)
 		idf_done(data_idf);
 	data_idf = NULL;
-	setdir(instead_cwd_path);
+	if (wasL)
+		setdir(instead_cwd_path);
 }
 
 int  instead_encode(const char *s, const char *d)
@@ -1067,7 +1077,7 @@ int instead_set_debug(int sw)
 		if (sw)
 			instead_eval("DEBUG=true");
 		else
-			instead_eval("DEBUG=nil");
+			instead_eval("DEBUG=false");
 		instead_clear();
 	}
 	return ov;
@@ -1079,9 +1089,9 @@ int instead_set_standalone(int sw)
 	standalone_sw = sw;
 	if (L) {
 		if (sw)
-			instead_eval("STANDALONE=true"); 
+			instead_eval("STANDALONE=true");
 		else
-			instead_eval("STANDALONE=nil"); 
+			instead_eval("STANDALONE=false");
 		instead_clear();
 	}
 	return ov;

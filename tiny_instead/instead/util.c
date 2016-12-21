@@ -398,7 +398,7 @@ int is_absolute_path(const char *path)
 #include <sys/types.h>
 #ifndef _MSC_VER
 #include <dir.h>
-#endif
+#endif // _MSC_VER
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
