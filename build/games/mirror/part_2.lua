@@ -1040,7 +1040,7 @@ spirit = iobj {
         return 'На камне сидит {призрак}.';
     end,
     exam = function(s)
-        return 'Призрачный старец опирался на суковатую палку. Длинная седая борода, полный гордости и достоинства взгляд заставляли проникнуться почтением перед этим эфирным существом.';
+        return 'Призрачный старец опирался на суковатую палку. Длинная седая борода, полный гордости и достоинства взгляд заставляли проникнуться почтением к этому эфирному существу.';
     end,
     talk = function(s)
 --        if Forest_Spirit._spirit_angry or Forest_Spirit._story_told then
@@ -1658,7 +1658,7 @@ troll = iobj {
                     Drop(box);
                     objs():del(box);
                     Forest_Troll_Shed._box_is_broken = true;
-                    return true;
+                    return '';
                 end
             else
                 return 'У меня нет ящика.';
