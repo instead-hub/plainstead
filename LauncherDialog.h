@@ -63,4 +63,8 @@ public:
 	afx_msg void OnBnClickedBtnOpenLink();
 	afx_msg void OnBnClickedBtnInstall();
 	afx_msg void OnBnClickedBtnPlayGamem();
+	CButton m_btnPlayGame;
+	CString currDir;
+	afx_msg void OnBnClickedBtnResumeoldGame2();
+	CButton m_btnResumeGame;
 };

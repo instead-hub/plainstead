@@ -110,13 +110,12 @@ IDR_MAINFRAME MENU
 BEGIN
     POPUP "&Файл"
     BEGIN
-        MENUITEM "Новая игра из &библиотеки\tCtrl+L", ID_NEW_GAME
+        MENUITEM "&Менеджер игр\t\tCtrl+M",     ID_OPEN_MANAGER
         MENUITEM "&Добавить игру в библиотеку\t\tCtrl+N", ID_ADD_GAME_TO_LIB
         MENUITEM "&Открыть сохранение\tCtrl+O", ID_FILE_OPEN
         MENUITEM "Со&хранить игру\tCtrl+S",     ID_FILE_SAVE_GAME
         MENUITEM "Начать игру &заново\tCtrl+R", ID_RESTART_MENU
         MENUITEM SEPARATOR
-        MENUITEM "&Менеджер игр\t\tCtrl+M",     ID_OPEN_MANAGER
         MENUITEM "&Сбросить все настройки",     ID_RESET_ALL_SETTINGS
         MENUITEM "В&ыход",                      ID_APP_EXIT
     END
@@ -175,7 +174,9 @@ BEGIN
     "3",            ID_GOTO_WAYS,           VIRTKEY, CONTROL, NOINVERT
     "1",            ID_HISTORY_START,       VIRTKEY, CONTROL, NOINVERT
     "2",            ID_HISTORY_STOP,        VIRTKEY, CONTROL, NOINVERT
-    "L",            ID_NEW_GAME,            VIRTKEY, CONTROL, NOINVERT
+    "6",            ID_LISTSND_DOWN,        VIRTKEY, CONTROL, NOINVERT
+    "7",            ID_LISTSND_ON,          VIRTKEY, CONTROL, NOINVERT
+    "5",            ID_LISTSND_UP,          VIRTKEY, CONTROL, NOINVERT
     VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
     "M",            ID_OPEN_MANAGER,        VIRTKEY, CONTROL, NOINVERT
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
@@ -185,9 +186,6 @@ BEGIN
     VK_OEM_MINUS,   ID_VOLUME_DOWN,         VIRTKEY, CONTROL, NOINVERT
     "0",            ID_VOLUME_ON,           VIRTKEY, CONTROL, NOINVERT
     VK_OEM_PLUS,    ID_VOLUME_UP,           VIRTKEY, CONTROL, NOINVERT
-    "5",            ID_LISTSND_UP,          VIRTKEY, CONTROL, NOINVERT
-    "6",            ID_LISTSND_DOWN,        VIRTKEY, CONTROL, NOINVERT
-    "7",            ID_LISTSND_ON,          VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -276,14 +274,16 @@ BEGIN
     CONTROL         "",IDC_LIST_INSTALLED,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,20,353,173
     CONTROL         "",IDC_LIST_NEW,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,20,353,173
     PUSHBUTTON      "&ИГРАТЬ  (ENTER)",IDC_BTN_PLAY_GAMEM,66,200,64,14
+    PUSHBUTTON      "&Продолжить последнюю игру (F3)",IDC_BTN_RESUMEOLD_GAME2,134,200,139,14
 END
 
-IDD_URLFILE_DIALOG DIALOGEX 0, 0, 285, 31
+IDD_URLFILE_DIALOG DIALOGEX 0, 0, 285, 42
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Загрузка"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    CONTROL         "",IDC_PROGRESS,"msctls_progress32",WS_BORDER,7,7,271,17
+    CONTROL         "",IDC_PROGRESS,"msctls_progress32",WS_BORDER,7,7,271,15
+    EDITTEXT        IDC_EDIT_BYTES_LOAD,7,21,271,14,ES_AUTOHSCROLL | ES_READONLY
 END
 
 
@@ -377,7 +377,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 278
         TOPMARGIN, 7
-        BOTTOMMARGIN, 24
+        BOTTOMMARGIN, 35
     END
 END
 #endif    // APSTUDIO_INVOKED

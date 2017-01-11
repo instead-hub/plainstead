@@ -12,6 +12,7 @@
 #include "StdioFileEx.h"
 #include "Markup.h"
 #include "urlfileDlg.h"
+#include "IniFile.h"
 
 // диалоговое окно LauncherDialog
 
@@ -40,6 +41,8 @@ void LauncherDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_UPDATE, m_btnUpdate);
 	DDX_Control(pDX, IDC_BTN_INSTALL, m_btnInstall);
 	DDX_Control(pDX, IDC_BTN_OPEN_LINK, m_btnOpenLink);
+	DDX_Control(pDX, IDC_BTN_PLAY_GAMEM, m_btnPlayGame);
+	DDX_Control(pDX, IDC_BTN_RESUMEOLD_GAME2, m_btnResumeGame);
 }
 
 
@@ -51,6 +54,7 @@ BEGIN_MESSAGE_MAP(LauncherDialog, CDialog)
 	ON_BN_CLICKED(IDC_BTN_OPEN_LINK, &LauncherDialog::OnBnClickedBtnOpenLink)
 	ON_BN_CLICKED(IDC_BTN_INSTALL, &LauncherDialog::OnBnClickedBtnInstall)
 	ON_BN_CLICKED(IDC_BTN_PLAY_GAMEM, &LauncherDialog::OnBnClickedBtnPlayGamem)
+	ON_BN_CLICKED(IDC_BTN_RESUMEOLD_GAME2, &LauncherDialog::OnBnClickedBtnResumeoldGame2)
 END_MESSAGE_MAP()
 
 
@@ -162,6 +166,13 @@ BOOL LauncherDialog::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
+	GetCurrentDirectory(MAX_PATH, CStrBuf(currDir, MAX_PATH));
+	TCHAR buff[MAX_PATH];
+	::GetModuleFileName(NULL, buff, sizeof(buff));
+	CString baseDir = buff;
+	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
+	SetCurrentDirectory(baseDir);
+
 	m_wantPlay = false;
 
 	// TODO:  ƒобавить дополнительную инициализацию
@@ -270,6 +281,8 @@ void LauncherDialog::showInstalledTabControls()
 {
 	m_listInstalled.ShowWindow(SW_SHOW);
 	m_btnDelete.ShowWindow(SW_SHOW);
+	m_btnPlayGame.ShowWindow(SW_SHOW);
+	m_btnResumeGame.ShowWindow(SW_SHOW);
 
 	m_listNew.ShowWindow(SW_HIDE);
 	m_btnUpdate.ShowWindow(SW_HIDE);
@@ -281,6 +294,8 @@ void LauncherDialog::showNewTabControls()
 {
 	m_listInstalled.ShowWindow(SW_HIDE);
 	m_btnDelete.ShowWindow(SW_HIDE);
+	m_btnPlayGame.ShowWindow(SW_HIDE);
+	m_btnResumeGame.ShowWindow(SW_HIDE);
 
 	m_listNew.ShowWindow(SW_SHOW);
 	m_btnUpdate.ShowWindow(SW_SHOW);
@@ -444,6 +459,14 @@ BOOL LauncherDialog::PreTranslateMessage(MSG* pMsg)
 		OnBnClickedBtnPlayGamem();
 		return TRUE;
 	}
+	else if (pMsg->message == WM_KEYDOWN &&
+		pMsg->wParam == VK_F3 &&
+		(m_tab.GetCurSel() == ID_PAGE_INSTALLED)
+		)
+	{
+		OnBnClickedBtnResumeoldGame2();
+		return TRUE;
+	}
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
@@ -552,11 +575,14 @@ void LauncherDialog::OnBnClickedBtnDelGame()
 
 void LauncherDialog::OnBnClickedBtnUpdate()
 {
-	CString strURL = L"http://instead.sf.net/pool/game_list.xml";
 	networkGameName.clear();
 	networkGameDWPageAndName.clear();
 	m_listNew.DeleteAllItems();
+
+	CString strURL = L"http://instead.sf.net/pool/game_list.xml";
 	UpdateNewGamesFromUrl(strURL);
+	CString strURL2 = L"http://dialas.ru/instead_game_list.xml";
+	UpdateNewGamesFromUrl(strURL2);
 }
 
 void LauncherDialog::UpdateNewGamesFromUrl(CString url)
@@ -652,6 +678,11 @@ void LauncherDialog::OnBnClickedBtnInstall()
 		AfxMessageBox(L"¬ыбранна€ игра вне диапазона дл€ загрузки!");
 		return;
 	}
+	else if (installedGameName.count(networkGameDWPageAndName[sel].second))
+	{
+		AfxMessageBox(L"¬ыбранна€ игра уже установлена");
+		return;
+	}
 
 	CUrlFileDlg dlg(networkGameDWPageAndName[sel].first, L"games\\" + networkGameDWPageAndName[sel].second + L".zip");
 	dlg.DoModal();
@@ -698,4 +729,16 @@ CString LauncherDialog::getStartGamePath()
 CString LauncherDialog::getStartGameTitle()
 {
 	return m_stGameTitle;
+}
+
+
+void LauncherDialog::OnBnClickedBtnResumeoldGame2()
+{
+	CIniFile mainSettings(L".\\settings.ini", 1024);
+
+	m_wantPlay = true;
+	mainSettings.GetString(L"main", L"lastGameFile", m_stGamePath, L"");
+	mainSettings.GetString(L"main", L"lastGameName", m_stGameTitle, L"");
+
+	EndDialog(-1);
 }

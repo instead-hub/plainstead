@@ -255,6 +255,7 @@ void CUrlFileDlg::DoDataExchange(CDataExchange* pDX)
 	//DDX_Text(pDX, IDC_PROGRESS, m_strProgress);
 	//}}AFX_DATA_MAP
 	DDX_Control(pDX, IDC_PROGRESS, m_progressPercent);
+	DDX_Control(pDX, IDC_EDIT_BYTES_LOAD, m_bytesLoad);
 }
 
 BEGIN_MESSAGE_MAP(CUrlFileDlg, CDialog)
@@ -277,6 +278,7 @@ BOOL CUrlFileDlg::OnInitDialog()
 
 	m_progressPercent.SetScrollRange(0, 100, TRUE);
 	m_progressPercent.SetPos(0);
+	m_bytesLoad.SetWindowTextW(L"");
 	//Сразу начинаем загрузку
 	StartDownload();
 	
@@ -407,6 +409,7 @@ LRESULT CUrlFileDlg::OnDisplayStatus(WPARAM, LPARAM lParam)
 
 	// form the status text
 	CString strStatus;
+	CString strProgress;
 
 	if (pDownloadStatus != NULL)
 	{
@@ -418,23 +421,21 @@ LRESULT CUrlFileDlg::OnDisplayStatus(WPARAM, LPARAM lParam)
 		strStatus += _T("  ");
 		strStatus += pDownloadStatus->szStatusText;
 
-		CString strProgress;
-		strProgress.Format(L"  %lu of %lu",
+		strProgress.Format(L"Загружено байт %lu из %lu",
 						   pDownloadStatus->ulProgress,
 						   pDownloadStatus->ulProgressMax);
 
-		strStatus += strProgress + _T("\r\n");
 	}
 	else
 	{
 		//VERIFY(strStatus.LoadString(IDS_CANCELED));
-		strStatus += _T("\r\n");
 	}
 
 #if 1
 	//Add progress
-	int perc = (int)(((float)pDownloadStatus->ulProgressMax / (float)pDownloadStatus->ulProgress)*100.0f);
+	int perc = (int)(((float)pDownloadStatus->ulProgress / (float)pDownloadStatus->ulProgressMax)*100.0f);
 	m_progressPercent.SetPos(perc);
+	m_bytesLoad.SetWindowTextW(strProgress);
 	//const int nLen = m_editProgress.GetWindowTextLength();
 	//m_editProgress.SetSel(nLen, nLen);
 	//m_editProgress.ReplaceSel(strStatus);
@@ -535,7 +536,9 @@ void CUrlFileDlg::OnCancel()
 		int want_exit = AfxMessageBox(L"Вы действительно хотите прекратить загрузку?", MB_YESNO | MB_ICONQUESTION);
 		if (want_exit == IDYES)
 		{
-			VERIFY(m_eventStop.SetEvent());  // signaled
+			m_eventStop.SetEvent();  // signaled
+			//удаление архива
+			DeleteFile(m_selFile);
 			CDialog::OnCancel();
 		}
 		return;  // Don't exit while downloading

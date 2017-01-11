@@ -19,6 +19,7 @@
 #include "afxwin.h"
 #include "global.h"
 #include "Tolk.h"
+#include "unzip.h"
 #pragma comment( lib, "Version.lib" )
 #include "bass.h"
 #pragma comment( lib, "bass.lib" )
@@ -250,12 +251,24 @@ BOOL CPlainInsteadApp::InitInstance()
 	}
 	else
 	{
-		CSelectNewGameDialog selNewGameDialog(currFilePath,currFileName,useAutosave);
-		selNewGameDialog.DoModal();
-		if (currFilePath.GetLength()>0)
-		{
-			StartNewGameFile(currFilePath,currFileName);
-		}
+		//Открываем менеджера сразу
+		OnOpenManager();
+		//CSelectNewGameDialog selNewGameDialog(currFilePath,currFileName,useAutosave);
+		//selNewGameDialog.DoModal();
+		//if (currFilePath.GetLength()>0)
+		//{
+		//	StartNewGameFile(currFilePath,currFileName);
+
+			/*
+			if (useAutosave)
+			{
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load autosave");
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"");
+				CPlainInsteadView::GetCurrentView()->InitFocusLogic();
+				GlobalManager::lastString = 0;
+			}
+			*/
+		//}
 	}
 
 	// Одно и только одно окно было инициализировано, поэтому отобразите и обновите его
@@ -858,30 +871,146 @@ void CPlainInsteadApp::OnUpdateListsndUp(CCmdUI *pCmdUI)
 
 ////////////////////////////
 
-void CPlainInsteadApp::OnAddGameToLib()
+static int DeleteDirectory(const CString &refcstrRootDirectory,
+	bool              bDeleteSubdirectories = true)
 {
-	if (!GlobalManager::getInstance().isUserSaveLastFile())
+	bool            bSubdirectory = false;       // Flag, indicating whether
+												 // subdirectories have been found
+	HANDLE          hFile;                       // Handle to directory
+	CString     strFilePath;                 // Filepath
+	CString     strPattern;                  // Pattern
+	WIN32_FIND_DATA FileInformation;             // File information
+
+
+	strPattern = refcstrRootDirectory + L"\\*.*";
+	hFile = ::FindFirstFile(strPattern, &FileInformation);
+	if (hFile != INVALID_HANDLE_VALUE)
 	{
-		int res = MessageBox(NULL, L"Сохранить текущую игру?", L"Файл не сохранен", MB_YESNOCANCEL);
-		if (res == IDYES)
+		do
 		{
-			OnFileSave();
-		}
-		else if (res == IDCANCEL)
+			if (FileInformation.cFileName[0] != '.')
+			{
+				strFilePath = refcstrRootDirectory + L"\\" + FileInformation.cFileName;
+
+				if (FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				{
+					if (bDeleteSubdirectories)
+					{
+						// Delete subdirectory
+						int iRC = DeleteDirectory(strFilePath, bDeleteSubdirectories);
+						if (iRC)
+							return iRC;
+					}
+					else
+						bSubdirectory = true;
+				}
+				else
+				{
+					// Set file attributes
+					if (::SetFileAttributes(strFilePath,
+						FILE_ATTRIBUTE_NORMAL) == FALSE)
+						return ::GetLastError();
+
+					// Delete file
+					if (::DeleteFile(strFilePath) == FALSE)
+						return ::GetLastError();
+				}
+			}
+		} while (::FindNextFile(hFile, &FileInformation) == TRUE);
+
+		// Close handle
+		::FindClose(hFile);
+
+		DWORD dwError = ::GetLastError();
+		if (dwError != ERROR_NO_MORE_FILES)
+			return dwError;
+		else
 		{
-			return;
+			if (!bSubdirectory)
+			{
+				// Set directory attributes
+				if (::SetFileAttributes(refcstrRootDirectory,
+					FILE_ATTRIBUTE_NORMAL) == FALSE)
+					return ::GetLastError();
+
+				// Delete directory
+				if (::RemoveDirectory(refcstrRootDirectory) == FALSE)
+					return ::GetLastError();
+			}
 		}
 	}
 
+	return 0;
+}
+
+void CPlainInsteadApp::OnAddGameToLib()
+{
 	//AfxMessageBox(L"OnFileNewGame");
 	if (Tolk_IsSpeaking()) Tolk_Silence();
-	CFileDialog fileDialog(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, L"main.lua (*.lua)");	//объект класса выбора файла
+	CFileDialog fileDialog(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, L"Архив с игрой (*.zip)|*.zip");	//объект класса выбора файла
 																											//AfxMessageBox(L"fileDialog constr");
 	int result = fileDialog.DoModal();	//запустить диалоговое окно
 										//AfxMessageBox(L"fileDialog modal end");
 	if (result == IDOK)	//если файл выбран
 	{
-		//копирование в директорию
+
+		TCHAR buff[MAX_PATH];
+		::GetModuleFileName(NULL, buff, sizeof(buff));
+		CString baseDir = buff;
+		baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
+		SetCurrentDirectory(baseDir);
+
+		//Распаковка через zip utils
+		HZIP hz = OpenZip(fileDialog.GetPathName(), 0);
+		ZIPENTRY ze;
+		GetZipItem(hz, -1, &ze);
+		int numitems = ze.index;
+		SetUnzipBaseDir(hz, L"games");
+		bool have_main_lua = false;
+		CString game_name;
+		for (int i = 0; i < numitems; i++)
+		{
+			GetZipItem(hz, i, &ze);
+			if (i == 0) game_name = ze.name; //первый файл-папка, со слешем на конце
+			if (ze.name == game_name+L"main.lua") {
+				have_main_lua = true;
+				break;
+			}
+			//UnzipItem(hz, i, ze.name);
+		}
+		//Убираем слеш с конца
+		game_name.Truncate(game_name.GetLength() - 1);
+		//Проверям это ли игра инстеда
+		if (!have_main_lua)
+		{
+			CloseZip(hz);
+			AfxMessageBox(L"Архив не является игрой INSTEAD.");
+			return;
+		}
+		//проверяем есть ли такая папка уже
+		if (GetFileAttributes(L"games\\" + game_name) != INVALID_FILE_ATTRIBUTES) {
+			int res = MessageBox(NULL, L"Данная игра уже есть в библиотеке. Вы хотите её заменить?", L"Замена", MB_YESNO);
+			if (res == IDYES)
+			{
+				DeleteDirectory(L"games\\" + game_name);
+			}
+			else
+			{
+				CloseZip(hz);
+				return;
+			}
+		}
+		//Начинаем распаковку
+		GetZipItem(hz, -1, &ze);
+		numitems = ze.index;
+		for (int i = 0; i < numitems; i++)
+		{
+			GetZipItem(hz, i, &ze);
+			UnzipItem(hz, i, ze.name);
+		}
+
+		CloseZip(hz);
+		AfxMessageBox(L"Игра установлена в библиотеку");
 	}
 }
 

@@ -64,6 +64,8 @@
 #define IDC_LIST_NEW                    1031
 #define IDC_PROGRESS                    1031
 #define IDC_BTN_PLAY_GAMEM              1032
+#define IDC_EDIT_BYTES_LOAD             1032
+#define IDC_BTN_RESUMEOLD_GAME2         1033
 #define ID_FILE_NEW_GAME                32771
 #define ID_FILE_SAVE_GAME               32772
 #define ID_32773                        32773
@@ -156,7 +158,6 @@
 #define ID_LISTSND_ON                   32902
 #define ID_LISTSND_DOWN                 32903
 #define ID_LISTSND_UP                   32904
-#define ID_LIS                          32907
 
 // Next default values for new objects
 // 
@@ -164,7 +165,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        151
 #define _APS_NEXT_COMMAND_VALUE         32909
-#define _APS_NEXT_CONTROL_VALUE         1032
+#define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -103,6 +103,7 @@ public:
 	void TryInsteadCommand(CString textIn); //Отправка команды в интерпретатор
 	CListBox mListScene;
 	std::map<int,int> pos_id_scene;
+	std::map<int/*list_pos*/, CString/*code*/> act_on_scene;
 	CListBox mListWays;
 	std::map<int, int> pos_id_ways;
 	CListBox mListInv;

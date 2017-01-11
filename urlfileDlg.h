@@ -82,6 +82,7 @@ private:
 	static UINT Download(LPVOID pParam);
 public:
 	CProgressCtrl m_progressPercent;
+	CEdit m_bytesLoad;
 };
 
 /////////////////////////////////////////////////////////////////////////////

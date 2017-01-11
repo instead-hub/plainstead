@@ -134,8 +134,8 @@ void CPlainInsteadView::OnInitialUpdate()
 
     m_OutEdit.SetWindowTextW(
     L"Краткая справка:\r\n"
-    L"Для начала новой игры из библиотеки нажмите CTRL+L и выберите игру с описанием.\r\n"
-	L"Если вы скачали игру, которой нет в библиотеке, то нажмите CTRL+N и выберите файл.\r\n"
+    L"Для начала новой игры из библиотеки нажмите CTRL+M и выберите игру и нажмите ENTER.\r\n"
+	L"Если вы скачали игру, которой нет в библиотеке, то нажмите CTRL+N и выберите архив с игрой.\r\n"
     L"Для того чтобы играть выберите пункт в одном из списков - объекты, инвентарь, пути и нажмите клавишу ENTER.\r\n"
     L"Когда вы находитесь в инвентаре, вам необходимо сначала выбрать пункт, нажать ENTER, а затем выбрать второй пункт и нажать ENTER.\r\n"
     L"Сохранение и загрузка игр происходит обязательно в каталогах с играми, менять на другой нельзя.\r\n"
@@ -287,6 +287,35 @@ static std::wstring process_instead_text(std::wstring inp, //входной текст
 	return result;
 }
 
+static std::wstring process_instead_text_act(std::wstring inp, //входной текст
+	CListBox& resBox, //Поле для добавления элементов
+	std::map<int/*list_pos*/, CString/*code*/>& map_action //Карта соответсвий поля со действием lua
+	)
+{
+	//Обработка отображения объектов сцены
+	//const std::wregex regex(L"\\{\\s*(\\w+)\\s*\\#(\\d+)\\}"); //Для фигурных скобочек
+	//const std::wregex regex(L"(\\w+)\\s*\\((\\d+)\\)"); //Для круглых после
+	const std::wregex regex(L"\\[a\\:([^\\]]*)\\]([^\\[]*)\\[\\/a\\]");//для тэгов [a: code]text[\a]
+	std::wsregex_iterator next(inp.begin(), inp.end(), regex);
+	std::wsregex_iterator end;
+	while (next != end) {
+		std::wsmatch match = *next;
+		if (match.size() == 3)
+		{
+			CString codeStr(match[1].str().data()); //Имя строки, меню
+			codeStr = codeStr.Trim(); //триммируем
+			CString textStr(match[2].str().data()); //id-обхекта для реакции
+			int str_pos = resBox.GetCount(); //добавление строки в список
+			resBox.InsertString(str_pos, textStr);
+			map_action.insert(std::make_pair(str_pos, codeStr));
+		}
+		next++;
+	}
+	std::wstring result;
+	std::regex_replace(std::back_inserter(result), inp.begin(), inp.end(), regex, L"$2");
+	return result;
+}
+
 void CPlainInsteadView::TryInsteadCommand(CString textIn)
 {
 	CString resout;
@@ -329,7 +358,8 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn)
 			//resout.Append(tmp);
 			std::wstring buf = tmp.GetBuffer();
 			std::wstring result = process_instead_text(buf, mListScene, pos_id_scene);
-			resout.Append(result.data());
+			std::wstring result2 = process_instead_text_act(result, mListScene, act_on_scene);
+			resout.Append(result2.data());
 			resout.Append(L"\n");
 			if (!is_saving) GlobalManager::getInstance().userNewCommand();
 		}
@@ -342,7 +372,8 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn)
 			Utf8ToCString(tmp, p);
 			std::wstring buf = tmp.GetBuffer();
 			std::wstring result = process_instead_text(buf, mListScene, pos_id_scene);
-			resout.Append(result.data());
+			std::wstring result2 = process_instead_text_act(result, mListScene, act_on_scene);
+			resout.Append(result2.data());
 			//resout.Append(tmp);
 			resout.Append(L"\n");
 		}
@@ -437,6 +468,20 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 				}
 			}
 		}
+		//Обработка прямого кода на сцене
+		if (act_on_scene.count(sel_pos)) {
+			CString code = act_on_scene[sel_pos];
+			int total_list_sz = mListScene.GetCount();
+			if (!inv_save.IsEmpty()) inv_save.Empty();
+			TryInsteadCommand(code);
+			if (mListScene.GetCount() == total_list_sz) {
+				mListScene.SetCurSel(sel_pos);
+			}
+			if (mListScene.GetCurSel() == LB_ERR && mListScene.GetCount() > 0)
+			{
+				mListScene.SetCurSel(0);
+			}
+		}
 		
 	}
 	else if (pMsg->message == WM_KEYDOWN && ::GetKeyState(VK_CONTROL) < 0 && (GetFocus() == &m_OutEdit))
@@ -480,7 +525,6 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 				}
 			}
 		}
-
 	}
 	else if (pMsg->message == WM_KEYDOWN &&
 		pMsg->wParam == VK_RETURN &&

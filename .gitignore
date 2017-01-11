@@ -13,6 +13,9 @@ build/*.iobj
 build/*.ipdb
 build/*.pdb
 build/saves/
+build/games/
+!build/games/mirror
+!build/games/tutorial3
 
 
 ## Ignore Visual Studio temporary files, build results, and

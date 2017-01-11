@@ -135,12 +135,13 @@ function instead_sound()
 	return true
 end
 
+--пока нет звуков
 stead.is_sound = function()
-  return true
+  return false
 end
 
 is_sound = function()
-  return true
+  return false
 end
 
 stead.get_sound = function()
@@ -225,6 +226,9 @@ restore_music = stead.restore_music
 
 is_music = stead.is_music
 
+--Для космический рейнджеров
+unpack = stead.unpack;
+
 
 --Fake timer
 stead.set_timer = function() end
@@ -263,7 +267,7 @@ function instead_savepath()
 end
 
 --Мой iface
-iface.xref = function(self, str, obj)
+iface.xref = function(self, str, obj, ...)
 		local o = stead.ref(stead.here():srch(obj));
 		if not o then 
 			o = stead.ref(ways():srch(obj));
@@ -271,13 +275,23 @@ iface.xref = function(self, str, obj)
 		if not o then
 			o = stead.ref(stead.me():srch(obj));
 		end
+		o = stead.ref(obj);
+		local a = ''
+	    local varg = {...}
+	    for i = 1, stead.table.maxn(varg) do
+		   a = a..','..varg[i]
+	    end
+	    if isXaction(o) and not o.id then
+		   return stead.cat('[a:'..stead.deref(obj)..a..']',str,'[/a]');
+	    end
+		
 		if not o or not o.id then
 		    if isStatus(o) then
 			    str = string.gsub(str, "%^", " ");
                 return ("[a]"..(str or '').."#0[/a]");
             end
 			return str;
-		end
+		end	
 		local n = stead.tonum(stead.nameof(o))
 --      Новое отображение ссылок, для меню сдвиг на 1000
 		if (isMenu(o)) then 
@@ -285,3 +299,26 @@ iface.xref = function(self, str, obj)
 		end
 		return ("[a]"..(str or '').."#"..stead.tostr(n or o.id).."[/a]");
 end;
+
+--Форматирование текста
+stead.fmt = function(...)
+	local res
+	local a = {...}
+
+	for i = 1, stead.table.maxn(a) do
+		if stead.type(a[i]) == 'string' then
+			local s = stead.string.gsub(a[i],'\t', stead.space_delim):gsub('[\n]+', stead.space_delim);
+			s = stead.string.gsub(s, '\\?[\\^]', { ['^'] = '\n', ['\\^'] = '^',
+				['\\\\'] = '\\' });
+			res = stead.par('', res, s);
+			--Убирание информации из тегов
+			res = stead.string.gsub(res,"<u.->(.-)</u>","%1");
+			res = stead.string.gsub(res,"<b.->(.-)</b>","%1");
+			res = stead.string.gsub(res,"<l.->(.-)</l>","%1");
+			res = stead.string.gsub(res,"<i.->(.-)</i>","%1");
+			res = stead.string.gsub(res,"<w:(.-)>","%1");
+			res = stead.string.gsub(res,"<c.->(.-)</c>","%1");
+		end
+	end
+	return res
+end

@@ -10,8 +10,11 @@ int game_change_vol(int d, int val)
 
 int gBassInit = 0;
 
+static char play_mus[1024];
+
 static int sound_done(void)
 {
+	strcpy(play_mus, "");
 	return 0;
 }
 
@@ -20,7 +23,6 @@ static int sound_init(void)
 	return 0;
 }
 
-static char play_mus[1024];
 static HSAMPLE back_music;
 static HCHANNEL back_channel;
 static HMUSIC back_mod;
