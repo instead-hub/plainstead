@@ -27,6 +27,9 @@ private:
 	int soundBeforeMute;
 	bool isMute;
 
+	int effectsBeforeMute;
+	bool isMuteEffects;
+
 // Переопределение
 public:
 	virtual BOOL InitInstance();
@@ -61,6 +64,14 @@ public:
 	afx_msg void OnUpdateVolumeDown(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateVolumeOn(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateVolumeOff(CCmdUI *pCmdUI);
+	afx_msg void OnAddGameToLib();
+	afx_msg void OnOpenManager();
+	afx_msg void OnListsndOn();
+	afx_msg void OnListsndDown();
+	afx_msg void OnListsndUp();
+	afx_msg void OnUpdateListsndOn(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateListsndDown(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateListsndUp(CCmdUI *pCmdUI);
 };
 
 extern CPlainInsteadApp theApp;

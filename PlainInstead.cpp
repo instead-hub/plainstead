@@ -13,6 +13,7 @@
 #include "GlobalManager.h"
 #include "MultiSpeech.h"
 #include "SelectNewGameDialog.h"
+#include "LauncherDialog.h"
 #include "CPCBTESTDlg.h"
 #include "IniFile.h"
 #include "afxwin.h"
@@ -95,6 +96,14 @@ BEGIN_MESSAGE_MAP(CPlainInsteadApp, CWinApp)
 	ON_UPDATE_COMMAND_UI(ID_VOLUME_DOWN, &CPlainInsteadApp::OnUpdateVolumeDown)
 	ON_UPDATE_COMMAND_UI(ID_VOLUME_ON, &CPlainInsteadApp::OnUpdateVolumeOn)
 	ON_UPDATE_COMMAND_UI(ID_VOLUME_OFF, &CPlainInsteadApp::OnUpdateVolumeOff)
+	ON_COMMAND(ID_ADD_GAME_TO_LIB, &CPlainInsteadApp::OnAddGameToLib)
+	ON_COMMAND(ID_OPEN_MANAGER, &CPlainInsteadApp::OnOpenManager)
+	ON_COMMAND(ID_LISTSND_ON, &CPlainInsteadApp::OnListsndOn)
+	ON_COMMAND(ID_LISTSND_DOWN, &CPlainInsteadApp::OnListsndDown)
+	ON_COMMAND(ID_LISTSND_UP, &CPlainInsteadApp::OnListsndUp)
+	ON_UPDATE_COMMAND_UI(ID_LISTSND_ON, &CPlainInsteadApp::OnUpdateListsndOn)
+	ON_UPDATE_COMMAND_UI(ID_LISTSND_DOWN, &CPlainInsteadApp::OnUpdateListsndDown)
+	ON_UPDATE_COMMAND_UI(ID_LISTSND_UP, &CPlainInsteadApp::OnUpdateListsndUp)
 END_MESSAGE_MAP()
 
 
@@ -116,7 +125,7 @@ CPlainInsteadApp theApp;
 // инициализация CPlainInsteadApp
 
 
-void RecursiveDelete(CString szPath)
+static void RecursiveDelete(CString szPath)
 {
 	CFileFind ff;
 	CString path = szPath;
@@ -418,6 +427,11 @@ void CPlainInsteadApp::StartNewGameFile(CString file, CString name)
 	int needAutoLog = mainSettings.GetInt(L"main", L"mCheckAutoLog", 0 );
 	int savedVol = mainSettings.GetInt(L"main", L"mSavedVol", 80 );
 	soundBeforeMute = savedVol;
+	
+	int savedEffectsVol = mainSettings.GetInt(L"main", L"mEffectsVol", 80);
+	effectsBeforeMute = savedEffectsVol;
+	Wave::SetVolume(savedEffectsVol);
+
 	stopAllSound();
 	setGlobalSoundLevel(savedVol);
 	//Сохраняем параметры для автосохранения
@@ -777,4 +791,109 @@ void CPlainInsteadApp::OnUpdateVolumeOn(CCmdUI *pCmdUI)
 void CPlainInsteadApp::OnUpdateVolumeOff(CCmdUI *pCmdUI)
 {
 	//pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && !isMute);
+}
+
+//////////////////////////// Уровень эффектов обновлений списков
+
+void CPlainInsteadApp::OnListsndOn()
+{
+	CMenu *pMenu = m_pMainWnd->GetMenu();
+	if (pMenu != NULL)
+	{
+		if (isMuteEffects) {
+			Wave::SetVolume(effectsBeforeMute);
+			isMuteEffects = false;
+			pMenu->CheckMenuItem(ID_LISTSND_ON, MF_CHECKED | MF_BYCOMMAND);
+		}
+		else
+		{
+			Wave::SetVolume(0);
+			isMuteEffects = true;
+			pMenu->CheckMenuItem(ID_LISTSND_ON, MF_UNCHECKED | MF_BYCOMMAND);
+		}
+	}
+}
+
+
+void CPlainInsteadApp::OnListsndDown()
+{
+	if (Wave::GetVolume()>0) {
+		int newLevel = Wave::GetVolume() - 10;
+		effectsBeforeMute = newLevel;
+		CIniFile mainSettings(L".\\settings.ini", 1024);
+		mainSettings.WriteNumber(L"main", L"mEffectsVol", newLevel);
+		Wave::SetVolume(newLevel);
+	}
+}
+
+
+void CPlainInsteadApp::OnListsndUp()
+{
+	if (Wave::GetVolume()<100) {
+		int newLevel = Wave::GetVolume() + 10;
+		effectsBeforeMute = newLevel;
+		CIniFile mainSettings(L".\\settings.ini", 1024);
+		mainSettings.WriteNumber(L"main", L"mEffectsVol", newLevel);
+		Wave::SetVolume(newLevel);
+	}
+}
+
+
+void CPlainInsteadApp::OnUpdateListsndOn(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame());
+}
+
+
+void CPlainInsteadApp::OnUpdateListsndDown(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && !isMuteEffects && (Wave::GetVolume()>0));
+}
+
+
+void CPlainInsteadApp::OnUpdateListsndUp(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && !isMuteEffects && (Wave::GetVolume()<100));
+}
+
+////////////////////////////
+
+void CPlainInsteadApp::OnAddGameToLib()
+{
+	if (!GlobalManager::getInstance().isUserSaveLastFile())
+	{
+		int res = MessageBox(NULL, L"Сохранить текущую игру?", L"Файл не сохранен", MB_YESNOCANCEL);
+		if (res == IDYES)
+		{
+			OnFileSave();
+		}
+		else if (res == IDCANCEL)
+		{
+			return;
+		}
+	}
+
+	//AfxMessageBox(L"OnFileNewGame");
+	if (Tolk_IsSpeaking()) Tolk_Silence();
+	CFileDialog fileDialog(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, L"main.lua (*.lua)");	//объект класса выбора файла
+																											//AfxMessageBox(L"fileDialog constr");
+	int result = fileDialog.DoModal();	//запустить диалоговое окно
+										//AfxMessageBox(L"fileDialog modal end");
+	if (result == IDOK)	//если файл выбран
+	{
+		//копирование в директорию
+	}
+}
+
+
+void CPlainInsteadApp::OnOpenManager()
+{
+	LauncherDialog dlg;
+	dlg.DoModal();
+	if (dlg.isWantStartGame())
+	{
+		currFilePath = dlg.getStartGamePath();
+		currFileName = dlg.getStartGameTitle();
+		StartNewGameFile(currFilePath, currFileName);
+	}
 }

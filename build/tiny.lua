@@ -135,7 +135,13 @@ function instead_sound()
 	return true
 end
 
-stead.is_sound = true
+stead.is_sound = function()
+  return true
+end
+
+is_sound = function()
+  return true
+end
 
 stead.get_sound = function()
 	return game._sound, game._sound_channel, game._sound_loop; 

@@ -111,10 +111,12 @@ BEGIN
     POPUP "&Файл"
     BEGIN
         MENUITEM "Новая игра из &библиотеки\tCtrl+L", ID_NEW_GAME
+        MENUITEM "&Добавить игру в библиотеку\t\tCtrl+N", ID_ADD_GAME_TO_LIB
         MENUITEM "&Открыть сохранение\tCtrl+O", ID_FILE_OPEN
         MENUITEM "Со&хранить игру\tCtrl+S",     ID_FILE_SAVE_GAME
         MENUITEM "Начать игру &заново\tCtrl+R", ID_RESTART_MENU
         MENUITEM SEPARATOR
+        MENUITEM "&Менеджер игр\t\tCtrl+M",     ID_OPEN_MANAGER
         MENUITEM "&Сбросить все настройки",     ID_RESET_ALL_SETTINGS
         MENUITEM "В&ыход",                      ID_APP_EXIT
     END
@@ -134,9 +136,12 @@ BEGIN
     END
     POPUP "&Звук"
     BEGIN
-        MENUITEM "&Громче\tCTRL+=",             ID_VOLUME_UP
-        MENUITEM "&Тише\tCTRL+-",               ID_VOLUME_DOWN
-        MENUITEM "&Включен\tCTRL+0",            ID_VOLUME_ON, CHECKED
+        MENUITEM "Музыка &громче\tCTRL+=",      ID_VOLUME_UP
+        MENUITEM "Музыка &тише\tCTRL+-",        ID_VOLUME_DOWN
+        MENUITEM "&Музыка включена\tCTRL+0",    ID_VOLUME_ON, CHECKED
+        MENUITEM "Уведомления г&ромче\t\tCTRL+5", ID_LISTSND_UP
+        MENUITEM "Уведомления т&ише\t\tCTRL+6", ID_LISTSND_DOWN
+        MENUITEM "Уведомления в&ключены\t\tCTRL+7", ID_LISTSND_ON, CHECKED
     END
 END
 
@@ -149,6 +154,7 @@ END
 IDR_MAINFRAME ACCELERATORS
 BEGIN
     VK_RETURN,      ID_ACCELERATOR32804,    VIRTKEY, NOINVERT
+    "N",            ID_ADD_GAME_TO_LIB,     VIRTKEY, CONTROL, NOINVERT
     VK_OEM_COMMA,   ID_BACK_HIST,           VIRTKEY, CONTROL, NOINVERT
     "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
     VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
@@ -171,6 +177,7 @@ BEGIN
     "2",            ID_HISTORY_STOP,        VIRTKEY, CONTROL, NOINVERT
     "L",            ID_NEW_GAME,            VIRTKEY, CONTROL, NOINVERT
     VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    "M",            ID_OPEN_MANAGER,        VIRTKEY, CONTROL, NOINVERT
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
     "R",            ID_RESTART_MENU,        VIRTKEY, CONTROL, NOINVERT
     VK_F5,          ID_UPDATE,              VIRTKEY, NOINVERT
@@ -178,6 +185,9 @@ BEGIN
     VK_OEM_MINUS,   ID_VOLUME_DOWN,         VIRTKEY, CONTROL, NOINVERT
     "0",            ID_VOLUME_ON,           VIRTKEY, CONTROL, NOINVERT
     VK_OEM_PLUS,    ID_VOLUME_UP,           VIRTKEY, CONTROL, NOINVERT
+    "5",            ID_LISTSND_UP,          VIRTKEY, CONTROL, NOINVERT
+    "6",            ID_LISTSND_DOWN,        VIRTKEY, CONTROL, NOINVERT
+    "7",            ID_LISTSND_ON,          VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -253,6 +263,29 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,0,34,144,10
 END
 
+IDD_LAUNCHERDIALOG DIALOGEX 0, 0, 367, 221
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Менеджер игр"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "&Удалить  (DEL)",IDC_BTN_DEL_GAME,7,200,57,14
+    PUSHBUTTON      "Обновить список (F5)",IDC_BTN_UPDATE,66,200,82,14
+    PUSHBUTTON      "Установить (S)",IDC_BTN_INSTALL,151,200,65,14
+    PUSHBUTTON      "Открыть ссылку в браузере (ENTER)",IDC_BTN_OPEN_LINK,219,200,141,14
+    CONTROL         "",IDC_TAB1,"SysTabControl32",WS_TABSTOP,7,7,353,186
+    CONTROL         "",IDC_LIST_INSTALLED,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,20,353,173
+    CONTROL         "",IDC_LIST_NEW,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,20,353,173
+    PUSHBUTTON      "&ИГРАТЬ  (ENTER)",IDC_BTN_PLAY_GAMEM,66,200,64,14
+END
+
+IDD_URLFILE_DIALOG DIALOGEX 0, 0, 285, 31
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Загрузка"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_PROGRESS,"msctls_progress32",WS_BORDER,7,7,271,17
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -260,8 +293,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,3,0,0
- PRODUCTVERSION 1,3,0,0
+ FILEVERSION 1,4,0,0
+ PRODUCTVERSION 1,4,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -278,12 +311,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ласточкин А. П."
             VALUE "FileDescription", "интерпретатор менюшных квестов PlainInstead"
-            VALUE "FileVersion", "1.3.0.0"
+            VALUE "FileVersion", "1.4.0.0"
             VALUE "InternalName", "PlainInstead.exe"
             VALUE "LegalCopyright", "(c) 2016. Все права защищены."
             VALUE "OriginalFilename", "PlainInstead.exe"
             VALUE "ProductName", "интерпретатор менюшных квестов PlainInstead"
-            VALUE "ProductVersion", "1.3.0.0"
+            VALUE "ProductVersion", "1.4.0.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -330,6 +363,22 @@ BEGIN
         RIGHTMARGIN, 263
         BOTTOMMARGIN, 168
     END
+
+    IDD_LAUNCHERDIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 360
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 214
+    END
+
+    IDD_URLFILE_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 278
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 24
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -350,6 +399,16 @@ BEGIN
 END
 
 IDD_CPCBTEST_DIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_LAUNCHERDIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_URLFILE_DIALOG AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

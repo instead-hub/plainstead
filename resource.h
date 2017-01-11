@@ -26,6 +26,8 @@
 #define IDR_TEXT9                       141
 #define IDR_TEXT10                      142
 #define IDR_TEXT11                      143
+#define IDD_LAUNCHERDIALOG              147
+#define IDD_URLFILE_DIALOG              149
 #define IDC_EDIT_OUT                    1000
 #define IDC_EDIT_INP                    1001
 #define IDC_STATIC_VOICE_HELP           1002
@@ -47,13 +49,21 @@
 #define IDC_COMBO_FONT_SIZE             1019
 #define IDC_CHECK_AUTO_LOG              1020
 #define IDC_LIST_SCENE                  1021
-#define IDC_CHECK_AUTO_LOG2             1021
 #define IDC_CHECK_SOUND_LIST            1021
 #define IDC_LIST_INV                    1022
 #define IDC_LIST_WAYS                   1023
 #define IDC_STATIC_SCENE                1024
 #define IDC_STATIC_INV                  1025
+#define IDC_BTN_DEL_GAME                1025
 #define IDC_STATIC_WAYS                 1026
+#define IDC_BTN_UPDATE                  1026
+#define IDC_BTN_INSTALL                 1027
+#define IDC_BTN_OPEN_LINK               1028
+#define IDC_TAB1                        1029
+#define IDC_LIST_INSTALLED              1030
+#define IDC_LIST_NEW                    1031
+#define IDC_PROGRESS                    1031
+#define IDC_BTN_PLAY_GAMEM              1032
 #define ID_FILE_NEW_GAME                32771
 #define ID_FILE_SAVE_GAME               32772
 #define ID_32773                        32773
@@ -136,14 +146,25 @@
 #define ID_GOTO_SCENE                   32885
 #define ID_GOTO_INV                     32886
 #define ID_GOTO_WAYS                    32887
+#define ID_32892                        32892
+#define ID_ADD_GAME_TO_LIB              32893
+#define ID_32896                        32896
+#define ID_OPEN_MANAGER                 32897
+#define ID_32899                        32899
+#define ID_32900                        32900
+#define ID_32901                        32901
+#define ID_LISTSND_ON                   32902
+#define ID_LISTSND_DOWN                 32903
+#define ID_LISTSND_UP                   32904
+#define ID_LIS                          32907
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        147
-#define _APS_NEXT_COMMAND_VALUE         32892
-#define _APS_NEXT_CONTROL_VALUE         1025
+#define _APS_NEXT_RESOURCE_VALUE        151
+#define _APS_NEXT_COMMAND_VALUE         32909
+#define _APS_NEXT_CONTROL_VALUE         1032
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

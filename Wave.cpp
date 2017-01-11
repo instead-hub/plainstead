@@ -2,8 +2,18 @@
 #include <iostream>
 #include <fstream>
 
-extern "C" {
-	extern int getGlobalSoundLevel();
+int Wave::currVol = 100;
+
+void Wave::SetVolume(int vol)
+{
+	if (vol < 0) currVol = 0;
+	else if (vol>100) currVol = 100;
+	else currVol = vol;
+}
+
+int Wave::GetVolume()
+{
+	return currVol;
 }
 
 Wave::Wave(char *filename)
@@ -16,7 +26,7 @@ void Wave::play()
 	if (sample) {
 		HCHANNEL chan = BASS_SampleGetChannel(sample, FALSE);
 		if (chan) {
-			BASS_ChannelSetAttribute(chan, BASS_ATTRIB_VOL, getGlobalSoundLevel()/100.0f);
+			BASS_ChannelSetAttribute(chan, BASS_ATTRIB_VOL, GetVolume()/100.0f);
 			BASS_ChannelPlay(sample, FALSE);
 		}
 	}
