@@ -35,4 +35,29 @@
 		<approve>НЕДОСТУПНА</approve>
 		<info/>
 	</game>
+	<game>
+		<name>cat</name>
+		<approve>Да</approve>
+		<info/>
+	</game>
+	<game>
+		<name>mirror</name>
+		<approve>Да</approve>
+		<info/>
+	</game>
+	<game>
+		<name>rangers</name>
+		<approve>Да</approve>
+		<info/>
+	</game>
+	<game>
+		<name>tutorial3</name>
+		<approve>Да</approve>
+		<info/>
+	</game>
+	<game>
+		<name>wolf_goat_yakuza</name>
+		<approve>Да</approve>
+		<info/>
+	</game>
 </game_list>

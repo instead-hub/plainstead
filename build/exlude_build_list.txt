@@ -7,4 +7,6 @@ exlude_build_list.txt
 .ipdb
 .pdb
 settings.ini
-saves/
+.xml
+saves
+games

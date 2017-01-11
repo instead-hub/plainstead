@@ -3,6 +3,7 @@
 #include "afxwin.h"
 #include <vector>
 #include <set>
+#include <map>
 
 
 // диалоговое окно LauncherDialog
@@ -29,16 +30,20 @@ protected:
 	void showNewTabControls();
 	void CreateColumns();
 	void RescanInstalled();
-	void AddInstalledGame(CString name, bool checked, CString version, std::pair<CString, CString> path);
-	void AddNewGame(CString name, bool checked, CString version, CString sz, CString page, std::pair<CString, CString> downloadPageAndInstallName);
+	void AddInstalledGame(CString name, CString version, std::pair<CString, CString> path);
+	void AddNewGame(CString name, CString mark, CString version, CString sz, CString page, std::pair<CString, CString> downloadPageAndInstallName);
 	void SetCell(CListCtrl& ctrl, CString value, int nRow, int nCol);
 	void UpdateNewGamesFromUrl(CString url);
+	bool UpdateApprovedGamesFromUrl(CString url, CString res_path);
+	void UpdateApprovedFromFile();
 
 	std::vector<CString> installedGamePath;
 	std::set<CString> installedGameName;
 
 	std::vector<std::pair<CString/*name*/, CString/*page*/> > networkGameDWPageAndName;
 	std::set<CString> networkGameName;
+
+	std::map<CString, std::pair<CString /*approve*/, CString /*info*/> > approveInfo;
 
 	CString m_stGamePath;
 	CString m_stGameTitle;

@@ -327,6 +327,7 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn)
 	mListScene.ResetContent();
 	prev_map = pos_id_scene;
 	pos_id_scene.clear();
+	act_on_scene.clear();
 	if (!textIn.IsEmpty())
 	{
 		bool is_saving = false;

@@ -192,6 +192,8 @@ BOOL LauncherDialog::OnInitDialog()
 
 	//AddInstalledGame(L"Похождения квантового кота", true, L"1.0");
 	//AddNewGame(L"Новьё!", true, L"1.0",L"1 Мб",L"http://some.page");
+	//Обновляем список доступных игр
+	UpdateApprovedFromFile();
 
 	RescanInstalled();
 
@@ -235,7 +237,7 @@ void LauncherDialog::RescanInstalled()
 
 				if (!game_name.IsEmpty() && !game_version.IsEmpty())
 				{
-					AddInstalledGame(game_name, false, game_version, filePathsAndNames[i]);
+					AddInstalledGame(game_name, game_version, filePathsAndNames[i]);
 					break;
 				}
 				//Обычно в заголовках только версия и название
@@ -246,15 +248,15 @@ void LauncherDialog::RescanInstalled()
 			//Не нашли всей информации
 			if (game_name.IsEmpty() && !game_name_en.IsEmpty() && !game_version.IsEmpty()) //Если только англ. имя
 			{
-				AddInstalledGame(game_name_en, false, game_version, filePathsAndNames[i]);
+				AddInstalledGame(game_name_en, game_version, filePathsAndNames[i]);
 			}
 			else if (!game_name.IsEmpty() && game_version.IsEmpty()) //Если нет номера версии
 			{
-				AddInstalledGame(game_name, false, L"", filePathsAndNames[i]);
+				AddInstalledGame(game_name, L"", filePathsAndNames[i]);
 			}
 			else if (!game_name_en.IsEmpty() && game_version.IsEmpty()) //Если нет номера версии и только англ
 			{
-				AddInstalledGame(game_name_en, false, L"", filePathsAndNames[i]);
+				AddInstalledGame(game_name_en, L"", filePathsAndNames[i]);
 			}
 		}
 	}
@@ -353,24 +355,27 @@ void LauncherDialog::CreateColumns()
 	m_listNew.InsertColumn(4, &list);
 }
 
-void LauncherDialog::AddInstalledGame(CString name, bool checked, CString version, std::pair<CString, CString> path)
+void LauncherDialog::AddInstalledGame(CString name, CString version, std::pair<CString, CString> path)
 {
+	CString mark = L"Нет";
+	if (approveInfo.count(path.second)) mark = approveInfo[path.second].first;
+
 	int cnt = m_listInstalled.GetItemCount();
 	int col = 0;
 	SetCell(m_listInstalled, name, cnt, col++);
-	SetCell(m_listInstalled, checked ? L"Да":L"Нет", cnt, col++);
+	SetCell(m_listInstalled, mark, cnt, col++);
 	SetCell(m_listInstalled, version, cnt, col++);
 
 	installedGamePath.push_back(path.first);
 	installedGameName.insert(path.second);
 }
 
-void LauncherDialog::AddNewGame(CString name, bool checked, CString version, CString sz, CString page, std::pair<CString, CString> downloadPageAndInstallName)
+void LauncherDialog::AddNewGame(CString name, CString mark, CString version, CString sz, CString page, std::pair<CString, CString> downloadPageAndInstallName)
 {
 	int cnt = m_listNew.GetItemCount();
 	int col = 0;
 	SetCell(m_listNew, name, cnt, col++);
-	SetCell(m_listNew, checked ? L"Да" : L"Нет", cnt, col++);
+	SetCell(m_listNew, mark, cnt, col++);
 	SetCell(m_listNew, version, cnt, col++);
 	SetCell(m_listNew, sz, cnt, col++);
 	SetCell(m_listNew, page, cnt, col++);
@@ -579,10 +584,69 @@ void LauncherDialog::OnBnClickedBtnUpdate()
 	networkGameDWPageAndName.clear();
 	m_listNew.DeleteAllItems();
 
+	bool ok_appr = UpdateApprovedGamesFromUrl(L"http://dialas.ru/instead_games_approved.xml",
+							   L"games\\instead_games_approved.xml");
+	if (ok_appr) UpdateApprovedFromFile();
+
 	CString strURL = L"http://instead.sf.net/pool/game_list.xml";
 	UpdateNewGamesFromUrl(strURL);
 	CString strURL2 = L"http://dialas.ru/instead_game_list.xml";
 	UpdateNewGamesFromUrl(strURL2);
+}
+
+void LauncherDialog::UpdateApprovedFromFile()
+{
+	//Читаем xml и разбираем
+	CStdioFileEx gameFile(L"games\\instead_games_approved.xml", CFile::modeRead);
+	gameFile.SetCodePage(CP_UTF8);
+	CString xmlDoc;
+	CString str;
+	while (gameFile.ReadString(str)) xmlDoc.Append(str);
+
+	approveInfo.clear();
+	CMarkup xml;
+	xml.SetDoc(xmlDoc);
+	while (xml.FindChildElem(L"game"))
+	{
+		xml.IntoElem();
+		//ВНИМАНИЕ: считываем по порядку заданному в файле xml
+		xml.FindChildElem(L"name");
+		CString csName = xml.GetChildData();
+		xml.FindChildElem(L"approve");
+		CString csApproveMark = xml.GetChildData();
+		xml.FindChildElem(L"info");
+		CString csInfo = xml.GetChildData();
+		
+		approveInfo[csName] = std::make_pair(csApproveMark, csInfo);
+
+		xml.OutOfElem();
+	}
+}
+
+bool LauncherDialog::UpdateApprovedGamesFromUrl(CString url, CString res_path)
+{
+	CInternetSession session;
+	CHttpFile *pFile = (CHttpFile *)session.OpenURL(url, 1, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD);
+
+	// Determine file size:
+	DWORD dwBytesInFile = (DWORD)pFile->Seek(0, FILE_END);
+	pFile->Seek(0, FILE_BEGIN);	// reposition file pointer at the start
+	if (dwBytesInFile > 0)
+	{
+		CString stLine;
+		char buf[2000];
+		int numread;
+		CFile xmlWithGames(res_path,
+			CFile::modeCreate | CFile::modeWrite | CFile::typeBinary);
+		while ((numread = pFile->Read(buf, sizeof(buf) - 1)) > 0)
+		{
+			buf[numread] = '\0';
+			xmlWithGames.Write(buf, numread);
+		}
+		xmlWithGames.Close();
+		return true;
+	}
+	return false;
 }
 
 void LauncherDialog::UpdateNewGamesFromUrl(CString url)
@@ -643,7 +707,9 @@ void LauncherDialog::UpdateNewGamesFromUrl(CString url)
 			{
 				CString megabytes_num;
 				megabytes_num.Format(L"%.1f МБ", csSizeBytes / (1024.0f*1024.0f));
-				AddNewGame(csTitle, false, csVersion, megabytes_num, csDescUrl, std::make_pair(csDownloadUrl, csSN));
+				CString mark = L"Нет";
+				if (approveInfo.count(csSN)) mark = approveInfo[csSN].first;
+				AddNewGame(csTitle, mark, csVersion, megabytes_num, csDescUrl, std::make_pair(csDownloadUrl, csSN));
 			}
 
 			xml.OutOfElem();
