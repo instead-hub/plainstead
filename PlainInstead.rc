@@ -272,7 +272,7 @@ BEGIN
     PUSHBUTTON      "&Удалить  (DEL)",IDC_BTN_DEL_GAME,7,199,57,14
     PUSHBUTTON      "Обновить список (F5)",IDC_BTN_UPDATE,199,199,82,14
     PUSHBUTTON      "Установить (ENTER)",IDC_BTN_INSTALL,282,199,80,14
-    PUSHBUTTON      "Открыть ссылку в браузере (V)",IDC_BTN_OPEN_LINK,363,199,141,14
+    PUSHBUTTON      "Открыть страницу игры (V)",IDC_BTN_OPEN_LINK,363,199,141,14
     CONTROL         "",IDC_TAB1,"SysTabControl32",WS_TABSTOP,7,7,497,186
     CONTROL         "",IDC_LIST_INSTALLED,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,20,497,173
     CONTROL         "",IDC_LIST_NEW,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,20,497,173
@@ -297,8 +297,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,4,0,0
- PRODUCTVERSION 1,4,0,0
+ FILEVERSION 1,5,0,0
+ PRODUCTVERSION 1,5,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -315,12 +315,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ласточкин А. П."
             VALUE "FileDescription", "интерпретатор менюшных квестов PlainInstead"
-            VALUE "FileVersion", "1.4.0.0"
+            VALUE "FileVersion", "1.5.0.0"
             VALUE "InternalName", "PlainInstead.exe"
-            VALUE "LegalCopyright", "(c) 2016. Все права защищены."
+            VALUE "LegalCopyright", "(c) 2017. Все права защищены."
             VALUE "OriginalFilename", "PlainInstead.exe"
             VALUE "ProductName", "интерпретатор менюшных квестов PlainInstead"
-            VALUE "ProductVersion", "1.4.0.0"
+            VALUE "ProductVersion", "1.5.0.0"
         END
     END
     BLOCK "VarFileInfo"

@@ -352,7 +352,9 @@ LRESULT CUrlFileDlg::OnEndDownload(WPARAM, LPARAM)
 	// display the result
 	if (m_downloadParam.strFileName.IsEmpty())
 	{
-		::AfxMessageBox(L"«агрузка не удалась!");
+		//::AfxMessageBox(L"«агрузка остановлена!");
+		//удаление архива за собой
+		DeleteFile(m_selFile);
 	}
 	else
 	{
@@ -425,30 +427,15 @@ LRESULT CUrlFileDlg::OnDisplayStatus(WPARAM, LPARAM lParam)
 						   pDownloadStatus->ulProgress,
 						   pDownloadStatus->ulProgressMax);
 
+		//Add progress
+		int perc = (int)(((float)pDownloadStatus->ulProgress / (float)pDownloadStatus->ulProgressMax)*100.0f);
+		m_progressPercent.SetPos(perc);
+		m_bytesLoad.SetWindowTextW(strProgress);
 	}
 	else
 	{
 		//VERIFY(strStatus.LoadString(IDS_CANCELED));
 	}
-
-#if 1
-	//Add progress
-	int perc = (int)(((float)pDownloadStatus->ulProgress / (float)pDownloadStatus->ulProgressMax)*100.0f);
-	m_progressPercent.SetPos(perc);
-	m_bytesLoad.SetWindowTextW(strProgress);
-	//const int nLen = m_editProgress.GetWindowTextLength();
-	//m_editProgress.SetSel(nLen, nLen);
-	//m_editProgress.ReplaceSel(strStatus);
-#else
-	// retrieve the status text
-	VERIFY(this->UpdateData());
-	
-	// append the text
-	m_strProgress += strStatus;
-
-	// update the edit box
-	VERIFY(this->UpdateData(FALSE));
-#endif
 
 	return 0;
 }
@@ -533,14 +520,13 @@ void CUrlFileDlg::OnCancel()
 {
 	if (m_pDownloadThread != NULL)
 	{
+		m_pDownloadThread->SuspendThread();
 		int want_exit = AfxMessageBox(L"¬ы действительно хотите прекратить загрузку?", MB_YESNO | MB_ICONQUESTION);
 		if (want_exit == IDYES)
 		{
 			m_eventStop.SetEvent();  // signaled
-			//удаление архива
-			DeleteFile(m_selFile);
-			CDialog::OnCancel();
 		}
+		m_pDownloadThread->ResumeThread();
 		return;  // Don't exit while downloading
 	}
 	
@@ -619,7 +605,7 @@ UINT CUrlFileDlg::Download(LPVOID pParam)
 	pDownloadParam->strFileName.ReleaseBuffer(SUCCEEDED(hr) ? -1 : 0);
 
 	TRACE(_T("URLDownloadToCacheFile ends: 0x%08lX\nCache file name: %s\n"),
-		  hr, pDownloadParam->strFileName);
+		hr, pDownloadParam->strFileName);
 
 	// let the dialog box know it is done
 	VERIFY(::PostMessage(pDownloadParam->hWnd, WM_USER_ENDDOWNLOAD, 0, 0));

@@ -50,6 +50,7 @@ protected:
 
 	CString m_stGamePath;
 	CString m_stGameTitle;
+	CString m_gameBaseDir;
 	bool    m_wantPlay;
 	int     m_lastSelFilter;
 

@@ -211,7 +211,7 @@ BOOL LauncherDialog::OnInitDialog()
 
 	RescanInstalled();
 
-	m_tab.SetFocus();
+	//m_tab.SetFocus();
 
 	return FALSE;  // return TRUE unless you set the focus to a control
 				  // Исключение: страница свойств OCX должна возвращать значение FALSE
@@ -226,6 +226,7 @@ void LauncherDialog::RescanInstalled()
 	CString baseDir = buff;
 	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
 	CString dir = baseDir + L"\\games";
+	m_gameBaseDir = dir;
 	std::vector<std::pair<CString, CString> > filePathsAndNames;
 	installedGamePath.clear();
 	ListFilesGamInDirectory(dir, filePathsAndNames);
@@ -305,6 +306,8 @@ void LauncherDialog::showInstalledTabControls()
 	m_btnInstall.ShowWindow(SW_HIDE);
 	m_btnOpenLink.ShowWindow(SW_HIDE);
 	m_comboFiler.ShowWindow(SW_HIDE);
+
+	m_listInstalled.SetFocus();
 }
 
 void LauncherDialog::showNewTabControls()
@@ -319,6 +322,8 @@ void LauncherDialog::showNewTabControls()
 	m_btnInstall.ShowWindow(SW_SHOW);
 	m_btnOpenLink.ShowWindow(SW_SHOW);
 	m_comboFiler.ShowWindow(SW_SHOW);
+
+	m_listNew.SetFocus();
 }
 
 // This function inserts the default values into the listControl
@@ -335,7 +340,7 @@ void LauncherDialog::CreateColumns()
 	m_listInstalled.InsertColumn(0, &list);
 
 	list.cx = 100;
-	list.pszText = L"Проверена";
+	list.pszText = L"Доступна";
 	list.iSubItem = 1;
 	m_listInstalled.InsertColumn(1, &list);
 
@@ -356,7 +361,7 @@ void LauncherDialog::CreateColumns()
 	m_listNew.InsertColumn(0, &list);
 
 	list.cx = 50;
-	list.pszText = L"Проверена";
+	list.pszText = L"Доступна";
 	list.iSubItem = 1;
 	m_listNew.InsertColumn(1, &list);
 
@@ -378,7 +383,7 @@ void LauncherDialog::CreateColumns()
 
 void LauncherDialog::AddInstalledGame(CString name, CString version, std::pair<CString, CString> path)
 {
-	CString mark = L"Нет";
+	CString mark = L"Неизвестно";
 	CString info = L"";
 	if (approveInfo.count(path.second)) {
 		mark = approveInfo[path.second].first;
@@ -398,7 +403,7 @@ void LauncherDialog::AddInstalledGame(CString name, CString version, std::pair<C
 
 void LauncherDialog::AddNewGame(CString name, CString version, CString sz, CString page, std::pair<CString, CString> downloadPageAndInstallName)
 {
-	CString mark = L"Нет";
+	CString mark = L"Неизвестно";
 	CString info = L"";
 	if (approveInfo.count(downloadPageAndInstallName.second)) {
 		mark = approveInfo[downloadPageAndInstallName.second].first;
@@ -623,6 +628,10 @@ void LauncherDialog::OnBnClickedBtnDelGame()
 		AfxMessageBox(L"Выбранная игра вне диапазона для удаления!");
 		return;
 	}
+	else if (installedGamePath[sel].Right(6) == L"mirror" || installedGamePath[sel].Right(9) == L"tutorial3") {
+		AfxMessageBox(L"Выбранная игра входит в поставку плеера, и отличается от той что в репозитории. Операция отменена.");
+		return;
+	}
 	CString gameTitle = m_listInstalled.GetItemText(sel, 0);
 	//Выдаём подтверждение для удаления игры
 	int want_del = AfxMessageBox(L"Вы действительно хотите удалить игру "+ gameTitle+L"?", MB_YESNOCANCEL | MB_ICONQUESTION);
@@ -774,7 +783,7 @@ void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile)
 		if (approveInfo.count(csSN)) approved_mark = approveInfo[csSN].first;
 		bool ok_filter = ((m_lastSelFilter == SEL_FILTER_ALL) ||
 			( (m_lastSelFilter == SEL_FILTER_VALID) && approved_mark==L"Да" ) ||
-			((m_lastSelFilter == SEL_FILTER_VALID_AND_UNK) && approved_mark != L"НЕДОСТУПНА")
+			((m_lastSelFilter == SEL_FILTER_VALID_AND_UNK) && approved_mark != L"Нет")
 			);
 
 		//Добавляем русскоязычную игру в новые, если её нет в существующих
@@ -827,7 +836,16 @@ void LauncherDialog::OnBnClickedBtnInstall()
 	}
 	else if (installedGameName.count(networkGameDWPageAndName[sel].second))
 	{
-		AfxMessageBox(L"Выбранная игра уже установлена");
+		//AfxMessageBox(L"Выбранная игра уже установлена");
+		int want_run = AfxMessageBox(L"Выбранная игра уже установлена. Хотите её запустить?", MB_YESNOCANCEL | MB_ICONQUESTION);
+		if (want_run == IDYES)
+		{
+			m_wantPlay = true;
+			m_stGamePath = m_gameBaseDir + L"\\"+networkGameDWPageAndName[sel].second;
+			m_stGameTitle = m_listNew.GetItemText(sel, 0);
+			EndDialog(-1);
+		}
+		//
 		return;
 	}
 
@@ -899,10 +917,13 @@ void LauncherDialog::OnCbnSelchangeComboFilter()
 		CIniFile mainSettings;
 		m_lastSelFilter = m_comboFiler.GetCurSel();
 		mainSettings.WriteNumber(L"main", L"mRepoFilter", m_lastSelFilter);
-		//Очищаем список новых игр
-		ClearNewList();
-		//Обновляем список новых игр
-		ReadNewGamesFromXMLAndAdd(L"temp.xml");
-		ReadNewGamesFromXMLAndAdd(L"temp2.xml");
+		if (PathFileExists(L"temp.xml") && PathFileExists(L"temp2.xml"))
+		{
+			//Очищаем список новых игр
+			ClearNewList();
+			//Обновляем список новых игр
+			ReadNewGamesFromXMLAndAdd(L"temp.xml");
+			ReadNewGamesFromXMLAndAdd(L"temp2.xml");
+		}
 	}
 }
