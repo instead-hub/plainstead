@@ -436,17 +436,21 @@ void CPlainInsteadApp::OnFileOpen()
 
 void CPlainInsteadApp::StartNewGameFile(CString file, CString name)
 {
-	CIniFile mainSettings(L".\\settings.ini", 1024);
+	CIniFile mainSettings;
 	int needAutoLog = mainSettings.GetInt(L"main", L"mCheckAutoLog", 0 );
 	int savedVol = mainSettings.GetInt(L"main", L"mSavedVol", 80 );
 	soundBeforeMute = savedVol;
+	isMute = (bool)mainSettings.GetInt(L"main", L"mMuteMusic", 0);
 	
 	int savedEffectsVol = mainSettings.GetInt(L"main", L"mEffectsVol", 80);
 	effectsBeforeMute = savedEffectsVol;
-	Wave::SetVolume(savedEffectsVol);
+	isMuteEffects = (bool)mainSettings.GetInt(L"main", L"mMuteEffects", 0);
+	if (!isMuteEffects) Wave::SetVolume(savedEffectsVol);
+	else Wave::SetVolume(0);
 
 	stopAllSound();
-	setGlobalSoundLevel(savedVol);
+	if (!isMute) setGlobalSoundLevel(savedVol);
+	else setGlobalSoundLevel(0);
 	//Сохраняем параметры для автосохранения
 	mainSettings.WriteString(L"main", L"lastGameFile", file);
 	mainSettings.WriteString(L"main", L"lastGameName", name);
@@ -666,7 +670,7 @@ void CPlainInsteadApp::OnEnterSetup()
 	int nResponse = dlg.DoModal();
 	if (nResponse == IDOK)
 	{
-		//Обновление размера шрифта
+		//Обновление размера шрифта и др. настройки
 		CPlainInsteadView::GetCurrentView()->UpdateSettings();
 	}
 
@@ -744,7 +748,7 @@ void CPlainInsteadApp::OnVolumeDown()
 	if (getGlobalSoundLevel()>0){
 		int newLevel = getGlobalSoundLevel()-10;
 		soundBeforeMute = newLevel;
-		CIniFile mainSettings(L".\\settings.ini", 1024);
+		CIniFile mainSettings;
 		mainSettings.WriteNumber(L"main", L"mSavedVol", newLevel );
 		setGlobalSoundLevel(newLevel);
 	}
@@ -755,7 +759,7 @@ void CPlainInsteadApp::OnVolumeUp()
 	if (getGlobalSoundLevel()<100){
 		int newLevel = getGlobalSoundLevel()+10;
 		soundBeforeMute = newLevel;
-		CIniFile mainSettings(L".\\settings.ini", 1024);
+		CIniFile mainSettings;
 		mainSettings.WriteNumber(L"main", L"mSavedVol", newLevel );
 		setGlobalSoundLevel(newLevel);
 	}
@@ -772,15 +776,18 @@ void CPlainInsteadApp::OnVolumeOn()
 	CMenu *pMenu = m_pMainWnd->GetMenu();
 	if (pMenu != NULL)
 	{
+		CIniFile mainSettings;
 		if (isMute) {
 			setGlobalSoundLevel(soundBeforeMute);
 			isMute = false;
+			mainSettings.WriteNumber(L"main", L"mMuteMusic", 0);
 			pMenu->CheckMenuItem(ID_VOLUME_ON, MF_CHECKED | MF_BYCOMMAND);
 		}
 		else
 		{
 			setGlobalSoundLevel(0);
 			isMute = true;
+			mainSettings.WriteNumber(L"main", L"mMuteMusic", 1);
 			pMenu->CheckMenuItem(ID_VOLUME_ON, MF_UNCHECKED | MF_BYCOMMAND);
 		}
 	}
@@ -813,15 +820,18 @@ void CPlainInsteadApp::OnListsndOn()
 	CMenu *pMenu = m_pMainWnd->GetMenu();
 	if (pMenu != NULL)
 	{
+		CIniFile mainSettings;
 		if (isMuteEffects) {
 			Wave::SetVolume(effectsBeforeMute);
 			isMuteEffects = false;
+			mainSettings.WriteNumber(L"main", L"mMuteEffects", 0);
 			pMenu->CheckMenuItem(ID_LISTSND_ON, MF_CHECKED | MF_BYCOMMAND);
 		}
 		else
 		{
 			Wave::SetVolume(0);
 			isMuteEffects = true;
+			mainSettings.WriteNumber(L"main", L"mMuteEffects", 1);
 			pMenu->CheckMenuItem(ID_LISTSND_ON, MF_UNCHECKED | MF_BYCOMMAND);
 		}
 	}
@@ -833,7 +843,7 @@ void CPlainInsteadApp::OnListsndDown()
 	if (Wave::GetVolume()>0) {
 		int newLevel = Wave::GetVolume() - 10;
 		effectsBeforeMute = newLevel;
-		CIniFile mainSettings(L".\\settings.ini", 1024);
+		CIniFile mainSettings;
 		mainSettings.WriteNumber(L"main", L"mEffectsVol", newLevel);
 		Wave::SetVolume(newLevel);
 	}
@@ -845,7 +855,7 @@ void CPlainInsteadApp::OnListsndUp()
 	if (Wave::GetVolume()<100) {
 		int newLevel = Wave::GetVolume() + 10;
 		effectsBeforeMute = newLevel;
-		CIniFile mainSettings(L".\\settings.ini", 1024);
+		CIniFile mainSettings;
 		mainSettings.WriteNumber(L"main", L"mEffectsVol", newLevel);
 		Wave::SetVolume(newLevel);
 	}

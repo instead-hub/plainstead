@@ -10,7 +10,7 @@ public:
 
 	Wave(char *filename);
 	~Wave();
-	void play();
+	void play(bool ignore_settings = false);
 	bool isok();
 private:
 	HSAMPLE sample;

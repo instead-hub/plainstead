@@ -6,6 +6,7 @@
 #include "ColorPickerCB.h"
 #include "CPCBTESTDlg.h"
 #include "IniFile.h"
+#include <string>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -46,6 +47,7 @@ void CCPCBTESTDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO_FONT_SIZE, m_ComboFontSize);
 	DDX_Control(pDX, IDC_CHECK_AUTO_LOG, mCheckAutoLog);
 	DDX_Control(pDX, IDC_CHECK_SOUND_LIST, mCheckSoundList);
+	DDX_Control(pDX, IDC_COMBO_STYLE_ANNOUNCE, m_ComboStyleAnnounce);
 }
 
 BEGIN_MESSAGE_MAP(CCPCBTESTDlg, CDialog)
@@ -63,6 +65,8 @@ BEGIN_MESSAGE_MAP(CCPCBTESTDlg, CDialog)
 	ON_CBN_SELCHANGE(IDC_DROPPEDCB, &CCPCBTESTDlg::OnCbnSelchangeDroppedcb)
 	ON_WM_DESTROY()
 	ON_CBN_SELCHANGE(IDC_COMBO_FONT_SIZE, &CCPCBTESTDlg::OnCbnSelchangeComboFontSize)
+	ON_CBN_SELCHANGE(IDC_COMBO_STYLE_ANNOUNCE, &CCPCBTESTDlg::OnCbnSelchangeComboStyleAnnounce)
+	ON_BN_CLICKED(IDC_BUTTON_CHECK_ANNOUNCE, &CCPCBTESTDlg::OnBnClickedButtonCheckAnnounce)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -84,7 +88,7 @@ BOOL CCPCBTESTDlg::OnInitDialog()
 	m_cbOutBack.InitializeDefaultColors();
 	m_cbInFont.InitializeDefaultColors();
 
-	CIniFile mainSettings(L".\\settings.ini", 1024);
+	CIniFile mainSettings;
 	CString fontH;
 	mainSettings.GetString(L"main", L"fontHeight", fontH, L"20" );
 	
@@ -95,7 +99,7 @@ BOOL CCPCBTESTDlg::OnInitDialog()
 	m_CheckAutosay.SetCheck( mainSettings.GetInt(L"main", L"m_CheckAutosay", 1 ) );
 	m_CheckSetFocusToOut.SetCheck( mainSettings.GetInt(L"main", L"m_CheckSetFocusToOut", 0 ) );
 	mCheckAutoLog.SetCheck( mainSettings.GetInt(L"main", L"mCheckAutoLog", 0 ) );
-	mCheckSoundList.SetCheck(mainSettings.GetInt(L"main", L"mCheckSoundList", 1));
+	//mCheckSoundList.SetCheck(mainSettings.GetInt(L"main", L"mCheckSoundList", 1));
 
 	//m_editFontHeight.SetWindowTextW(fontH);
 
@@ -111,9 +115,75 @@ BOOL CCPCBTESTDlg::OnInitDialog()
 	}
 	m_ComboFontSize.SetCurSel(m_valueEdit-START_FONT);
 
+	TCHAR buff[MAX_PATH];
+	memset(buff, 0, MAX_PATH);
+	::GetModuleFileName(NULL, buff, sizeof(buff));
+	CString baseDir = buff;
+	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
+	SetCurrentDirectory(baseDir);
+	//Добавление стилей для оповещения
+	if (PathFileExists(baseDir + L"\\sounds\\scene1.wav") &&
+		PathFileExists(baseDir + L"\\sounds\\inventory1.wav") &&
+		PathFileExists(baseDir + L"\\sounds\\ways1.wav")
+		)
+	{
+		m_ComboStyleAnnounce.AddString(L"1");
+	}
+	if (PathFileExists(baseDir + L"\\sounds\\scene2.wav") &&
+		PathFileExists(baseDir + L"\\sounds\\inventory2.wav") &&
+		PathFileExists(baseDir + L"\\sounds\\ways2.wav")
+		)
+	{
+		m_ComboStyleAnnounce.AddString(L"2");
+	}
+	if (PathFileExists(baseDir + L"\\sounds\\scene3.wav") &&
+		PathFileExists(baseDir + L"\\sounds\\inventory3.wav") &&
+		PathFileExists(baseDir + L"\\sounds\\ways3.wav")
+		)
+	{
+		m_ComboStyleAnnounce.AddString(L"3");
+	}
+	if (PathFileExists(baseDir + L"\\sounds\\scene4.wav") &&
+		PathFileExists(baseDir + L"\\sounds\\inventory4.wav") &&
+		PathFileExists(baseDir + L"\\sounds\\ways4.wav")
+		)
+	{
+		m_ComboStyleAnnounce.AddString(L"4");
+	}
+	if (PathFileExists(baseDir + L"\\sounds\\scene5.wav") &&
+		PathFileExists(baseDir + L"\\sounds\\inventory5.wav") &&
+		PathFileExists(baseDir + L"\\sounds\\ways5.wav")
+		)
+	{
+		m_ComboStyleAnnounce.AddString(L"5");
+	}
+	m_currWaveStyle = mainSettings.GetInt(L"main", L"m_ComboStyleAnnounce", 0);
+	m_ComboStyleAnnounce.SetCurSel(m_currWaveStyle);
+	temp_scene_wave = 0;
+	temp_inv_wave = 0;
+	temp_ways_wave = 0;
+	UpdateTempWave();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
+
+void CCPCBTESTDlg::UpdateTempWave()
+{
+	char wave_pos[30];
+	
+	sprintf(wave_pos, "sounds\\scene%d.wav", m_currWaveStyle + 1);
+	if (temp_scene_wave) delete temp_scene_wave;
+	temp_scene_wave = new Wave(wave_pos);
+
+	sprintf(wave_pos, "sounds\\inventory%d.wav", m_currWaveStyle + 1);
+	if (temp_inv_wave) delete temp_inv_wave;
+	temp_inv_wave = new Wave(wave_pos);
+	
+	sprintf(wave_pos, "sounds\\ways%d.wav", m_currWaveStyle + 1);
+	if (temp_ways_wave) delete temp_ways_wave;
+	temp_ways_wave = new Wave(wave_pos);
+}
+
 
 void CCPCBTESTDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
@@ -159,7 +229,7 @@ HCURSOR CCPCBTESTDlg::OnQueryDragIcon()
 void CCPCBTESTDlg::OnBnClickedOk()
 {
 	// TODO: сохранение в основные настройки
-	CIniFile mainSettings(L".\\settings.ini", 1024);
+	CIniFile mainSettings;
 	//CString fontH;
 	//m_editFontHeight.GetWindowTextW(fontH);
 	//mainSettings.WriteNumber(L"main", L"fontHeight", _wtoi(fontH) );
@@ -176,7 +246,9 @@ void CCPCBTESTDlg::OnBnClickedOk()
 	mainSettings.WriteNumber(L"main", L"m_CheckAutosay",  m_CheckAutosay.GetCheck() );
 	mainSettings.WriteNumber(L"main", L"m_CheckSetFocusToOut",  m_CheckSetFocusToOut.GetCheck() );
 	mainSettings.WriteNumber(L"main", L"mCheckAutoLog",  mCheckAutoLog.GetCheck() );
-	mainSettings.WriteNumber(L"main", L"mCheckSoundList", mCheckSoundList.GetCheck());
+	//mainSettings.WriteNumber(L"main", L"mCheckSoundList", mCheckSoundList.GetCheck());
+
+	mainSettings.WriteNumber(L"main", L"m_ComboStyleAnnounce", m_ComboStyleAnnounce.GetCurSel());
 
 	OnOK();
 }
@@ -284,6 +356,9 @@ void CCPCBTESTDlg::OnDestroy()
 	CDialog::OnDestroy();
 
 	m_font.DeleteObject();
+	if (temp_scene_wave) delete temp_scene_wave;
+	if (temp_inv_wave) delete temp_inv_wave;
+	if (temp_ways_wave) delete temp_ways_wave;
 	// TODO: добавьте свой код обработчика сообщений
 }
 
@@ -293,4 +368,28 @@ void CCPCBTESTDlg::OnCbnSelchangeComboFontSize()
 	int currFont = m_ComboFontSize.GetCurSel()+START_FONT;
 	UpdateFontSize(currFont);
 	UpdateData(FALSE);
+}
+
+
+void CCPCBTESTDlg::OnCbnSelchangeComboStyleAnnounce()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	if (m_ComboStyleAnnounce.GetCurSel() != m_currWaveStyle)
+	{
+		m_currWaveStyle = m_ComboStyleAnnounce.GetCurSel();
+		UpdateTempWave();
+		OnBnClickedButtonCheckAnnounce();
+	}
+}
+
+
+void CCPCBTESTDlg::OnBnClickedButtonCheckAnnounce()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	if (temp_scene_wave && temp_inv_wave && temp_ways_wave)
+	{
+		temp_scene_wave->play(true);
+		temp_inv_wave->play(true);
+		temp_ways_wave->play(true);
+	}
 }

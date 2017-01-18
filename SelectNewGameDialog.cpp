@@ -164,7 +164,7 @@ void CSelectNewGameDialog::OnBnClickedButtonStartLastGame()
 {
 	// TODO: добавьте свой код обработчика уведомлений
 	m_bSelectLastGame = true;
-	CIniFile mainSettings(L".\\settings.ini", 1024);
+	CIniFile mainSettings;
 	mainSettings.GetString(L"main", L"lastGameFile", m_selGameFile, L"");
 	mainSettings.GetString(L"main", L"lastGameName", m_selName, L"");
 	OnOK();

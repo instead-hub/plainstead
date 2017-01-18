@@ -13,6 +13,7 @@
 
 #include "ColorPickerCB.h"
 #include "afxwin.h"
+#include "Wave.h"
 
 class CCPCBTESTDlg : public CDialog
 {
@@ -41,6 +42,7 @@ public:
 protected:
 	HICON m_hIcon;
 	void UpdateFontSize(int fontH);
+	void UpdateTempWave();
 
 	// Generated message map functions
 	//{{AFX_MSG(CCPCBTESTDlg)
@@ -69,6 +71,14 @@ public:
 	afx_msg void OnCbnSelchangeComboFontSize();
 	CButton mCheckAutoLog;
 	CButton mCheckSoundList;
+	CComboBox m_ComboStyleAnnounce;
+	afx_msg void OnCbnSelchangeComboStyleAnnounce();
+
+	int m_currWaveStyle;
+	Wave* temp_scene_wave;
+	Wave* temp_inv_wave;
+	Wave* temp_ways_wave;
+	afx_msg void OnBnClickedButtonCheckAnnounce();
 };
 
 //{{AFX_INSERT_LOCATION}}

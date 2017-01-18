@@ -126,7 +126,7 @@ void CMainFrame::OnClose()
 
 	WINDOWPLACEMENT wp;
     GetWindowPlacement(&wp);
-	CIniFile mainSettings(L".\\settings.ini", 1024);
+	CIniFile mainSettings;
 	mainSettings.WriteNumber(L"MainFrame", L"WPlen", (INT)wp.length );
 	mainSettings.WriteStruct(L"MainFrame", L"WP", &wp, wp.length );
 
@@ -151,7 +151,7 @@ void CMainFrame::OnShowWindow(BOOL bShow, UINT nStatus)
         WINDOWPLACEMENT lwp;
         UINT nl;
 
-		CIniFile mainSettings(L".\\settings.ini", 1024);
+		CIniFile mainSettings;
 		nl = mainSettings.GetInt(L"MainFrame", L"WPlen", 0);
 		if (nl)
 		{

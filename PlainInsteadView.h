@@ -59,7 +59,7 @@ protected:
 	CString m_newText;
 	BOOL m_auto_say;
 	BOOL m_jump_to_out;
-	BOOL m_BeepList;
+	//BOOL m_BeepList;
 // Созданные функции схемы сообщений
 protected:
 	DECLARE_MESSAGE_MAP()

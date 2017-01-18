@@ -31,11 +31,13 @@ protected:
 	void CreateColumns();
 	void RescanInstalled();
 	void AddInstalledGame(CString name, CString version, std::pair<CString, CString> path);
-	void AddNewGame(CString name, CString mark, CString version, CString sz, CString page, std::pair<CString, CString> downloadPageAndInstallName);
+	void AddNewGame(CString name, CString version, CString sz, CString page, std::pair<CString, CString> downloadPageAndInstallName);
 	void SetCell(CListCtrl& ctrl, CString value, int nRow, int nCol);
-	void UpdateNewGamesFromUrl(CString url);
+	void UpdateNewGamesFromUrl(CString url, CString temp_xmlfile);
+	void ReadNewGamesFromXMLAndAdd(CString temp_xmlfile);
 	bool UpdateApprovedGamesFromUrl(CString url, CString res_path);
 	void UpdateApprovedFromFile();
+	void ClearNewList();
 
 	std::vector<CString> installedGamePath;
 	std::set<CString> installedGameName;
@@ -43,11 +45,13 @@ protected:
 	std::vector<std::pair<CString/*name*/, CString/*page*/> > networkGameDWPageAndName;
 	std::set<CString> networkGameName;
 
-	std::map<CString, std::pair<CString /*approve*/, CString /*info*/> > approveInfo;
+	std::map<CString/*game name*/, std::pair<CString /*approve*/, CString /*info*/> > approveInfo;
+	std::vector<CString /*page info*/ > pageInfo;
 
 	CString m_stGamePath;
 	CString m_stGameTitle;
 	bool    m_wantPlay;
+	int     m_lastSelFilter;
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -72,4 +76,6 @@ public:
 	CString currDir;
 	afx_msg void OnBnClickedBtnResumeoldGame2();
 	CButton m_btnResumeGame;
+	CComboBox m_comboFiler;
+	afx_msg void OnCbnSelchangeComboFilter();
 };

@@ -150,23 +150,10 @@ void CPlainInsteadView::OnInitialUpdate()
 	//Запуск таймера обновления текста
 	//SetTimer(ID_TIMER_2,100,OnTimerUpdateText);
 	//чтение настроек
-	CIniFile mainSettings(L".\\settings.ini", 1024);
+	CIniFile mainSettings;
 	useClipboard = mainSettings.GetInt(L"main", L"useClipboard", 0 );
 
 	updateEdit = &m_OutEdit;
-
-	if (!wave_inv) wave_inv = new Wave("sounds\\inventory.wav");
-	if (!wave_scene) wave_scene = new Wave("sounds\\scene.wav");
-	if (!wave_ways) wave_ways = new Wave("sounds\\ways.wav");
-
-	//TCHAR buff[MAX_PATH];
-	//memset(buff, 0, MAX_PATH);
-	//::GetModuleFileName(NULL, buff, sizeof(buff));
-	//CString baseSoundDir(buff);
-	//baseSoundDir = baseSoundDir.Left(baseSoundDir.ReverseFind(_T('\\')) + 1);
-	//baseSoundDir += L"sounds\\";
-	//baseSoundDir + _T("ways.wav")
-	//mListInv.SetWindowTextW(L"Инвентарь");
 }
 
 
@@ -379,7 +366,7 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn)
 			resout.Append(L"\n");
 		}
 	}
-	if (m_BeepList && prev_map.size() != pos_id_scene.size()) {
+	if (/*m_BeepList && */prev_map.size() != pos_id_scene.size()) {
 		wave_scene->play();
 	}
 
@@ -396,7 +383,7 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn)
 		std::wstring buf = tmp.GetBuffer();
 		std::wstring result = process_instead_text(buf, mListWays, pos_id_ways);
 	}
-	if (m_BeepList && prev_map.size() != pos_id_ways.size()) {
+	if (/*m_BeepList && */prev_map.size() != pos_id_ways.size()) {
 		wave_ways->play();
 	}
 
@@ -413,7 +400,7 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn)
 		std::wstring buf = tmp.GetBuffer();
 		std::wstring result = process_instead_text(buf, mListInv, pos_id_inv);
 	}
-	if (m_BeepList && prev_map.size() != pos_id_inv.size()) {
+	if (/*m_BeepList && */prev_map.size() != pos_id_inv.size()) {
 		//PlaySound(baseSoundDir+_T("inventory.wav"), NULL, SND_MEMORY | SND_FILENAME | SND_ASYNC | SND_NOSTOP);
 		wave_inv->play();
 	}
@@ -469,8 +456,7 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 				}
 			}
 		}
-		//Обработка прямого кода на сцене
-		if (act_on_scene.count(sel_pos)) {
+		else if (act_on_scene.count(sel_pos)) { //Обработка прямого кода на сцене
 			CString code = act_on_scene[sel_pos];
 			int total_list_sz = mListScene.GetCount();
 			if (!inv_save.IsEmpty()) inv_save.Empty();
@@ -670,16 +656,30 @@ void CPlainInsteadView::OnTimer( UINT uTime)
 
 void CPlainInsteadView::UpdateSettings()
 {
-	CIniFile mainSettings(L".\\settings.ini", 1024);
+	CIniFile mainSettings;
 	m_auto_say = mainSettings.GetInt(L"main", L"m_CheckAutosay", 1 );
 	m_jump_to_out = mainSettings.GetInt(L"main", L"m_CheckSetFocusToOut", 0 );
-	m_BeepList = mainSettings.GetInt(L"main", L"mCheckSoundList", 1);
+	//m_BeepList = mainSettings.GetInt(L"main", L"mCheckSoundList", 1);
 	UpdateFontSize();
+	//Обновляем музыкальные стили
+	int currWaveStyle = mainSettings.GetInt(L"main", L"m_ComboStyleAnnounce", 0);
+	char wave_pos[30];
+	sprintf(wave_pos, "sounds\\scene%d.wav", currWaveStyle + 1);
+	if (!wave_scene) delete wave_scene;
+	wave_scene = new Wave(wave_pos);
+
+	sprintf(wave_pos, "sounds\\inventory%d.wav", currWaveStyle + 1);
+	if (!wave_inv) delete wave_inv;
+	wave_inv = new Wave(wave_pos);
+
+	sprintf(wave_pos, "sounds\\ways%d.wav", currWaveStyle + 1);
+	if (!wave_ways) delete wave_ways;
+	wave_ways = new Wave(wave_pos);
 }
 
 void CPlainInsteadView::UpdateFontSize()
 {
-	CIniFile mainSettings(L".\\settings.ini", 1024);
+	CIniFile mainSettings;
 	LOGFONT lf;   
 	memset(&lf, 0, sizeof(LOGFONT));
 	int currFontHeight = mainSettings.GetInt(L"main", L"fontHeight", 20 );

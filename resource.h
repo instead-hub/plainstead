@@ -8,6 +8,7 @@
 #define strix_TADSRes4                  19
 #define strix_TADSRes5                  20
 #define strix_TADSRes6                  21
+#define IDS_FATAL                       22
 #define IDD_ABOUTBOX                    100
 #define IDP_OLE_INIT_FAILED             100
 #define IDD_PLAININSTEAD_FORM           101
@@ -66,6 +67,9 @@
 #define IDC_BTN_PLAY_GAMEM              1032
 #define IDC_EDIT_BYTES_LOAD             1032
 #define IDC_BTN_RESUMEOLD_GAME2         1033
+#define IDC_COMBO_FILTER                1034
+#define IDC_COMBO_STYLE_ANNOUNCE        1036
+#define IDC_BUTTON_CHECK_ANNOUNCE       1037
 #define ID_FILE_NEW_GAME                32771
 #define ID_FILE_SAVE_GAME               32772
 #define ID_32773                        32773
@@ -165,7 +169,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        151
 #define _APS_NEXT_COMMAND_VALUE         32909
-#define _APS_NEXT_CONTROL_VALUE         1033
+#define _APS_NEXT_CONTROL_VALUE         1038
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

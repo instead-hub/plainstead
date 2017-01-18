@@ -38,26 +38,37 @@
 	<game>
 		<name>cat</name>
 		<approve>Да</approve>
-		<info/>
+		<info>Метки: Классика, Фантастика. История о леснике хакере-дауншифтере, его войне со злом и конечно же коте.</info>
 	</game>
 	<game>
 		<name>mirror</name>
 		<approve>Да</approve>
-		<info/>
+		<info>Метки: Классика, Легенда. Орды орков и гоблинов во главе с Рыцарем Тьмы и его Чёрным Магом напали на страну. Ремейк культового квеста для ZX-Spectrum</info>
 	</game>
 	<game>
 		<name>rangers</name>
 		<approve>Да</approve>
-		<info/>
+		<info>Метки: Набор игр, фантастика, студия. Текстовые квесты из известной эпической игры. Загрузка работает только в начальном экране. Некоторые из игр недоступны (около 4-7 шт).</info>
 	</game>
 	<game>
 		<name>tutorial3</name>
 		<approve>Да</approve>
-		<info/>
+		<info>Метки: Классика, Обучение. Основы игры в INSTEAD.</info>
 	</game>
 	<game>
 		<name>wolf_goat_yakuza</name>
 		<approve>Да</approve>
-		<info/>
+		<info>Метки: Головоломка. Вариация на тему классической загадки волк, коза и капуста.</info>
 	</game>
+	<game>
+		<name>oldstory</name>
+		<approve>Да</approve>
+		<info>Метки: Классика,Триллер. Узнайте какие тайны скрывают стены зловещего института.</info>
+	</game>
+	<game>
+		<name>dn_mary_in_the_note</name>
+		<approve>Да</approve>
+		<info>Метки: Классика,мистика.. Тот чьё имя записано в тетрадь умрёт! Но возможно тебе удастся избежать смерти... Игра по мотивам аниме Death Note.</info>
+	</game>
+	
 </game_list>

@@ -21,12 +21,13 @@ Wave::Wave(char *filename)
 	sample = BASS_SampleLoad(FALSE, filename, 0, 0, 1, 0);
 }
 
-void Wave::play()
+void Wave::play(bool ignore_settings)
 {
 	if (sample) {
 		HCHANNEL chan = BASS_SampleGetChannel(sample, FALSE);
 		if (chan) {
-			BASS_ChannelSetAttribute(chan, BASS_ATTRIB_VOL, GetVolume()/100.0f);
+			if (!ignore_settings) BASS_ChannelSetAttribute(chan, BASS_ATTRIB_VOL, GetVolume()/100.0f);
+			else BASS_ChannelSetAttribute(chan, BASS_ATTRIB_VOL, 0.8f);
 			BASS_ChannelPlay(sample, FALSE);
 		}
 	}

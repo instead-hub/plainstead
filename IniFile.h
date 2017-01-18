@@ -14,6 +14,7 @@ class CIniFile : public CObject
 {
 public:
 	CIniFile(LPCTSTR lpIniFileName, INT iMaxStringLength);
+	CIniFile(); //название settings.ini возле экзешника
 	virtual ~CIniFile();
 
 // Attributes

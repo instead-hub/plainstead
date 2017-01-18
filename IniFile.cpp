@@ -22,6 +22,16 @@ CIniFile::CIniFile(LPCTSTR	strIniFileName,		// [in] new file name
 	SetIniFileName(strIniFileName);
 }
 
+CIniFile::CIniFile() : m_MAXSTRLEN(1024)
+{
+	TCHAR buff[MAX_PATH];
+	memset(buff, 0, MAX_PATH);
+	::GetModuleFileName(NULL, buff, sizeof(buff));
+	CString baseDir = buff;
+	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
+	SetIniFileName(baseDir+L"\\settings.ini");
+}
+
 
 CIniFile::~CIniFile()
 {	
