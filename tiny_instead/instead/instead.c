@@ -29,12 +29,18 @@
 
 #define DATA_IDF INSTEAD_IDF
 #ifdef _USE_SDL
+#ifndef __EMSCRIPTEN__
 static SDL_mutex *sem;
+#endif
 void instead_lock(void) {
+#ifndef __EMSCRIPTEN__
 	SDL_LockMutex(sem);
+#endif
 }
 void instead_unlock(void) {
+#ifndef __EMSCRIPTEN__
 	SDL_UnlockMutex(sem);
+#endif
 }
 #else
 void instead_lock(void) {
@@ -57,6 +63,12 @@ char 		*togame(const char *s);
 lua_State	*L = NULL;
 
 static char *err_msg = NULL;
+static char instead_api_path[PATH_MAX];
+
+static char *API = NULL;
+static char *MAIN = NULL;
+
+#define STEAD_API_PATH instead_api_path
 
 #define ERR_MSG_MAX 512
 
@@ -512,14 +524,14 @@ int instead_load(char **info)
 	if (rc)
 		goto err;
 
-	idf = idf_open(data_idf, INSTEAD_MAIN);
+	idf = idf_open(data_idf, MAIN);
 
 	if (idf) {
-		int rc = dofile_idf(L, idf, INSTEAD_MAIN);
+		int rc = dofile_idf(L, idf, MAIN);
 		idf_close(idf);
 		if (rc)
 			goto err;
-	} else if (dofile(L, dirpath(INSTEAD_MAIN))) {
+	} else if (dofile(L, dirpath(MAIN))) {
 		goto err;
 	}
 	instead_clear();
@@ -718,10 +730,10 @@ static int luaB_random(lua_State *L) {
 	long a = luaL_optnumber(L, 1, -1);
 	long b = luaL_optnumber(L, 2, -1);
 	r = mt_random();
-	if (a >=0 && b >= a) {
+	if (a >=0 && b > a) {
 		r = a + (r % (b - a + 1));
 		lua_pushinteger(L, r);
-	} else if (a >=0 && b == -1) {
+	} else if (a > 0 && b == -1) {
 		r = (r % a) + 1;
 		lua_pushinteger(L, r);
 	} else {
@@ -765,12 +777,12 @@ static int luaB_get_gamepath(lua_State *L) {
 static int luaB_get_steadpath(lua_State *L) {
 	char stead_path[PATH_MAX];
 
-	if (STEAD_PATH[0] != '/') {
+	if (STEAD_API_PATH[0] != '/') {
 		strcpy(stead_path, instead_cwd());
 		strcat(stead_path, "/");
 	} else
 		stead_path[0] = 0;
-	strcat(stead_path, STEAD_PATH);
+	strcat(stead_path, STEAD_API_PATH);
 	unix_path(stead_path);
 	lua_pushstring(L, stead_path);
 	return 1;
@@ -832,7 +844,7 @@ static int instead_platform(void)
 static int instead_package(const char *path)
 {
 	char *stead_path;
-	stead_path = malloc(PATH_MAX * 5); /* instead_cwd + STEAD_PATH and so on... */
+	stead_path = malloc(PATH_MAX * 5); /* instead_cwd + STEAD_API_PATH and so on... */
 	if (!stead_path)
 		return -1;
 	strcpy(stead_path, "package.path=\"");
@@ -854,12 +866,12 @@ static int instead_package(const char *path)
 	}
 #endif
 
-	if (!is_absolute_path(STEAD_PATH)) {
+	if (!is_absolute_path(STEAD_API_PATH)) {
 		strcat(stead_path, instead_cwd());
 		strcat(stead_path, "/");
-		strcat(stead_path, STEAD_PATH);
+		strcat(stead_path, STEAD_API_PATH);
 	} else {
-		strcat(stead_path, STEAD_PATH);
+		strcat(stead_path, STEAD_API_PATH);
 	}
 	strcat(stead_path, "/?.lua");
 	strcat(stead_path, "\"");
@@ -872,8 +884,87 @@ static int instead_package(const char *path)
 /*	putenv(stead_path); */
 	return 0;
 }
-int instead_init_lua(const char *path)
+
+const char *instead_get_api(void)
 {
+	return API;
+}
+
+static int instead_set_api(const char *api)
+{
+	int i, c = 0;
+	ssize_t s;
+	char *oa;
+	if (!api || !*api) {
+		FREE(API);
+		API = NULL;
+		snprintf(instead_api_path, sizeof(instead_api_path), "%s", STEAD_PATH);
+	} else {
+		s = strlen(api);
+		for (i = 0; i < s; i ++) {
+			if (api[i] == '.') {
+				if (c > 0) {
+					instead_err_msg("Wrong API.");
+					fprintf(stderr, "Wrong API.\n");
+					return -1;
+				}
+				c ++;
+			} else
+				c = 0;
+		}
+		oa = API;
+		API = strdup(api);
+		FREE(oa);
+		snprintf(instead_api_path, sizeof(instead_api_path), "%s/%s", STEAD_PATH, API);
+	}
+	return 0;
+}
+
+
+static int instead_detect_api(const char *path)
+{
+	int api = 0;
+	char *p;
+	if (data_idf && idf_only(data_idf, -1) == 1) {
+		if (!idf_access(data_idf, INSTEAD_MAIN3))
+			api = 3;
+		else if (!idf_access(data_idf, INSTEAD_MAIN))
+			api = 2;
+	} else {
+		p = getfilepath(path, INSTEAD_MAIN3);
+		if (!p)
+			return -1;
+		if (!access(dirpath(p), R_OK))
+			api = 3;
+		free(p);
+		if (api)
+			goto out;
+		p = getfilepath(path, INSTEAD_MAIN);
+		if (!access(dirpath(p), R_OK))
+			api = 2;
+		free(p);
+	}
+out:
+	switch (api){
+	case 2:
+		if (instead_set_api("stead2") < 0)
+			return -1;
+		MAIN = INSTEAD_MAIN;
+		break;
+	case 3:
+		if (instead_set_api("stead3") < 0)
+			return -1;
+		MAIN = INSTEAD_MAIN3;
+		break;
+	default:
+		return -1;
+	}
+	return api;
+}
+
+int instead_init_lua(const char *path, int detect)
+{
+	int api = 0;
 	busy = 0;
 	setlocale(LC_ALL,"");
 	setlocale(LC_NUMERIC,"C"); /* to avoid . -> , in numbers */	
@@ -884,6 +975,13 @@ int instead_init_lua(const char *path)
 	instead_cwd_path[sizeof(instead_cwd_path) - 1] = 0;
 	strncpy(instead_game_path, path, sizeof(instead_game_path));
 	instead_cwd_path[sizeof(instead_game_path) - 1] = 0;
+
+	if (detect && (api = instead_detect_api(path)) < 0) {
+		fprintf(stderr, "Can not detect game format: %s\n", path);
+		instead_err_msg("Can not detect game format.");
+		return -1;
+	}
+
 	/* initialize Lua */
 #if LUA_VERSION_NUM >= 502
 	L = luaL_newstate();
@@ -906,6 +1004,10 @@ int instead_init_lua(const char *path)
 	instead_package(path);
 	instead_platform();
 /*	instead_set_lang(opt_lang); */
+	if (api == 3)
+		instead_eval("API='stead3'");
+	else if (api == 2)
+		instead_eval("API='stead2'");
 	if (debug_sw)
 		instead_eval("DEBUG=true");
 	else
@@ -924,23 +1026,9 @@ int instead_init_lua(const char *path)
 
 int instead_init(const char *path)
 {
+	char stead_path[PATH_MAX];
 	int idf = 0;
 
-	if (instead_init_lua(path))
-		goto err;
-
-	if (dofile(L, dirpath(STEAD_PATH"/stead.lua")))
-		goto err;
-
-	if (extensions_hook(init) < 0) {
-		fprintf(stderr, "Can't init instead engine.\n");
-		goto err;
-	}
-#ifdef _USE_SDL
-	sem = SDL_CreateMutex();
-	if (!sem)
-		goto err;
-#endif
 	if (data_idf)
 		idf_done(data_idf);
 
@@ -950,6 +1038,25 @@ int instead_init(const char *path)
 		idf_only(data_idf, 1);
 		idf = 1;
 	}
+
+	if (instead_init_lua(path, 1))
+		goto err;
+
+	snprintf(stead_path, sizeof(stead_path), "%s/stead.lua", STEAD_API_PATH);
+	if (dofile(L, dirpath(stead_path)))
+		goto err;
+
+	if (extensions_hook(init) < 0) {
+		fprintf(stderr, "Can't init instead engine.\n");
+		goto err;
+	}
+#ifdef _USE_SDL
+#ifndef __EMSCRIPTEN__
+	sem = SDL_CreateMutex();
+	if (!sem)
+		goto err;
+#endif
+#endif
 
 	if ((!idf && setdir(path))) {
 		instead_clear();
@@ -995,9 +1102,11 @@ void instead_done(void)
 	if (wasL)
 		extensions_hook(done);
 #ifdef _USE_SDL
+#ifndef __EMSCRIPTEN__
 	if (sem)
 		SDL_DestroyMutex(sem);
 	sem = NULL;
+#endif
 #endif
 #ifdef _HAVE_ICONV
 	if (fromcp)
@@ -1014,6 +1123,8 @@ void instead_done(void)
 	data_idf = NULL;
 	if (wasL)
 		setdir(instead_cwd_path);
+	FREE(API);
+	API = NULL;
 }
 
 int  instead_encode(const char *s, const char *d)
@@ -1057,6 +1168,11 @@ int  instead_encode(const char *s, const char *d)
 idf_t  instead_idf(void)
 {
 	return data_idf;
+}
+
+char *instead_stead_path(void)
+{
+	return instead_api_path;
 }
 
 char *instead_path(void)

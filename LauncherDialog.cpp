@@ -234,10 +234,21 @@ void LauncherDialog::RescanInstalled()
 	for (int i = 0; i < filePathsAndNames.size(); i++)
 	{
 		CString string;
+		CStdioFileEx gameFile;
+		bool have_file = false;
 		if (PathFileExists(filePathsAndNames[i].first + L"\\main.lua"))
 		{
-			CStdioFileEx gameFile(filePathsAndNames[i].first + L"\\main.lua", CFile::modeRead);
+			gameFile.Open(filePathsAndNames[i].first + L"\\main.lua", CFile::modeRead);
+			have_file = true;
+		}
+		else if (PathFileExists(filePathsAndNames[i].first + L"\\main3.lua"))
+		{
+			gameFile.Open(filePathsAndNames[i].first + L"\\main3.lua", CFile::modeRead);
+			have_file = true;
+		}
 
+		if (have_file)
+		{
 			gameFile.SetCodePage(CP_UTF8);
 			CString game_name;
 			CString game_name_en;

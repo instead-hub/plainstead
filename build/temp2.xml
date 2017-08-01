@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <game_list version="1.0">
  <game>
+  <name>conan_dancing_god</name>
+  <title>Конан: Танцующий Бог</title>
+  <image>http://instead-games.rooker.ru/games/screenshots/20161224135641970.png</image>
+  <version>1.05</version>
+  <url>http://instead-games.rooker.ru/download/instead-conan_dancing_god-1.05.zip</url>
+  <size>32305388</size>
+  <lang>ru</lang>
+  <descurl>http://instead-games.rooker.ru/game.php?ID=242</descurl>
+ </game>
+ <game>
   <name>insteadose_4</name>
   <title>Инстедоз 4 комнаты</title>
   <image>http://instead-games.rooker.ru/games/screenshots/20160609105509170.png</image>

@@ -36,6 +36,7 @@
 #define INSTEAD_BOOL 3
 
 #define INSTEAD_MAIN	"main.lua"
+#define INSTEAD_MAIN3	"main3.lua"
 #define INSTEAD_IDF	"data.idf"
 
 #ifndef STEAD_PATH
@@ -75,7 +76,7 @@ extern int  instead_encode(const char *s, const char *d);
 extern int  instead_busy(void);
 
 /* internal use */
-extern int  instead_init_lua(const char *path);
+extern int  instead_init_lua(const char *path, int detect);
 extern int  instead_loadscript(char *name, int argc, char **argv, int exec);
 extern int  instead_loadfile(char *name);
 
@@ -89,11 +90,14 @@ extern idf_t  instead_idf(void);
 extern int  instead_set_lang(const char *lang);
 extern int  instead_set_debug(int);
 extern int  instead_set_standalone(int);
+/* extern int  instead_set_api(const char *api); */
+extern const char *instead_get_api(void);
 
 extern lua_State *instead_lua(void);
 
 extern char	*instead_local_stead_path(void);
 extern char	*instead_path(void);
+extern char	*instead_stead_path(void);
 extern char	*instead_cwd(void);
 
 #endif

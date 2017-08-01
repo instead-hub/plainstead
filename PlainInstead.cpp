@@ -986,6 +986,10 @@ void CPlainInsteadApp::OnAddGameToLib()
 				have_main_lua = true;
 				break;
 			}
+			else if (ze.name == game_name + L"main3.lua") {
+				have_main_lua = true;
+				break;
+			}
 			//UnzipItem(hz, i, ze.name);
 		}
 		//Убираем слеш с конца
