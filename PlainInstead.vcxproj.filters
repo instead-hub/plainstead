@@ -206,6 +206,12 @@
     <ClInclude Include="unzip.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="tiny_instead\externals.h">
+      <Filter>tiny</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_instead\internals.h">
+      <Filter>tiny</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\PlainInstead.ico">

@@ -463,13 +463,6 @@ void CPlainInsteadApp::StartNewGameFile(CString file, CString name)
 	CString gameName = file.Right(file.GetLength() - file.ReverseFind(_T('\\')) - 1);
 	saveGameNameDir = L"../../saves/" + gameName;
 	saveDir = baseDir + L"saves\\" + gameName;
-	//Создаем каталог для сохранения (если его еще не было)
-	if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) {
-		SHCreateDirectoryEx(NULL, saveDir, NULL);
-		if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) {
-			AfxMessageBox(L"Не могу создать директорию для сохранения!");
-		}
-	}
 
 	//closeAllChannels();
 	InterpreterController::startGameFile(file,name,needAutoLog);
@@ -491,6 +484,13 @@ void CPlainInsteadApp::OnFileSave()
 {
 	//Cохранение файла
 	if (Tolk_IsSpeaking()) Tolk_Silence();
+	//Создаем каталог для сохранения (если его еще не было)
+	if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) {
+		SHCreateDirectoryEx(NULL, saveDir, NULL);
+		if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) {
+			AfxMessageBox(L"Не могу создать директорию для сохранения!");
+		}
+	}
 	for (int i = 0; i < 3; i++) //3 попытки сохранения
 	{
 		CFileDialog fileDialog(FALSE, L"sav", saveDir + L"\\1.sav", OFN_NOCHANGEDIR | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, L"Instead save file (*.sav)|*.sav");	//объект класса выбора файла
@@ -697,32 +697,24 @@ void CPlainInsteadApp::OnAppExit()
 			GlobalManager::getInstance().isIgnoreExitDialog = true;
 			instead_done();
 			if (gBassInit) BASS_Free();
-			CWinApp::OnAppExit();
+
+			CWinApp::CloseAllDocuments(FALSE);
+			ASSERT(AfxGetApp()->m_pMainWnd != NULL);
+			AfxGetApp()->m_pMainWnd->SendMessage(WM_CLOSE);
 		}
 		else if (res == IDNO)
 		{
 			return;
 		}
-		/*
-		int res = MessageBox(NULL,L"Сохранить текущую игру?",L"Файл не сохранен", MB_YESNOCANCEL);
-		if (res == IDYES)
-		{
-			OnFileSave();
-			GlobalManager::getInstance().isIgnoreExitDialog = true;
-			CWinApp::OnAppExit();
-		}
-		else if (res == IDNO)
-		{
-			GlobalManager::getInstance().isIgnoreExitDialog = true;
-			CWinApp::OnAppExit();
-		}
-		*/
 	}
 	else
 	{
 		instead_done();
 		if (gBassInit) BASS_Free();
-		CWinApp::OnAppExit();
+		
+		CWinApp::CloseAllDocuments(FALSE);
+		ASSERT(AfxGetApp()->m_pMainWnd != NULL);
+		AfxGetApp()->m_pMainWnd->SendMessage(WM_CLOSE);
 	}
 }
 

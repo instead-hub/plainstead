@@ -251,4 +251,4 @@ _Pvt_Extensions
 # FAKE - F# Make
 .fake/
 
-PlainInstead.VC.db
+*.VC.db

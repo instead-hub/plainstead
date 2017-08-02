@@ -173,6 +173,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TemplateSmartPtr.h" />
     <ClInclude Include="tiny_instead\dirent.h" />
+    <ClInclude Include="tiny_instead\externals.h" />
     <ClInclude Include="tiny_instead\instead\cache.h" />
     <ClInclude Include="tiny_instead\instead\idf.h" />
     <ClInclude Include="tiny_instead\instead\instead.h" />
@@ -180,6 +181,7 @@
     <ClInclude Include="tiny_instead\instead\system.h" />
     <ClInclude Include="tiny_instead\instead\tinymt32.h" />
     <ClInclude Include="tiny_instead\instead\util.h" />
+    <ClInclude Include="tiny_instead\internals.h" />
     <ClInclude Include="tiny_instead\libgen.h" />
     <ClInclude Include="tiny_instead\unistd.h" />
     <ClInclude Include="Tolk.h" />
