@@ -100,7 +100,8 @@ public:
 	afx_msg void OnFindNext();
 	afx_msg void OnHistoryStop();
 	afx_msg void OnHistoryStart();
-	void TryInsteadCommand(CString textIn); //Отправка команды в интерпретатор
+	void TryInsteadCommand(CString textIn, CString cmdForLog = L""); //Отправка команды в интерпретатор
+	void TurnOffLogging();
 	CListBox mListScene;
 	std::map<int,int> pos_id_scene;
 	std::map<int/*list_pos*/, CString/*code*/> act_on_scene;
@@ -124,6 +125,10 @@ public:
 	Wave* wave_inv;
 	Wave* wave_scene;
 	Wave* wave_ways;
+	afx_msg void OnMenuLog();
+	bool isLogOn;
+	CString logFileName;
+	CString savedSelInv;
 };
 
 #ifndef _DEBUG  // отладочная версия в PlainInsteadView.cpp

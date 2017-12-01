@@ -25,10 +25,32 @@ IMPLEMENT_DYNAMIC(LauncherDialog, CDialog)
 #define SEL_FILTER_VALID         1 //доступные
 #define SEL_FILTER_VALID_AND_UNK 2 //доступные и непроверенные
 
-LauncherDialog::LauncherDialog(CWnd* pParent /*=NULL*/)
-	: CDialog(IDD_LAUNCHERDIALOG, pParent)
-{
+#define N_SUBITEM_LIST_INSTALLED_CAPTION 0 //название
+#define N_SUBITEM_LIST_INSTALLED_ACCESSABLE 1 //доступна
+#define N_SUBITEM_LIST_INSTALLED_VERSION    2 //версия
+#define N_SUBITEM_LIST_INSTALLED_DESC       3 //кратко
+#define N_SUBITEM_LIST_INSTALLED_DATE       4 //кратко
+#define N_SUBITEM_LIST_INSTALLED_GNAME      5 //игровое имя
 
+#define N_SUBITEM_LIST_NEW_CAPTION 0 //название
+#define N_SUBITEM_LIST_NEW_ACCESSABLE 1 //доступна
+#define N_SUBITEM_LIST_NEW_VERSION    2 //версия
+#define N_SUBITEM_LIST_NEW_SIZE       3 //размер
+#define N_SUBITEM_LIST_NEW_DESC       4 //кратко
+#define N_SUBITEM_LIST_NEW_DATE       5 //Дата публикации
+#define N_SUBITEM_LIST_NEW_URL        6 //ссылка URL
+#define N_SUBITEM_LIST_NEW_GNAME      7 //игровое имя
+#define N_SUBITEM_LIST_NEW_DWN_URL    8 //ссылка для прямой загрузки
+#define N_SUBITEM_LIST_NEW_IS_SANDER  9 //является ли игра из песочницы
+
+
+LauncherDialog::LauncherDialog(CWnd* pParent /*=NULL*/)
+	: CDialog(IDD_LAUNCHERDIALOG, pParent),
+	m_sortInstalledUp(true),
+	m_sortNewUp(true)
+{
+	m_sortInstalledLastItem = -1;
+	m_sortNewLastItem = -1;
 }
 
 LauncherDialog::~LauncherDialog()
@@ -48,6 +70,7 @@ void LauncherDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_PLAY_GAMEM, m_btnPlayGame);
 	DDX_Control(pDX, IDC_BTN_RESUMEOLD_GAME2, m_btnResumeGame);
 	DDX_Control(pDX, IDC_COMBO_FILTER, m_comboFiler);
+	DDX_Control(pDX, IDC_CHECK_SANDER, m_CheckSander);
 }
 
 
@@ -61,6 +84,7 @@ BEGIN_MESSAGE_MAP(LauncherDialog, CDialog)
 	ON_BN_CLICKED(IDC_BTN_PLAY_GAMEM, &LauncherDialog::OnBnClickedBtnPlayGamem)
 	ON_BN_CLICKED(IDC_BTN_RESUMEOLD_GAME2, &LauncherDialog::OnBnClickedBtnResumeoldGame2)
 	ON_CBN_SELCHANGE(IDC_COMBO_FILTER, &LauncherDialog::OnCbnSelchangeComboFilter)
+	ON_NOTIFY(HDN_ITEMCLICK, 0, &LauncherDialog::OnHdnItemclickListInstalled)
 END_MESSAGE_MAP()
 
 
@@ -204,10 +228,11 @@ BOOL LauncherDialog::OnInitDialog()
 	ListView_SetExtendedListViewStyle(::GetDlgItem(m_hWnd, IDC_LIST_NEW), LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 	CreateColumns();
 
-	//AddInstalledGame(L"Похождения квантового кота", true, L"1.0");
-	//AddNewGame(L"Новьё!", true, L"1.0",L"1 Мб",L"http://some.page");
 	//Обновляем список доступных игр
 	UpdateApprovedFromFile();
+	//Обновляем доп инфу, если есть xml
+	if (PathFileExists(L"rss1.xml")) ReadAdditionalInfoFromXMLRss(L"rss1.xml");
+	if (PathFileExists(L"rss2.xml")) ReadAdditionalInfoFromXMLRss(L"rss2.xml");
 
 	RescanInstalled();
 
@@ -228,7 +253,7 @@ void LauncherDialog::RescanInstalled()
 	CString dir = baseDir + L"\\games";
 	m_gameBaseDir = dir;
 	std::vector<std::pair<CString, CString> > filePathsAndNames;
-	installedGamePath.clear();
+	installedGameNameCache.clear();
 	ListFilesGamInDirectory(dir, filePathsAndNames);
 
 	for (int i = 0; i < filePathsAndNames.size(); i++)
@@ -317,6 +342,7 @@ void LauncherDialog::showInstalledTabControls()
 	m_btnInstall.ShowWindow(SW_HIDE);
 	m_btnOpenLink.ShowWindow(SW_HIDE);
 	m_comboFiler.ShowWindow(SW_HIDE);
+	m_CheckSander.ShowWindow(SW_HIDE);
 
 	m_listInstalled.SetFocus();
 }
@@ -333,9 +359,47 @@ void LauncherDialog::showNewTabControls()
 	m_btnInstall.ShowWindow(SW_SHOW);
 	m_btnOpenLink.ShowWindow(SW_SHOW);
 	m_comboFiler.ShowWindow(SW_SHOW);
+	m_CheckSander.ShowWindow(SW_SHOW);
 
 	m_listNew.SetFocus();
 }
+
+struct PARAMSORT
+{
+	PARAMSORT(HWND hWnd, int columnIndex, bool ascending)
+	:m_hWnd(hWnd)
+	,m_ColumnIndex(columnIndex)
+	,m_Ascending(ascending)
+	{}
+
+	HWND m_hWnd;
+	int  m_ColumnIndex;
+	bool m_Ascending;
+};
+
+// Comparison extracts values from the List-Control
+int CALLBACK SortFunc(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+{
+	PARAMSORT& ps = *(PARAMSORT*)lParamSort;
+
+	TCHAR left[256] = _T(""), right[256] = _T("");
+	ListView_GetItemText(ps.m_hWnd, lParam1,
+		ps.m_ColumnIndex, left, sizeof(left));
+	ListView_GetItemText(ps.m_hWnd, lParam2,
+		ps.m_ColumnIndex, right, sizeof(right));
+
+	if (ps.m_Ascending)
+		return _tcscmp(left, right);
+	else
+		return _tcscmp(right, left);
+}
+
+void LauncherDialog::SortColumn(CListCtrl* ctrl,int columnIndex, bool ascending)
+{
+	PARAMSORT paramsort(ctrl->m_hWnd, columnIndex, ascending);
+	ctrl->SortItemsEx(SortFunc, (DWORD_PTR)&paramsort);
+}
+
 
 // This function inserts the default values into the listControl
 void LauncherDialog::CreateColumns()
@@ -346,59 +410,99 @@ void LauncherDialog::CreateColumns()
 	list.fmt = LVCFMT_LEFT;
 	list.cx = 320;
 	list.pszText = L"Название";
-	list.iSubItem = 0;
+	list.iSubItem = N_SUBITEM_LIST_INSTALLED_CAPTION;
 	//Inserts the column
-	m_listInstalled.InsertColumn(0, &list);
+	m_listInstalled.InsertColumn(N_SUBITEM_LIST_INSTALLED_CAPTION, &list);
 
 	list.cx = 100;
 	list.pszText = L"Доступна";
-	list.iSubItem = 1;
-	m_listInstalled.InsertColumn(1, &list);
+	list.iSubItem = N_SUBITEM_LIST_INSTALLED_ACCESSABLE;
+	m_listInstalled.InsertColumn(N_SUBITEM_LIST_INSTALLED_ACCESSABLE, &list);
 
 	list.cx = 100;
 	list.pszText = L"Версия";
-	list.iSubItem = 2;
-	m_listInstalled.InsertColumn(2, &list);
+	list.iSubItem = N_SUBITEM_LIST_INSTALLED_VERSION;
+	m_listInstalled.InsertColumn(N_SUBITEM_LIST_INSTALLED_VERSION, &list);
 
 	list.cx = 200;
 	list.pszText = L"Кратко";
-	list.iSubItem = 3;
-	m_listInstalled.InsertColumn(3, &list);
+	list.iSubItem = N_SUBITEM_LIST_INSTALLED_DESC;
+	m_listInstalled.InsertColumn(N_SUBITEM_LIST_INSTALLED_DESC, &list);
+
+	list.cx = 70;
+	list.pszText = L"Дата";
+	list.iSubItem = N_SUBITEM_LIST_INSTALLED_DATE;
+	m_listInstalled.InsertColumn(N_SUBITEM_LIST_INSTALLED_DATE, &list);
+
+	list.cx = 0;
+	list.pszText = L"Игровое имя";
+	list.iSubItem = N_SUBITEM_LIST_INSTALLED_GNAME;
+	m_listInstalled.InsertColumn(N_SUBITEM_LIST_INSTALLED_GNAME, &list);
 
 	/////// Для новых игр
 	list.cx = 270;
 	list.pszText = L"Название";
-	list.iSubItem = 0;
-	m_listNew.InsertColumn(0, &list);
+	list.iSubItem = N_SUBITEM_LIST_NEW_CAPTION;
+	m_listNew.InsertColumn(N_SUBITEM_LIST_NEW_CAPTION, &list);
 
 	list.cx = 50;
 	list.pszText = L"Доступна";
-	list.iSubItem = 1;
-	m_listNew.InsertColumn(1, &list);
+	list.iSubItem = N_SUBITEM_LIST_NEW_ACCESSABLE;
+	m_listNew.InsertColumn(N_SUBITEM_LIST_NEW_ACCESSABLE, &list);
 
 	list.cx = 50;
 	list.pszText = L"Версия";
-	list.iSubItem = 2;
-	m_listNew.InsertColumn(2, &list);
+	list.iSubItem = N_SUBITEM_LIST_NEW_VERSION;
+	m_listNew.InsertColumn(N_SUBITEM_LIST_NEW_VERSION, &list);
 
 	list.cx = 50;
 	list.pszText = L"Размер";
-	list.iSubItem = 3;
-	m_listNew.InsertColumn(3, &list);
+	list.iSubItem = N_SUBITEM_LIST_NEW_SIZE;
+	m_listNew.InsertColumn(N_SUBITEM_LIST_NEW_SIZE, &list);
 
 	list.cx = 300;
 	list.pszText = L"Кратко";
-	list.iSubItem = 4;
-	m_listNew.InsertColumn(4, &list);
+	list.iSubItem = N_SUBITEM_LIST_NEW_DESC;
+	m_listNew.InsertColumn(N_SUBITEM_LIST_NEW_DESC, &list);
+
+	list.cx = 70;
+	list.pszText = L"Дата";
+	list.iSubItem = N_SUBITEM_LIST_NEW_DATE;
+	m_listNew.InsertColumn(N_SUBITEM_LIST_NEW_DATE, &list);
+
+	list.cx = 0;
+	list.pszText = L"URL";
+	list.iSubItem = N_SUBITEM_LIST_NEW_URL;
+	m_listNew.InsertColumn(N_SUBITEM_LIST_NEW_URL, &list);
+
+	list.cx = 0;
+	list.pszText = L"Игровое имя";
+	list.iSubItem = N_SUBITEM_LIST_NEW_GNAME;
+	m_listNew.InsertColumn(N_SUBITEM_LIST_NEW_GNAME, &list);
+
+	list.cx = 0;
+	list.pszText = L"Ссылка на скачивание";
+	list.iSubItem = N_SUBITEM_LIST_NEW_DWN_URL;
+	m_listNew.InsertColumn(N_SUBITEM_LIST_NEW_DWN_URL, &list);
+
+	list.cx = 0;
+	list.pszText = L"Ссылка на скачивание";
+	list.iSubItem = N_SUBITEM_LIST_NEW_IS_SANDER;
+	m_listNew.InsertColumn(N_SUBITEM_LIST_NEW_IS_SANDER, &list);
 }
 
 void LauncherDialog::AddInstalledGame(CString name, CString version, std::pair<CString, CString> path)
 {
 	CString mark = L"Неизвестно";
 	CString info = L"";
+	CString date = L"";
 	if (approveInfo.count(path.second)) {
 		mark = approveInfo[path.second].first;
 		info = approveInfo[path.second].second;
+	}
+	if (rssInfo.count(name)) {
+		date = rssInfo[name].first;
+		info.Append(rssInfo[name].second);
 	}
 
 	int cnt = m_listInstalled.GetItemCount();
@@ -407,18 +511,24 @@ void LauncherDialog::AddInstalledGame(CString name, CString version, std::pair<C
 	SetCell(m_listInstalled, mark, cnt, col++);
 	SetCell(m_listInstalled, version, cnt, col++);
 	SetCell(m_listInstalled, info, cnt, col++);
+	SetCell(m_listInstalled, date, cnt, col++);
+	SetCell(m_listInstalled, path.second, cnt, col++);
 
-	installedGamePath.push_back(path.first);
-	installedGameName.insert(path.second);
+	installedGameNameCache.insert(path.second);
 }
 
 void LauncherDialog::AddNewGame(CString name, CString version, CString sz, CString page, std::pair<CString, CString> downloadPageAndInstallName)
 {
 	CString mark = L"Неизвестно";
 	CString info = L"";
+	CString date = L"";
 	if (approveInfo.count(downloadPageAndInstallName.second)) {
 		mark = approveInfo[downloadPageAndInstallName.second].first;
 		info = approveInfo[downloadPageAndInstallName.second].second;
+	}
+	if (rssInfo.count(name)) {
+		date = rssInfo[name].first;
+		info.Append(rssInfo[name].second);
 	}
 
 	int cnt = m_listNew.GetItemCount();
@@ -428,12 +538,13 @@ void LauncherDialog::AddNewGame(CString name, CString version, CString sz, CStri
 	SetCell(m_listNew, version, cnt, col++);
 	SetCell(m_listNew, sz, cnt, col++);
 	SetCell(m_listNew, info, cnt, col++);
-	//Страница для открытия
-	//SetCell(m_listNew, page, cnt, col++);
+	SetCell(m_listNew, date, cnt, col++);
+	SetCell(m_listNew, page, cnt, col++);
+	SetCell(m_listNew, downloadPageAndInstallName.second, cnt, col++);
+	SetCell(m_listNew, downloadPageAndInstallName.first, cnt, col++);
 
-	pageInfo.push_back(page);
-	networkGameDWPageAndName.push_back(downloadPageAndInstallName);
-	networkGameName.insert(downloadPageAndInstallName.second);
+	//networkGameDWPageAndName.push_back(downloadPageAndInstallName);
+	//networkGameName.insert(downloadPageAndInstallName.second);
 }
 
 // This function set the text in the specified SubItem depending on the Row and Column values
@@ -635,11 +746,9 @@ void LauncherDialog::OnBnClickedBtnDelGame()
 		AfxMessageBox(L"Ни одного элемента не выбрано!");
 		return;
 	}
-	else if (sel > installedGamePath.size()) {
-		AfxMessageBox(L"Выбранная игра вне диапазона для удаления!");
-		return;
-	}
-	else if (installedGamePath[sel].Right(6) == L"mirror" || installedGamePath[sel].Right(9) == L"tutorial3") {
+
+	CString gameName = m_listInstalled.GetItemText(sel, N_SUBITEM_LIST_INSTALLED_GNAME);
+	if (gameName == L"mirror" || gameName == L"tutorial3") {
 		AfxMessageBox(L"Выбранная игра входит в поставку плеера, и отличается от той что в репозитории. Операция отменена.");
 		return;
 	}
@@ -648,7 +757,7 @@ void LauncherDialog::OnBnClickedBtnDelGame()
 	int want_del = AfxMessageBox(L"Вы действительно хотите удалить игру "+ gameTitle+L"?", MB_YESNOCANCEL | MB_ICONQUESTION);
 	if (want_del == IDYES)
 	{		
-		DeleteDirectory(installedGamePath[sel]);
+		DeleteDirectory(m_gameBaseDir + L"\\" + gameName);
 		AfxMessageBox(L"Игра удалена");
 		RescanInstalled();
 	}
@@ -656,10 +765,7 @@ void LauncherDialog::OnBnClickedBtnDelGame()
 
 void LauncherDialog::ClearNewList()
 {
-	networkGameName.clear();
-	networkGameDWPageAndName.clear();
 	m_listNew.DeleteAllItems();
-	pageInfo.clear();
 }
 
 void LauncherDialog::OnBnClickedBtnUpdate()
@@ -670,10 +776,19 @@ void LauncherDialog::OnBnClickedBtnUpdate()
 							   L"games\\instead_games_approved.xml");
 	if (ok_appr) UpdateApprovedFromFile();
 
+	//Обновляем доп. информацию из rss для списка из репозитория
+	rssInfo.clear();
+	CString strURL_RSS1 = L"http://dialas.ru/rss_game_list.xml";
+	UpdateNewGamesRssAdditionalInfoFromUrl(strURL_RSS1, L"rss1.xml");
+	CString strURL_RSS2 = L"http://dialas.ru/rss_game_list_sander.xml";
+	UpdateNewGamesRssAdditionalInfoFromUrl(strURL_RSS2, L"rss2.xml");
+
 	CString strURL = L"http://instead.sf.net/pool/game_list.xml";
 	UpdateNewGamesFromUrl(strURL, L"temp.xml");
 	CString strURL2 = L"http://dialas.ru/instead_game_list.xml";
 	UpdateNewGamesFromUrl(strURL2, L"temp2.xml");
+	CString strURL3 = L"http://dialas.ru/instead_game_list_sander.xml";
+	UpdateNewGamesFromUrl(strURL3, L"temp3.xml",true);
 }
 
 void LauncherDialog::UpdateApprovedFromFile()
@@ -731,7 +846,7 @@ bool LauncherDialog::UpdateApprovedGamesFromUrl(CString url, CString res_path)
 	return false;
 }
 
-void LauncherDialog::UpdateNewGamesFromUrl(CString url, CString temp_xmlfile)
+void LauncherDialog::UpdateNewGamesFromUrl(CString url, CString temp_xmlfile, bool is_sander)
 {
 	// TODO: добавьте свой код обработчика уведомлений
 	CInternetSession session;
@@ -756,12 +871,42 @@ void LauncherDialog::UpdateNewGamesFromUrl(CString url, CString temp_xmlfile)
 		}
 		xmlWithGames.Close();
 
-		ReadNewGamesFromXMLAndAdd(temp_xmlfile);
+		ReadNewGamesFromXMLAndAdd(temp_xmlfile, is_sander);
 	}
 }
 
-void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile)
+void LauncherDialog::UpdateNewGamesRssAdditionalInfoFromUrl(CString url, CString temp_xmlfile)
 {
+	// TODO: добавьте свой код обработчика уведомлений
+	CInternetSession session;
+	CHttpFile *pFile = (CHttpFile *)session.OpenURL(url, 1, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD);
+
+	// Determine file size:
+	DWORD dwBytesInFile = (DWORD)pFile->Seek(0, FILE_END);
+	pFile->Seek(0, FILE_BEGIN);	// reposition file pointer at the start
+	if (dwBytesInFile > 0)
+	{
+		CString stLine;
+		char buf[2000];
+		int numread;
+		CFile xmlWithGames(temp_xmlfile, CFile::modeCreate | CFile::modeWrite | CStdioFileEx::modeWriteUnicode);
+		while ((numread = pFile->Read(buf, sizeof(buf) - 1)) > 0)
+		{
+			buf[numread] = '\0';
+			xmlWithGames.Write(buf, numread);
+			//pWebFileDlg->m_ctrlProgress.StepIt();
+			//PeekAndPump();
+		}
+		xmlWithGames.Close();
+
+		ReadAdditionalInfoFromXMLRss(temp_xmlfile);
+	}
+}
+
+void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool is_sander)
+{
+	//не выбрана галочка песочница, ничего не добавляем
+	if (is_sander && m_CheckSander.GetCheck() == BST_UNCHECKED) return;
 	//Читаем xml и разбираем
 	CStdioFileEx gameFile(temp_xmlfile, CFile::modeRead);
 	gameFile.SetCodePage(CP_UTF8);
@@ -790,6 +935,7 @@ void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile)
 		xml.FindChildElem(L"descurl");
 		CString csDescUrl = xml.GetChildData();
 
+		//Начинаем фильтровать
 		CString approved_mark;
 		if (approveInfo.count(csSN)) approved_mark = approveInfo[csSN].first;
 		bool ok_filter = ((m_lastSelFilter == SEL_FILTER_ALL) ||
@@ -799,8 +945,7 @@ void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile)
 
 		//Добавляем русскоязычную игру в новые, если её нет в существующих
 		if ((csLang == L"ru") && 
-			(installedGameName.count(csSN) == 0) && 
-			(networkGameName.count(csSN) == 0) &&
+			(installedGameNameCache.count(csSN) == 0) &&
 			ok_filter
 			)
 		{
@@ -809,6 +954,50 @@ void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile)
 			AddNewGame(csTitle, csVersion, megabytes_num, csDescUrl, std::make_pair(csDownloadUrl, csSN));
 		}
 
+		xml.OutOfElem();
+	}
+}
+
+void LauncherDialog::ReadAdditionalInfoFromXMLRss(CString temp_xmlfile)
+{
+	//Читаем xml и разбираем
+	CStdioFileEx gameFile(temp_xmlfile, CFile::modeRead | CFile::typeText);
+	gameFile.SetCodePage(CP_UTF8);
+	CString xmlDoc;
+	CString str;
+	bool firstStr = true;
+	while (gameFile.ReadString(str)) {
+		//FIXE: костыль из-за того что неправильно читает xml и пропадает начало тега в первой строчке
+		if (firstStr)
+		{
+			str = L"<?x" + str;
+			firstStr = false;
+		}
+		xmlDoc.Append(str);
+	}
+
+	CMarkup xml;
+	xml.SetDoc(xmlDoc);
+
+	if (xml.FindChildElem(L"channel"))
+	{
+		xml.IntoElem();
+		while (xml.FindChildElem(L"item"))
+		{
+			xml.IntoElem();
+			//ВНИМАНИЕ: считываем по порядку заданному в файле xml
+			xml.FindChildElem(L"title");
+			CString csTitle = xml.GetChildData();
+			xml.FindChildElem(L"description");
+			CString csDescription = xml.GetChildData();
+			xml.FindChildElem(L"pubDate");
+			CString csDate = xml.GetChildData();
+
+			//Добавляем в карту
+			rssInfo[csTitle] = std::make_pair(csDate, csDescription);
+
+			xml.OutOfElem();
+		}
 		xml.OutOfElem();
 	}
 }
@@ -822,12 +1011,8 @@ void LauncherDialog::OnBnClickedBtnOpenLink()
 		AfxMessageBox(L"Ни одного элемента не выбрано!");
 		return;
 	}
-	else if (sel > pageInfo.size())
-	{
-		AfxMessageBox(L"Выбранная игра вне диапазона для открытия ссылки!");
-		return;
-	}
-	CString url_open = pageInfo[sel];
+	//CString url_open = pageInfo[sel];
+	CString url_open = m_listNew.GetItemText(sel, N_SUBITEM_LIST_NEW_URL);
 	ShellExecute(0, 0, url_open, 0, 0, SW_SHOW);
 }
 
@@ -840,27 +1025,40 @@ void LauncherDialog::OnBnClickedBtnInstall()
 		AfxMessageBox(L"Ни одного элемента не выбрано!");
 		return;
 	}
-	else if (sel > networkGameDWPageAndName.size())
+	
+	CString gameName =  m_listNew.GetItemText(sel, N_SUBITEM_LIST_NEW_GNAME);
+	CString gameTitle = m_listNew.GetItemText(sel, N_SUBITEM_LIST_NEW_CAPTION);
+	CString gameDwnUrl =   m_listNew.GetItemText(sel, N_SUBITEM_LIST_NEW_DWN_URL);
+	//TODO: добавить проверку по списку установленных
+	
+	bool foundInInstalled = false;
+	for (int i = 0; i < m_listInstalled.GetItemCount(); i++)
 	{
-		AfxMessageBox(L"Выбранная игра вне диапазона для загрузки!");
-		return;
+		CString installedGameName = m_listInstalled.GetItemText(sel, N_SUBITEM_LIST_INSTALLED_GNAME);
+		if (gameName == installedGameName)
+		{
+			foundInInstalled = true;
+			break;
+		}
 	}
-	else if (installedGameName.count(networkGameDWPageAndName[sel].second))
+
+	if (foundInInstalled)
 	{
 		//AfxMessageBox(L"Выбранная игра уже установлена");
 		int want_run = AfxMessageBox(L"Выбранная игра уже установлена. Хотите её запустить?", MB_YESNOCANCEL | MB_ICONQUESTION);
 		if (want_run == IDYES)
 		{
 			m_wantPlay = true;
-			m_stGamePath = m_gameBaseDir + L"\\"+networkGameDWPageAndName[sel].second;
-			m_stGameTitle = m_listNew.GetItemText(sel, 0);
+			m_stGamePath = m_gameBaseDir + L"\\"+ gameName;
+			m_stGameTitle = gameTitle;
 			EndDialog(-1);
 		}
 		//
 		return;
 	}
+	
 
-	CUrlFileDlg dlg(networkGameDWPageAndName[sel].first, L"games\\" + networkGameDWPageAndName[sel].second + L".zip");
+	CUrlFileDlg dlg(gameDwnUrl, L"games\\" + gameName + L".zip");
 	dlg.DoModal();
 	//После хорошей загрузки обновляем списки
 	if (dlg.isGoodLoad())
@@ -879,15 +1077,10 @@ void LauncherDialog::OnBnClickedBtnPlayGamem()
 		AfxMessageBox(L"Ни одного элемента не выбрано!");
 		return;
 	}
-	else if (sel > installedGamePath.size())
-	{
-		AfxMessageBox(L"Выбранная игра вне диапазона для запуска!");
-		return;
-	}
-
+	CString gameName = m_listInstalled.GetItemText(sel, N_SUBITEM_LIST_INSTALLED_GNAME);
 	m_wantPlay = true;
-	m_stGamePath = installedGamePath[sel];
-	m_stGameTitle = m_listInstalled.GetItemText(sel, 0);
+	m_stGamePath = m_gameBaseDir + L"\\" + gameName;//installedGamePath[gameName];
+	m_stGameTitle = m_listInstalled.GetItemText(sel, N_SUBITEM_LIST_INSTALLED_CAPTION);
 
 	EndDialog(-1);
 }
@@ -928,13 +1121,48 @@ void LauncherDialog::OnCbnSelchangeComboFilter()
 		CIniFile mainSettings;
 		m_lastSelFilter = m_comboFiler.GetCurSel();
 		mainSettings.WriteNumber(L"main", L"mRepoFilter", m_lastSelFilter);
-		if (PathFileExists(L"temp.xml") && PathFileExists(L"temp2.xml"))
+		if (PathFileExists(L"temp.xml") && PathFileExists(L"temp2.xml") && PathFileExists(L"temp3.xml") )
 		{
 			//Очищаем список новых игр
 			ClearNewList();
 			//Обновляем список новых игр
-			ReadNewGamesFromXMLAndAdd(L"temp.xml");
-			ReadNewGamesFromXMLAndAdd(L"temp2.xml");
+			ReadNewGamesFromXMLAndAdd(L"temp.xml",false);
+			ReadNewGamesFromXMLAndAdd(L"temp2.xml",false);
+			ReadNewGamesFromXMLAndAdd(L"temp3.xml", true);
 		}
 	}
+}
+
+
+void LauncherDialog::OnHdnItemclickListInstalled(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMHEADER phdr = reinterpret_cast<LPNMHEADER>(pNMHDR);
+	// TODO: добавьте свой код обработчика уведомлений
+	int nTab = m_tab.GetCurSel();
+
+	if (nTab == ID_PAGE_INSTALLED)
+	{
+		TRACE(_T("InstalledList HeaderClick %d\n"), phdr->iItem);
+		if (m_sortInstalledLastItem != phdr->iItem) {
+			m_sortInstalledLastItem = phdr->iItem;
+			m_sortInstalledUp = true;
+		}
+		SortColumn(&m_listInstalled, phdr->iItem, m_sortInstalledUp);
+		m_sortInstalledUp = !m_sortInstalledUp;
+	}
+	else if (nTab == ID_PAGE_NEW)
+	{
+		TRACE(_T("NewList HeaderClick %d\n"), phdr->iItem);
+		if (m_sortNewLastItem != phdr->iItem) {
+			m_sortNewLastItem = phdr->iItem;
+			m_sortNewUp = true;
+		}
+		SortColumn(&m_listNew, phdr->iItem, m_sortNewUp);
+		m_sortNewUp = !m_sortNewUp;
+	}
+	else
+	{
+		TRACE(_T("Unknown List HeaderClick %d\n"), phdr->iItem);
+	}
+	*pResult = 0;
 }

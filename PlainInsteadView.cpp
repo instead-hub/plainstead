@@ -12,6 +12,7 @@
 #include "GlobalManager.h"
 #include "IniFile.h"
 #include "global.h"
+#include "StdioFileEx.h"
 #include <regex>
 
 #ifdef _DEBUG
@@ -73,6 +74,7 @@ BEGIN_MESSAGE_MAP(CPlainInsteadView, CFormView)
 	ON_COMMAND(ID_GOTO_SCENE, &CPlainInsteadView::OnGotoScene)
 	ON_COMMAND(ID_GOTO_INV, &CPlainInsteadView::OnGotoInv)
 	ON_COMMAND(ID_GOTO_WAYS, &CPlainInsteadView::OnGotoWays)
+	ON_COMMAND(ID_MENU_LOG, &CPlainInsteadView::OnMenuLog)
 END_MESSAGE_MAP()
 
 // создание/уничтожение CPlainInsteadView
@@ -95,6 +97,7 @@ CPlainInsteadView::CPlainInsteadView()
 	wave_inv = 0;
 	wave_ways = 0;
 	wave_scene = 0;
+	isLogOn = false;
 }
 
 CPlainInsteadView::~CPlainInsteadView()
@@ -304,7 +307,7 @@ static std::wstring process_instead_text_act(std::wstring inp, //входной текст
 	return result;
 }
 
-void CPlainInsteadView::TryInsteadCommand(CString textIn)
+void CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog)
 {
 	CString resout;
 	CString tmp;
@@ -411,6 +414,55 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn)
 	if (!m_jump_to_out) UpdateFocusLogic();
 	if (m_auto_say) MultiSpeech::getInstance().Say(resout);
 	if (m_jump_to_out) m_OutEdit.SetFocus();
+	if (isLogOn)
+	{
+		CStdioFileEx flog;
+		if (!flog.Open(logFileName, CFile::modeCreate | CFile::modeWrite | CFile::modeNoTruncate))
+		{
+			AfxMessageBox(L"Не могу записать файл лога! Логирование отключаю.");
+			TurnOffLogging();
+		}
+		flog.SetCodePage(CP_UTF8);
+		flog.SeekToEnd();
+		flog.WriteString(L"\n\n>"+ cmdForLog +L"\n");
+		flog.SeekToEnd();
+		flog.WriteString(resout);
+		flog.SeekToEnd();
+		if (mListScene.GetCount() > 0)
+		{
+			flog.WriteString(L"\nСцена: ");
+			flog.SeekToEnd();
+			CString itm;
+			for (int i = 0; i < mListScene.GetCount(); i++) {
+				mListScene.GetText(i, itm);
+				flog.WriteString(itm + L"; ");
+				flog.SeekToEnd();
+			}
+		}
+		if (mListInv.GetCount() > 0)
+		{
+			flog.WriteString(L"\nИнвентарь: ");
+			flog.SeekToEnd();
+			CString itm;
+			for (int i = 0; i < mListInv.GetCount(); i++) {
+				mListInv.GetText(i, itm);
+				flog.WriteString(itm + L"; ");
+				flog.SeekToEnd();
+			}
+		}
+		if (mListWays.GetCount() > 0)
+		{
+			flog.WriteString(L"\nПути: ");
+			flog.SeekToEnd();
+			CString itm;
+			for (int i = 0; i < mListWays.GetCount(); i++) {
+				mListWays.GetText(i, itm);
+				flog.WriteString(itm + L"; ");
+				flog.SeekToEnd();
+			}
+		}
+		flog.Close();
+	}
 }
 
 ////////////////////////
@@ -447,7 +499,9 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 				res.Format(L"%d", res_pos);
 				if (!inv_save.IsEmpty()) { res = inv_save + +L"," + res;  inv_save.Empty(); }
 				int total_list_sz = mListScene.GetCount();
-				TryInsteadCommand(res);
+				CString selText;
+				mListScene.GetText(sel_pos, selText);
+				TryInsteadCommand(res,L"выбор сцена \'"+ selText + L"\'");
 				if (mListScene.GetCount() == total_list_sz) {
 					mListScene.SetCurSel(sel_pos);
 				}
@@ -461,7 +515,9 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 			CString code = act_on_scene[sel_pos];
 			int total_list_sz = mListScene.GetCount();
 			if (!inv_save.IsEmpty()) inv_save.Empty();
-			TryInsteadCommand(code);
+			CString selText;
+			mListScene.GetText(sel_pos, selText);
+			TryInsteadCommand(code, L"действие \'"+ savedSelInv + L"\' на \'" + selText +L"\'");
 			if (mListScene.GetCount() == total_list_sz) {
 				mListScene.SetCurSel(sel_pos);
 			}
@@ -503,7 +559,9 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 				if (!inv_save.IsEmpty()) { res = inv_save + +L"," + res;  inv_save.Empty(); }
 				inv_save.Empty(); //Нельзя применить предмет на пути
 				int total_list_sz = mListWays.GetCount();
-				TryInsteadCommand(res);
+				CString selText;
+				mListWays.GetText(sel_pos, selText);
+				TryInsteadCommand(res, L"выбрать путь \'" + selText + L"\'");
 				if (mListWays.GetCount() == total_list_sz) {
 					mListWays.SetCurSel(sel_pos);
 				}
@@ -533,6 +591,7 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 					inv_save = res;
 					CString currText;
 					mListInv.GetText(sel_pos, currText);
+					savedSelInv = currText;//сохраняем выбранный текст
 					currText += L" (выбран)";
 					mListInv.SetDlgItemTextW(sel_pos, currText);
 					mListInv.DeleteString(sel_pos);
@@ -543,7 +602,9 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 					if (res != inv_save && !inv_save.IsEmpty()) res = inv_save + L"," + res;
 					inv_save.Empty();
 					int total_list_sz = mListInv.GetCount();
-					TryInsteadCommand(res);
+					CString selText;
+					mListInv.GetText(sel_pos, selText);
+					TryInsteadCommand(res, L"действие \'" + selText + L"\' на '"+ savedSelInv + L"\'");
 					if (mListInv.GetCount() == total_list_sz) {
 						mListInv.SetCurSel(sel_pos);
 					}
@@ -1053,7 +1114,7 @@ void CPlainInsteadView::OnUpdateOutView()
 			curr_box = &mListWays;
 		}
 
-		TryInsteadCommand(L"");
+		TryInsteadCommand(L"",L"обновить");
 
 		if (!m_jump_to_out && curr_box)
 		{
@@ -1141,4 +1202,35 @@ void CPlainInsteadView::OnGotoWays()
 	{
 		mListWays.SetFocus();
 	}
+}
+
+
+void CPlainInsteadView::OnMenuLog()
+{
+	// TODO: добавьте свой код обработчика команд
+	isLogOn = !isLogOn;
+	CMenu *pMenu = AfxGetApp()->GetMainWnd()->GetMenu();
+	if (pMenu != NULL)
+	{
+		if (isLogOn) {
+			pMenu->CheckMenuItem(ID_MENU_LOG, MF_CHECKED | MF_BYCOMMAND);
+			// uses printf() format specifications for time
+			CString t = CTime::GetCurrentTime().Format("%y%m%d_%H%M");
+			TCHAR buff[MAX_PATH];
+			::GetModuleFileName(NULL, buff, sizeof(buff));
+			CString baseDir = buff;
+			baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
+			logFileName = baseDir + L"logs\\" + L"log_" + t +L".txt";
+			AfxMessageBox(L"Логирование включено. Лог сохраниться в папке logs под именем: "+ logFileName);
+		}
+		else
+		{
+			pMenu->CheckMenuItem(ID_MENU_LOG, MF_UNCHECKED | MF_BYCOMMAND);
+		}
+	}
+}
+
+void CPlainInsteadView::TurnOffLogging()
+{
+	if (isLogOn) OnMenuLog();
 }

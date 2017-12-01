@@ -33,26 +33,34 @@ protected:
 	void AddInstalledGame(CString name, CString version, std::pair<CString, CString> path);
 	void AddNewGame(CString name, CString version, CString sz, CString page, std::pair<CString, CString> downloadPageAndInstallName);
 	void SetCell(CListCtrl& ctrl, CString value, int nRow, int nCol);
-	void UpdateNewGamesFromUrl(CString url, CString temp_xmlfile);
-	void ReadNewGamesFromXMLAndAdd(CString temp_xmlfile);
+	void UpdateNewGamesFromUrl(CString url, CString temp_xmlfile, bool is_sander = false);
+	void ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool is_sander);
+	void UpdateNewGamesRssAdditionalInfoFromUrl(CString url, CString temp_xmlfile);
+	void ReadAdditionalInfoFromXMLRss(CString temp_xmlfile);
 	bool UpdateApprovedGamesFromUrl(CString url, CString res_path);
 	void UpdateApprovedFromFile();
 	void ClearNewList();
+	void SortColumn(CListCtrl* ctrl, int columnIndex, bool ascending);
 
-	std::vector<CString> installedGamePath;
-	std::set<CString> installedGameName;
+	//std::map<CString/*game name*/, CString/*game path*/> installedGamePath;
+	std::set<CString> installedGameNameCache; //кеш для быстрой проверки
 
-	std::vector<std::pair<CString/*name*/, CString/*page*/> > networkGameDWPageAndName;
-	std::set<CString> networkGameName;
+	//std::vector<std::pair<CString/*name*/, CString/*page*/> > networkGameDWPageAndName;
+	//std::set<CString> networkGameName;
 
 	std::map<CString/*game name*/, std::pair<CString /*approve*/, CString /*info*/> > approveInfo;
-	std::vector<CString /*page info*/ > pageInfo;
+	std::map<CString/*game title*/, std::pair<CString /*pubDate*/, CString /*Desc*/> > rssInfo;
 
 	CString m_stGamePath;
 	CString m_stGameTitle;
 	CString m_gameBaseDir;
 	bool    m_wantPlay;
 	int     m_lastSelFilter;
+	bool    m_sortInstalledUp;
+	int     m_sortInstalledLastItem;
+	
+	bool    m_sortNewUp;
+	int     m_sortNewLastItem;
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -79,4 +87,7 @@ public:
 	CButton m_btnResumeGame;
 	CComboBox m_comboFiler;
 	afx_msg void OnCbnSelchangeComboFilter();
+	afx_msg void OnHdnItemclickListInstalled(NMHDR *pNMHDR, LRESULT *pResult);
+private:
+	CButton m_CheckSander;
 };

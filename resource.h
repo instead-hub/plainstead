@@ -70,6 +70,7 @@
 #define IDC_COMBO_FILTER                1034
 #define IDC_COMBO_STYLE_ANNOUNCE        1036
 #define IDC_BUTTON_CHECK_ANNOUNCE       1037
+#define IDC_CHECK_SANDER                1038
 #define ID_FILE_NEW_GAME                32771
 #define ID_FILE_SAVE_GAME               32772
 #define ID_32773                        32773
@@ -162,14 +163,16 @@
 #define ID_LISTSND_ON                   32902
 #define ID_LISTSND_DOWN                 32903
 #define ID_LISTSND_UP                   32904
+#define ID_32909                        32909
+#define ID_MENU_LOG                     32910
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        151
-#define _APS_NEXT_COMMAND_VALUE         32909
-#define _APS_NEXT_CONTROL_VALUE         1038
+#define _APS_NEXT_COMMAND_VALUE         32911
+#define _APS_NEXT_CONTROL_VALUE         1039
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

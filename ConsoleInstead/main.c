@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "string.h"
 #include "instead/instead.h"
-
+static int log_opt = 0;
 static int tiny_init(void)
 {
 	int rc;
@@ -77,6 +77,10 @@ int main(int argc, const char **argv)
 		p[strcspn(p, "\n\r")] = 0;
 		if (!strcmp(p, "quit"))
 			break;
+		if (!strcmp(p, "log")) {
+			log_opt = 1;
+			continue;
+		}
 		snprintf(cmd, sizeof(cmd), "use %s", p);
 		str = instead_cmd(cmd, &rc);
 		if (rc) { /* try go */
@@ -94,8 +98,10 @@ int main(int argc, const char **argv)
 		free(str);
 		if (rc)
 			printf("error!\n");
-		else
+		else {
 			footer();
+            if (log_opt) fprintf(stderr, "%s\n", p);
+        }
 	}
 	instead_cmd("save autosave", NULL);
 	instead_done();

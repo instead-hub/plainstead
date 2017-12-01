@@ -128,6 +128,7 @@ BEGIN
         MENUITEM "Перейти к списку о&бъектов \t\tCTRL+1", ID_GOTO_SCENE
         MENUITEM "Перейти к списку &инвентаря\tCTRL+2", ID_GOTO_INV
         MENUITEM "Перейти к списку п&утей\t CTRL+3", ID_GOTO_WAYS
+        MENUITEM "Включить логирование",        ID_MENU_LOG
     END
     POPUP "&Справка"
     BEGIN
@@ -279,6 +280,7 @@ BEGIN
     PUSHBUTTON      "&ИГРАТЬ  (ENTER)",IDC_BTN_PLAY_GAMEM,66,199,64,14
     PUSHBUTTON      "&Продолжить последнюю игру (F3)",IDC_BTN_RESUMEOLD_GAME2,129,199,139,14
     COMBOBOX        IDC_COMBO_FILTER,317,7,187,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Включая бета-версии",IDC_CHECK_SANDER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,224,8,90,10
 END
 
 IDD_URLFILE_DIALOG DIALOGEX 0, 0, 285, 42

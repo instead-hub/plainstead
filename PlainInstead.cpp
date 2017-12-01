@@ -417,7 +417,7 @@ void CPlainInsteadApp::OnFileOpen()
 			{
 				CString userFileName = fileDialog.GetFileName();
 				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + saveGameNameDir + L"/" + userFileName);
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"");
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",L"загрузка");
 				AfxMessageBox(L"Восстановлено!");
 				return;
 			}
@@ -475,7 +475,7 @@ void CPlainInsteadApp::StartNewGameFile(CString file, CString name)
 	}
 
 	GlobalManager::getInstance().userStartGame();
-	CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"");
+	CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"", L"начало игры "+ name);
 	CPlainInsteadView::GetCurrentView()->InitFocusLogic();
 	GlobalManager::lastString = 0;
 }
@@ -502,7 +502,7 @@ void CPlainInsteadApp::OnFileSave()
 			{
 				CString userFileName = fileDialog.GetFileName();
 				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + saveGameNameDir + L"/" + userFileName);
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"");
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",L"сохранение игры");
 				AfxMessageBox(L"Сохранено!");
 				return;
 			}
