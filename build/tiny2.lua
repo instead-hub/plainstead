@@ -263,39 +263,68 @@ function instead_savepath()
     return "../../" --Разрешаем сохранять на 2 уровня выше
 end
 
+stead.list_search = function(self, n, dis)
+	local i
+	if stead.tonum(n) then
+		i = self:byid(stead.tonum(n), dis);
+	end
+	if not i then
+		i = self:look(n)
+		if not i then
+			i = self:name(n, dis);
+		end
+		if not i then
+			return nil
+		end
+	end
+	if not dis and isDisabled(stead.ref(self[i])) then
+		return nil
+	end
+	return self[i], i
+end
+
 --Мой iface
 iface.xref = function(self, str, obj, ...)
-		local o = stead.ref(stead.here():srch(obj));
-		if not o then 
-			o = stead.ref(ways():srch(obj));
+	local o = stead.ref(stead.here():srch(obj))
+	if not o then
+		o = stead.ref(ways():srch(obj));
+	end
+	if not o then
+		o = stead.ref(stead.me():srch(obj))
+	end
+	o = stead.ref(obj);
+	local a = ''
+	local varg = {...}
+	for i = 1, stead.table.maxn(varg) do
+		a = a..','..varg[i]
+	end
+
+	if not isObject(o) or isStatus(o) or (not o.id and not isXaction(o)) then
+		if isStatus(o) then
+			str = string.gsub(str, "%^", " ")
+			return ("[a]"..(str or '').."#0[/a]")
 		end
-		if not o then
-			o = stead.ref(stead.me():srch(obj));
-		end
-		o = stead.ref(obj);
-		local a = ''
-	    local varg = {...}
-	    for i = 1, stead.table.maxn(varg) do
-		   a = a..','..varg[i]
-	    end
-	    if isXaction(o) and not o.id then
-		   return stead.cat('[a:'..stead.deref(obj)..a..']',str,'[/a]');
-	    end
-		
-		if not o or not o.id then
-		    if isStatus(o) then
-			    str = string.gsub(str, "%^", " ");
-                return ("[a]"..(str or '').."#0[/a]");
-            end
-			return str;
-		end	
-		local n = stead.tonum(stead.nameof(o))
---      Новое отображение ссылок, для меню сдвиг на 1000
-		if (isMenu(o)) then 
-			return ("[a]"..(str or '').."#"..stead.tostr((n or o.id)+1000).."[/a]"); 
-		end
-		return ("[a]"..(str or '').."#"..stead.tostr(n or o.id).."[/a]");
-end;
+		return str
+	end
+
+	local n = o.id
+
+	if isMenu(o) then
+		n = n + 1000 -- ???
+	end
+
+	if isXaction(o) and not o.id then
+		return stead.cat('[a:'..stead.deref(obj)..a..']',str,'[/a]')
+	end
+	if a == '' then -- why two ways??
+		return stead.cat('[a]', (str or ''), '#', stead.tostr(n), '[/a]');
+	end
+	-- this should be same as above: TODO
+	-- objects can have parameters
+	-- for example, 12,bottle is n + a
+	-- so, use 1 + 12,bottle -> use 1,12,bottle
+	return stead.cat('[a:', stead.tostr(n), a, ']',str,'[/a]');
+end
 
 --Форматирование текста
 stead.fmt = function(...)
