@@ -283,21 +283,11 @@ stead.list_search = function(self, n, dis)
 	return self[i], i
 end
 
---Мой iface
+local dict = {}
+
 iface.xref = function(self, str, obj, ...)
-	local o = stead.ref(stead.here():srch(obj))
-	if not o then
-		o = stead.ref(ways():srch(obj));
-	end
-	if not o then
-		o = stead.ref(stead.me():srch(obj))
-	end
-	o = stead.ref(obj);
-	local a = ''
-	local varg = {...}
-	for i = 1, stead.table.maxn(varg) do
-		a = a..','..varg[i]
-	end
+	local cmd = ''
+	local o = stead.ref(obj)
 
 	if not isObject(o) or isStatus(o) or (not o.id and not isXaction(o)) then
 		if isStatus(o) then
@@ -307,23 +297,79 @@ iface.xref = function(self, str, obj, ...)
 		return str
 	end
 
-	local n = o.id
+	if stead.ref(ways():srch(obj)) then
+		cmd = 'go'
+	elseif isMenu(o) then
+		cmd = 'use'
+	elseif isSceneUse(o) then
+		cmd = 'use'
+	elseif isXaction(o) and not o.id then
+		cmd = 'act'
+	elseif stead.ref(stead.me():srch(obj)) then
+		cmd = 'use'
+	elseif stead.ref(stead.here():srch(obj)) then
+		cmd = 'act'
+	end
 
+	local a = ''
+	local varg = {...}
+	for i = 1, stead.table.maxn(varg) do
+		a = a..','..varg[i]
+	end
+
+	local n = stead.deref(obj)
+	local xref = string.format("%s%s", stead.tostr(o.id or n), a)
+	if not dict[xref] then
+		stead.table.insert(dict, { xref, cmd } )
+		dict[xref] = #dict
+	end
+	xref = dict[xref]
+
+	local n = xref
 	if isMenu(o) then
 		n = n + 1000 -- ???
 	end
-
 	if isXaction(o) and not o.id then
-		return stead.cat('[a:'..stead.deref(obj)..a..']',str,'[/a]')
+		return stead.cat('[a:'..stead.tostr(n)..']',str,'[/a]')
 	end
-	if a == '' then -- why two ways??
-		return stead.cat('[a]', (str or ''), '#', stead.tostr(n), '[/a]');
+	return stead.cat('[a]', (str or ''), '#', stead.tostr(n), '[/a]');
+end
+
+local tag_all = stead.player_tagall -- save old
+
+stead.player_tagall = function(self)
+	dict = {}
+	return tag_all(self)
+end
+
+local iface_cmd = iface.cmd -- save old
+
+function iface:cmd(inp)
+	local cmd, a = stead.getcmd(inp)
+	if stead.tonum(cmd) then
+		stead.table.insert(a, 1, cmd)
+		cmd = 'act'
 	end
-	-- this should be same as above: TODO
-	-- objects can have parameters
-	-- for example, 12,bottle is n + a
-	-- so, use 1 + 12,bottle -> use 1,12,bottle
-	return stead.cat('[a:', stead.tostr(n), a, ']',str,'[/a]');
+	if cmd == 'act' or cmd == 'use' or cmd == 'go' then
+		if cmd == 'use' then
+			local use = { }
+			local c = false
+			for i = 1, 2 do
+				local u = tonumber(a[i])
+				u = u and dict[u]
+				c = c or (u and u[2])
+				stead.table.insert(use, u and u[1] or a[i])
+			end
+			if #a == 1 and c == 'act' then -- fix use 1,2 where 1,2 is object
+				cmd = 'act'
+			end
+			inp = cmd .. ','..table.concat(use, ',')
+		elseif tonumber(a[1]) then
+			a[1] = dict[tonumber(a[1])][1]
+			inp = cmd .. ','..table.concat(a, ',')
+		end
+	end
+	return iface_cmd(self, inp)
 end
 
 --Форматирование текста
