@@ -297,16 +297,14 @@ iface.xref = function(self, str, obj, ...)
 		return str
 	end
 
-	if stead.ref(ways():srch(obj)) then
+	if stead.cmd == 'way' then
 		cmd = 'go'
-	elseif isMenu(o) then
+	elseif stead.cmd == 'inv' then
 		cmd = 'use'
 	elseif isSceneUse(o) then
 		cmd = 'use'
 	elseif isXaction(o) and not o.id then
 		cmd = 'act'
-	elseif stead.ref(stead.me():srch(obj)) then
-		cmd = 'use'
 	elseif stead.ref(stead.here():srch(obj)) then
 		cmd = 'act'
 	end
@@ -329,9 +327,9 @@ iface.xref = function(self, str, obj, ...)
 	if isMenu(o) then
 		n = n + 1000 -- ???
 	end
-	if isXaction(o) and not o.id then
-		return stead.cat('[a:'..stead.tostr(n)..']',str,'[/a]')
-	end
+--	if isXaction(o) and not o.id then
+--		return stead.cat('[a:'..stead.tostr(n)..']',str,'[/a]')
+--	end
 	return stead.cat('[a]', (str or ''), '#', stead.tostr(n), '[/a]');
 end
 
@@ -351,22 +349,26 @@ function iface:cmd(inp)
 		cmd = 'act'
 	end
 	if cmd == 'act' or cmd == 'use' or cmd == 'go' then
+		if a[1] == '' then -- fix use vs look
+			return iface_cmd(self, "look")
+		end
 		if cmd == 'use' then
 			local use = { }
 			local c = false
-			for i = 1, 2 do
-				local u = tonumber(a[i])
+			for i = 1, #a do
+				local u = stead.tonum(a[i])
 				u = u and dict[u]
 				c = c or (u and u[2])
 				stead.table.insert(use, u and u[1] or a[i])
 			end
-			if #a == 1 and c == 'act' then -- fix use 1,2 where 1,2 is object
+			if #a == 1 and c == 'act' then -- fix use 1,2 where 1,2 is object and look
 				cmd = 'act'
 			end
-			inp = cmd .. ','..table.concat(use, ',')
-		elseif tonumber(a[1]) then
-			a[1] = dict[tonumber(a[1])][1]
-			inp = cmd .. ','..table.concat(a, ',')
+			inp = cmd .. ','..stead.table.concat(use, ',')
+		elseif stead.tonum(a[1]) then
+			local d = dict[stead.tonum(a[1])]
+			a[1] = d and d[1] or a[1]
+			inp = cmd .. ','..stead.table.concat(a, ',')
 		end
 	end
 	return iface_cmd(self, inp)
