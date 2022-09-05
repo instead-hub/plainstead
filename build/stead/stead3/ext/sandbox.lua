@@ -1,8 +1,15 @@
-function sandbox()
+-- luacheck: globals STANDALONE
+-- luacheck: read globals instead
+-- luacheck: globals io os debug load loadstring package
+-- luacheck: read globals instead_realpath
+
+local function sandbox()
 	if STANDALONE or not instead.gamepath then -- not standalone or not sdl-instead
 		return
 	end
+-- luacheck: no unused args
 	local check_path = function(realpath, type, find, gsub, savepath, gamepath, path)
+-- luacheck: unused args
 		if not path then
 			return false
 		end
@@ -32,7 +39,9 @@ function sandbox()
 					  if type(acc) ~= 'string' or not find(acc, "[aw+]") then -- only write access
 						  return f(path, acc, ...)
 					  end
+-- luacheck: no unused args
 					  if not check_path(realpath, type, find, gsub, savepath, gamepath, path) then
+-- luacheck: unused args
 						  error ("Access denied (write): ".. path, 3);
 						  return false
 					  end
@@ -74,6 +83,16 @@ function sandbox()
 		end)
 	end
 
+	local build_sandbox_load = function(eval, error, type, find)
+		return stead.hook(eval, function(f, str, ...)
+			if type(str) == 'string' and find(str, "\x1b", 1, true) == 1 then
+				error ("Loading bytecode is forbidden!", 3)
+				return false
+			end
+			return f(str, ...)
+		end)
+	end
+
 	io.open = build_sandbox_open(instead_realpath, error, type, string.find, string.gsub,
 				     instead.savepath(), instead.gamepath());
 
@@ -94,12 +113,19 @@ function sandbox()
 		print ("Warning: trying to do io.popen: "..s);
 	end
 
-	os.tmpname = function(s)
+	os.tmpname = function(_)
 		print ("Warning: trying to do os.tmpname");
 	end
 
-	if not std.rawget(_G, 'DEBUG') then
+	if not stead.rawget(_G, 'DEBUG') then
 		debug = nil
+	end
+	if _VERSION == "Lua 5.1" then
+		loadstring = build_sandbox_load(loadstring, error, type, string.find)
+		stead.eval = loadstring
+	else
+		load = build_sandbox_load(load, error, type, string.find)
+		stead.eval = load
 	end
 	package.cpath = ""
 	package.preload = {}
@@ -107,4 +133,3 @@ function sandbox()
 end
 
 sandbox()
-sandbox = nil

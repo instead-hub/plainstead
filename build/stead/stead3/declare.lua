@@ -1,3 +1,5 @@
+-- luacheck: globals const global declare
+
 local declarations = {}
 local variables = {}
 local std = stead
@@ -77,14 +79,14 @@ function std.declare(n)
 	return __declare(n, 'declare')
 end
 
-local function depends(t, tables, deps)
+local function do_depends(t, tables, deps)
 	if type(t) ~= 'table' then return end
 	if tables[t] then
 		deps[t] = tables[t]
 	end
-	for k, v in pairs(t) do
+	for _, v in pairs(t) do
 		if type(v) == 'table' and not std.getmt(v) then
-			depends(v, tables, deps)
+			do_depends(v, tables, deps)
 		end
 	end
 end
@@ -132,10 +134,10 @@ local function mod_save(fp)
 		end
 	end
 
-	for k, v in pairs(variables) do
+	for k, _ in pairs(variables) do
 		local d = {}
 		local o = rawget(_G, k)
-		depends(o, tables, d)
+		do_depends(o, tables, d)
 		if k == tables[o] then -- self depend
 			d[o] = nil
 		end
@@ -146,13 +148,13 @@ local function mod_save(fp)
 
 	std.tables = tables -- save all depends
 
-	for k, v in pairs(variables) do -- write w/o deps
+	for k, _ in pairs(variables) do -- write w/o deps
 		local o = rawget(_G, k)
 		if not deps[k] then
 			std.save_var(o, fp, k)
 		end
 	end
-	for k, v in pairs(variables) do
+	for k, _ in pairs(variables) do
 		local d = {}
 		while makedeps(k, deps, d) do
 			for i=1, #d do
@@ -199,7 +201,9 @@ local function mod_init()
 		end
 		if std.game or type(v) ~= 'function' then
 			local f = std.getinfo(2, "S").source
-			std.err ("Set uninitialized variable: "..k.." in "..f, 2)
+			if f ~= '=[C]' then
+				std.err ("Set uninitialized variable: "..k.." in "..f, 2)
+			end
 		end
 		rawset(t, k, v)
 	end
@@ -208,9 +212,9 @@ end
 
 std.obj {
 	nam = '@declare';
-	ini = function(s, ...)
+	ini = function(_, ...)
 -- init all list objs
-		for k, v in pairs(declarations) do
+		for _, v in pairs(declarations) do
 			if std.is_obj(v.value, 'list') then
 				v.value:__ini(...)
 			end

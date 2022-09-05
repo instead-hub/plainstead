@@ -4,6 +4,16 @@ local std = stead
 
 local instead = std.ref '@instead'
 
+-- luacheck: globals instead_sound_load
+-- luacheck: globals instead_sound_free
+-- luacheck: globals instead_sounds_free
+-- luacheck: globals instead_sound_channel
+-- luacheck: globals instead_sound_volume
+-- luacheck: globals instead_sound_panning
+-- luacheck: globals instead_sound_load_mem
+-- luacheck: globals instead_music_callback
+-- luacheck: globals instead_sound
+
 instead.sound_load = instead_sound_load
 instead.sound_free = instead_sound_free
 instead.sounds_free = instead_sounds_free
@@ -61,7 +71,7 @@ function instead.add_sound(s, chan, loop)
 	if std.tonum(loop) then
 		s = s..','..std.tostr(loop)
 	end
-	instead.set_sound(instead.__sound..';'..s, instead.__sound_channel, instead.__sound);
+	instead.set_sound(instead.__sound..';'..s, instead.__sound_channel, instead.__sound_loop);
 end
 
 function instead.set_sound(sound, chan, loop)
@@ -91,7 +101,8 @@ function instead.stop_music()
 	instead.set_music(nil, -1);
 end
 
-std.mod_done(function(s)
+std.mod_done(function(_)
+	instead.music_callback() -- halt music mixer
 	instead.stop_music()
 	instead.stop_sound() -- halt all
 --	instead.sounds_free();
@@ -99,7 +110,7 @@ end)
 
 local sounds = {}
 
-std.mod_cmd(function(s)
+std.mod_cmd(function(_)
 	if std 'game':time() > 0 then
 		sounds = {}
 		instead.set_sound(); -- empty sound
@@ -118,7 +129,9 @@ local snd = {
 snd.__index = snd;
 
 function snd:play(...)
-	instead.add_sound(self.snd, ...)
+	if self.snd then
+		instead.add_sound(self.snd, ...)
+	end
 end
 
 function snd:new(a, b, t)
@@ -130,9 +143,9 @@ function snd:new(a, b, t)
 	elseif type(t) == 'table' then
 		o.snd = instead.sound_load_mem(a, b, t) -- hz, channel, t
 	end
-	if not o.snd then
-		return
-	end
+--	if not o.snd then
+--		return
+--	end
 	std.setmt(o, self)
 	return std.proxy(o)
 end

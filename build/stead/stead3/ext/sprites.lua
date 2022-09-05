@@ -2,9 +2,49 @@ local std = stead
 local type = std.type
 local instead = std.ref '@instead'
 
+-- luacheck: read globals instead_theme_var
+-- luacheck: read globals instead_theme_name
+-- luacheck: read globals instead_ticks
+-- luacheck: read globals instead_font_load
+-- luacheck: read globals instead_font_free
+-- luacheck: read globals instead_font_scaled_size
+-- luacheck: read globals instead_sprite_alpha
+-- luacheck: read globals instead_sprite_dup
+-- luacheck: read globals instead_sprite_scale
+-- luacheck: read globals instead_sprite_rotate
+-- luacheck: read globals instead_sprite_text
+-- luacheck: read globals instead_sprite_text_size
+-- luacheck: read globals instead_sprite_draw
+-- luacheck: read globals instead_sprite_copy
+-- luacheck: read globals instead_sprite_compose
+-- luacheck: read globals instead_sprite_fill
+-- luacheck: read globals instead_sprite_pixel
+-- luacheck: read globals instead_sprite_load
+-- luacheck: read globals instead_sprite_free
+-- luacheck: read globals instead_sprite_size
+-- luacheck: read globals instead_sprites_free
+-- luacheck: read globals instead_sprite_colorkey
+-- luacheck: read globals instead_sprite_pixels
+-- luacheck: read globals instead_mouse_pos
+-- luacheck: read globals instead_mouse_show
+-- luacheck: read globals instead_mouse_filter
+-- luacheck: read globals instead_finger_pos
+-- luacheck: read globals instead_noise1
+-- luacheck: read globals instead_noise2
+-- luacheck: read globals instead_noise3
+-- luacheck: read globals instead_noise4
+-- luacheck: read globals instead_render_callback
+-- luacheck: read globals instead_direct
+-- luacheck: read globals instead_busy
+-- luacheck: read globals instead_sprite_pixels
+-- luacheck: read globals instead_screen_size
+-- luacheck: read globals instead_screen_dpi
+
 -- theme
 instead.theme_var = instead_theme_var
 instead.theme_name = instead_theme_name
+instead.screen_size = instead_screen_size
+instead.screen_dpi = instead_screen_dpi
 
 local theme = std.obj {
 	nam = '@theme';
@@ -16,6 +56,7 @@ local theme = std.obj {
 		menu = { gfx = {}};
 		gfx = {};
 		snd = {};
+		scr = {};
 	};
 }
 
@@ -23,7 +64,7 @@ function theme.restore(name)
 	if type(name) ~= 'string' then
 		std.err("Wrong parameter to theme.restore", 2)
 	end
-	v = theme.vars[name]
+	local v = theme.vars[name]
 	if not v then
 		return
 	end
@@ -60,6 +101,14 @@ end
 
 function theme.get(...)
 	return instead.theme_var(...);
+end
+
+function theme.scr.w()
+	return tonumber(theme.get 'scr.w')
+end
+
+function theme.scr.h()
+	return tonumber(theme.get 'scr.h')
 end
 
 function theme.win.reset()
@@ -217,7 +266,7 @@ function theme.snd.reset()
 	theme.reset("snd.click");
 end
 
-function theme.snd.click()
+function theme.snd.click(w)
 	theme.set("snd.click", w);
 end
 
@@ -249,6 +298,15 @@ instead.mouse_show = instead_mouse_show
 instead.mouse_filter = instead_mouse_filter
 
 instead.finger_pos = instead_finger_pos
+
+instead.noise1 = instead_noise1
+instead.noise2 = instead_noise2
+instead.noise3 = instead_noise3
+instead.noise4 = instead_noise4
+
+instead.render_callback = instead_render_callback
+
+instead.direct = instead_direct
 
 std.busy = instead_busy
 
@@ -302,7 +360,7 @@ function fnt:size(...)
 end
 
 function fnt:height(...)
-	local w, h = self:size()
+	local _, h = self:size(...)
 	return h
 end
 
@@ -351,28 +409,28 @@ end
 
 function spr:draw(fx, fy, fw, fh, d, x, y, alpha)
 	if d == nil and x == nil and y == nil then
-		instead.sprite_draw(self.spr, 0, 0, -1, -1, spr_get(fx), fy, fw, fh);
-		return fx
+		d, x, y, alpha = fx, fy, fw, fh
+		fx, fy, fw, fh = 0, 0, -1, -1
 	end
 	instead.sprite_draw(self.spr, fx, fy, fw, fh, spr_get(d), x, y, alpha);
 	return d
 end
 
-function spr:copy(fx, fy, fw, fh, d, x, y, alpha)
+function spr:copy(fx, fy, fw, fh, d, x, y)
 	if d == nil and x == nil and y == nil then
-		instead.sprite_copy(self.spr, 0, 0, -1, -1, spr_get(fx), fy, fw, fh);
-		return fx
+		d, x, y = fx, fy, fw
+		fx, fy, fw, fh = 0, 0, -1, -1
 	end
-	instead.sprite_copy(self.spr, fx, fy, fw, fh, spr_get(d), x, y, alpha);
+	instead.sprite_copy(self.spr, fx, fy, fw, fh, spr_get(d), x, y);
 	return d
 end
 
-function spr:compose(fx, fy, fw, fh, d, x, y, alpha)
+function spr:compose(fx, fy, fw, fh, d, x, y)
 	if d == nil and x == nil and y == nil then
-		instead.sprite_compose(self.spr, 0, 0, -1, -1, spr_get(fx), fy, fw, fh);
-		return fx
+		d, x, y = fx, fy, fw
+		fx, fy, fw, fh = 0, 0, -1, -1
 	end
-	instead.sprite_compose(self.spr, fx, fy, fw, fh, spr_get(d), x, y, alpha);
+	instead.sprite_compose(self.spr, fx, fy, fw, fh, spr_get(d), x, y);
 	return d
 end
 
@@ -404,14 +462,22 @@ function sprite.new(w, h, ...)
 		local t = 'blank:'..std.tostr(std.math.floor(w))..'x'..std.tostr(std.math.floor(h))
 		return spr:new(instead.sprite_load(t))
 	end
-	return spr:new(instead.sprite_load(w, h, ...))
+	local sp = instead.sprite_load(w, h, ...)
+	if not sp then
+		std.err("Can not load sprite: "..std.tostr(w), 2);
+	end
+	return spr:new(sp)
 end
 
 function sprite.fnt(name, sz, ...)
 	if not std.tonum(sz) then
 		std.err("No font size specified in sprite:fnt().", 2)
 	end
-	return fnt:new(instead.font_load(name, sz, ...))
+	local fn = instead.font_load(name, sz, ...)
+	if not fn then
+		std.err("Can not load font: "..std.tostr(name), 2);
+	end
+	return fnt:new(fn)
 end
 
 function sprite.scr()
@@ -419,24 +485,19 @@ function sprite.scr()
 end
 
 function sprite.direct(v)
-	local ov = theme.get('scr.gfx.mode') == 'direct'
-	if v then
-		if ov then
-			return true
-		end
-		theme.set ('scr.gfx.mode', 'direct')
-		return theme.get('scr.gfx.mode') == 'direct'
-	elseif v == false then
-		if ov then
-			theme.reset ('scr.gfx.mode')
-		end
-		return true
-	end
-	return ov
+	return instead.direct(v)
 end
 
 function sprite.font_scaled_size(size)
 	return instead.font_scaled_size(size);
+end
+
+local render_cb = nil
+function sprite.render_callback(fn)
+	local old = render_cb
+	render_cb = fn
+	instead.render_callback(render_cb)
+	return old
 end
 
 std.obj(sprite)
@@ -463,8 +524,12 @@ function pxl:dup()
 	return self:new(p)
 end
 
-function pxl:sprite()
-	return sprite.new(self)
+function pxl:sprite(...)
+	return sprite.new(self, false, ...)
+end
+
+function pxl:tosprite(...)
+	return sprite.new(self, true, ...)
 end
 
 function pxl:draw_spr(fx, fy, fw, fh, d, x, y, alpha)
@@ -472,7 +537,7 @@ function pxl:draw_spr(fx, fy, fw, fh, d, x, y, alpha)
 		instead.sprite_draw(self, 0, 0, -1, -1, spr_get(fx), fy, fw, fh);
 		return fx
 	end
-	instead.sprite_draw(self, fx, fy, fw, fh, get(d), x, y, alpha);
+	instead.sprite_draw(self, fx, fy, fw, fh, spr_get(d), x, y, alpha);
 	return d
 end
 
@@ -492,6 +557,14 @@ function pxl:compose_spr(fx, fy, fw, fh, d, x, y, alpha)
 	end
 	instead.sprite_compose(self, fx, fy, fw, fh, spr_get(d), x, y, alpha);
 	return d
+end
+
+function pxl:scale(...)
+	return pxl:new(self:new_scaled(...))
+end
+
+function pxl:rotate(...)
+	return pxl:new(self:new_rotated(...))
 end
 
 local function poly(self, fn, t, ...)
@@ -562,5 +635,6 @@ stead.mod_init(function()
 end)
 
 stead.mod_done(function()
+	sprite.render_callback() -- stop render
 --	instead.sprites_free();
 end)

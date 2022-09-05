@@ -1,11 +1,12 @@
 local std = stead
 local input = std.ref '@input'
-local type = std.type
 local instead = std.ref '@instead'
 
+-- luacheck: no self
 function input:event(...)
+-- luacheck: self
 	local a
-	for k, v in std.ipairs {...} do
+	for _, v in std.ipairs {...} do
 		a = (a and (a..', ') or ' ') .. std.dump(v)
 	end
 	return '@user_event'.. a or ''

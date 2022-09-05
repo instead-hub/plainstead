@@ -1,15 +1,18 @@
+-- luacheck: globals finger
 local std = stead
 local input = std.ref '@input'
-local type = std.type
 local table = table
+local instead = std.ref '@instead'
 
 finger = std.obj {
 	nam = '@finger';
 	{
 		fingers_list = { };
 	};
-	filter = function(s, press, btn, x, y, px, py)
-		return press and px
+-- luacheck: no unused args
+	filter = function(s, press, fid, x, y, px, py) -- by default, all finger events
+-- luacheck: unused args
+		return true
 	end
 }
 
@@ -25,7 +28,7 @@ function finger:event(press, fid, x, y, px, py)
 		end
 		return
 	end
-	local v, k = s:lookup(fid)
+	local _, k = s:lookup(fid)
 	if k then
 		table.remove(s.fingers_list, k)
 	end
@@ -34,7 +37,7 @@ end
 function finger:list()
 	local s = self
 	local new = {}
-	for k, v in std.ipairs(s.fingers_list) do
+	for _, v in std.ipairs(s.fingers_list) do
 		local x, y, pressure = instead.finger_pos(v.id)
 		if x then
 			v.x, v.y, v.pressure = x, y, pressure
@@ -47,10 +50,10 @@ end
 
 function finger:get(fid)
 	local s = self
-	local v, k
+	local _, k
 	local x, y, pressure = instead.finger_pos(fid)
 	if not x then
-		v, k = s:lookup(fid)
+		_, k = s:lookup(fid)
 		if k then
 			table.remove(s.fingers_list, k)
 		end
@@ -71,7 +74,10 @@ end
 function input:finger(press, fid, x, y, px, py, ...)
 	local a
 	finger:event(press, fid, x, y, px, py, ...)
-	for k, v in std.ipairs {press, fid, x, y, px, py, ...} do
+	if not finger:filter(press, fid, x, y, px, py, ...) then
+		return
+	end
+	for _, v in std.ipairs {press, fid, x, y, px, py, ...} do
 		a = (a and (a..', ') or ' ') .. std.dump(v)
 	end
 	return '@finger'.. (a or '')

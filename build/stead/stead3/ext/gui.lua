@@ -5,12 +5,23 @@ local std = stead
 local instead = std.obj {
 	nam = '@instead';
 
-	version_table = {3, 0, 1};
+	version_table = {3, 5, 0};
 
 	ini = function(s) -- after reset always do fade
 		s.need_fading(true)
 	end;
 }
+
+-- luacheck: read globals instead_clipboard
+-- luacheck: read globals instead_wait_use
+-- luacheck: read globals instead_grab_events
+-- luacheck: read globals instead_text_input
+-- luacheck: no self
+
+instead.clipboard = instead_clipboard
+instead.wait_use = instead_wait_use
+instead.grab_events = instead_grab_events
+instead.text_input = instead_text_input
 
 function instead.atleast(...)
 	for k, v in std.ipairs {...} do
@@ -33,14 +44,14 @@ function instead.version(...)
 	end
 	if not instead.atleast(...) then
 		local v = false
-		for k, n in std.ipairs({...}) do
+		for _, n in std.ipairs({...}) do
 			if std.type(n) ~= 'number' then
 				std.err([[Wrong instead.version argument: ]]..std.tostr(n), 2)
 			end
 			v = (v and (v .. '.') or '').. std.tostr(n)
 		end
 		std.err ([[The game requires instead engine of version ]] ..(v or '???').. [[ or higher.
-		http://instead.sourceforge.net]], 2)
+		https://instead-hub.github.io]], 2)
 	end
 end
 
@@ -66,7 +77,7 @@ local function get_bool(o, nam)
 		return o[nam]
 	end
 	if type(o[nam]) == 'function' then
-		return o:nam()
+		return o[nam](o)
 	end
 	return nil
 end
@@ -118,7 +129,9 @@ end)
 
 instead.nopic = false
 
+-- luacheck: push ignore savedpicture
 local savedpicture
+-- luacheck: pop
 instead.get_picture = std.cacheable('pic', function()
 	if get_bool(instead, 'nopic') then
 		return
@@ -127,7 +140,7 @@ instead.get_picture = std.cacheable('pic', function()
 	if not s then
 		s = stead.call(std.ref 'game', 'pic')
 	end
-	savedpicture = s -- to save pciture sprite from unload
+	savedpicture = s -- to save picture sprite from unload
 	return s and std.tostr(s)
 end)
 
@@ -162,12 +175,16 @@ function instead.fading()
 end
 
 function instead.get_restart()
-	return instead.__restart or false
+	local restart = instead.__restart or false
+	instead.__restart = nil
+	return restart
 end
 
 
 function instead.get_menu()
-	return instead.__menu
+	local menu = instead.__menu
+	instead.__menu = nil
+	return menu
 end
 
 instead.nosave = false
@@ -197,27 +214,30 @@ end
 function instead.menu(n)
 	if n == nil then
 		n = 'main'
-	elseif type(n) ~= 'string' then
+	elseif type(n) ~= 'string' and n ~= false then
 		n = 'toggle'
 	end
 	instead.__menu = n
 end
 
 function instead.restart(v)
-	instead.__restart = (v == false) and false or true
+	if v == false then v = false else v = true end
+	instead.__restart = v
 end
 
 function iface:title() -- hide title
 	return
 end
 
+-- luacheck: globals stat
 std.stat = std.class({
 	__stat_type = true;
 }, std.obj);
 
+-- luacheck: globals menu
 std.menu = std.class({
 	__menu_type = true;
-	new = function(self, v)
+	new = function(_, v)
 		if type(v) ~= 'table' then
 			std.err ("Wrong argument to std.menu:"..std.tostr(v), 2)
 		end
@@ -257,20 +277,21 @@ function iface:xref(str, o, ...)
 	local a = { ... }
 	local args = ''
 	for i = 1, #a do
-		if type(a[i]) ~= 'string' and type(a[i]) ~= 'number' then
+		if type(a[i]) ~= 'string' and type(a[i]) ~= 'number' and type(a[i]) ~= 'boolean' then
 			std.err ("Wrong argument to iface:xref: "..std.tostr(a[i]), 2)
 		end
 		args = args .. ' '..std.dump(a[i])
 	end
 	local xref = std.string.format("%s%s", std.deref_str(o), args)
 	-- std.string.format("%s%s", iface:esc(std.deref_str(o)), iface:esc(args))
-
-	table.insert(dict, xref)
-	xref = std.tostr(#dict)
-
+	if not dict[xref] then
+		table.insert(dict, xref)
+		dict[xref] = #dict
+	end
+	xref = std.tostr(dict[xref])
 	if std.cmd[1] == 'way' then
 		return std.string.format("<a:go %s>", xref)..str.."</a>"
-	elseif o:type 'menu' or std.is_system(o) then
+	elseif std.is_obj(o, 'menu') or std.is_system(o) then
 		return std.string.format("<a:act %s>", xref)..str.."</a>"
 	elseif std.cmd[1] == 'inv' then
 		return std.string.format("<a:use %s>", xref)..str.."</a>"
@@ -415,6 +436,10 @@ function iface:input(event, ...)
 		if type(input.click) == 'function' then
 			return input:click(...); -- pressed, x, y, mb
 		end
+	elseif event == 'wheel' then
+		if type(input.wheel) == 'function' then
+			return input:wheel(...);
+		end
 	elseif event == 'finger' then
 		if type(input.finger) == 'function' then
 			return input:finger(...); -- pressed, x, y, finger
@@ -422,6 +447,10 @@ function iface:input(event, ...)
 	elseif event == 'event' then
 		if type(input.event) == 'function' then
 			return input:event(...);
+		end
+	elseif event == 'text' then
+		if type(input.text) == 'function' then
+			return input:text(...);
 		end
 	end
 	return

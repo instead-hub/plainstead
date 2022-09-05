@@ -1,3 +1,8 @@
+-- STEAD3 API
+
+-- luacheck: globals iface init start stead
+-- luacheck: read globals DEBUG doencfile instead_readdir instead_random table_get_maxn instead_srandom
+
 stead = {
 	space_delim = ' ',
 	scene_delim = '^^',
@@ -39,9 +44,11 @@ stead = {
 	files = {};
 	busy = function() end;
 	debug_xref = true;
+	debug_save = false;
 	random = instead_random;
 	randomseed = instead_srandom;
 }
+
 
 local std = stead
 
@@ -77,10 +84,10 @@ std.rnd = function(...)
 end
 
 std.rnd_seed = function(...)
+	std.math.randomseed(...)
 	if std.randomseed then
 		return std.randomseed(...)
 	end
-	std.math.randomseed(...)
 end
 
 function stead:abort()
@@ -108,29 +115,42 @@ if _VERSION == "Lua 5.1" then
 		local t = std.getmt(oo)
 		t.__index = o
 		t.__newindex = o
-		t.__gc = function(s)
+		t.__gc = function(_)
 			o:__gc()
 		end
-		t.__tostring = function(s)
+		t.__tostring = function(_)
 			return o:__tostring()
 		end
+		o.__proxy_type = true
 		return oo
 	end
 else
 	std.proxy = function(o)
+		o.__proxy_type = true
 		return o
 	end
 	std.eval = load
 	std.unpack = table.unpack
 	table.maxn = table_get_maxn
 	string.gfind = string.gmatch
+-- luacheck: push ignore math
 	math.mod = math.fmod
 	math.log10 = function(a)
 		return std.math.log(a, 10)
 	end
 end
 
-local function __mod_callback_reg(f, hook, prio, ...)
+math.pow = function(num, n)
+	return num ^ n
+end
+
+math.round = function(num, n)
+	local m = 10 ^ (n or 0)
+	return std.math.floor(num * m + 0.5) / m
+end
+-- luacheck: pop
+
+local function __mod_callback_reg(f, hook, prio)
 	if type(f) ~= 'function' then
 		std.err ("Wrong parameter to mod_"..hook..".", 3);
 	end
@@ -145,8 +165,8 @@ local function __mod_callback_reg(f, hook, prio, ...)
 	local i = { fn = f, prio = prio, unload = std.__in_include }
 	table.insert(std.__mod_hooks[hook], i);
 	std.sort(std.__mod_hooks[hook], function (a, b)
-		local a = a.prio or 0
-		local b = b.prio or 0
+		a = a.prio or 0
+		b = b.prio or 0
 		if a == b then
 			return nil
 		end
@@ -159,7 +179,7 @@ function std.mod_unload()
 	local new = {}
 	for k, v in pairs(std.__mod_hooks) do
 		local list = {}
-		for kk, vv in ipairs(v) do
+		for _, vv in ipairs(v) do
 			if not vv.unload then
 				table.insert(list, vv)
 			end
@@ -173,7 +193,7 @@ function std.mod_call(hook, ...)
 	if not std.__mod_hooks[hook] then
 		return
 	end
-	for k, v in ipairs(std.__mod_hooks[hook]) do
+	for _, v in ipairs(std.__mod_hooks[hook]) do
 		local a, b = v.fn(...)
 		if a ~= nil or b ~= nil then
 			return a, b
@@ -249,9 +269,9 @@ local function xref_prep(str)
 	s = s:sub(i + 1)
 	if oo:find('@', 1, true) == 1 or oo:find('$', 1, true) then -- call '@' obj (aka xact) or '$' aka subst
 		local o = std.split(oo)[1]
-		local i = oo:find("[ \t]")
-		if i then
-			a = std.strip(oo:sub(i))
+		local ii = oo:find("[ \t]")
+		if ii then
+			a = std.strip(oo:sub(ii))
 			a = std.cmd_parse(a)
 		end
 		self = std.ref(o)
@@ -268,7 +288,7 @@ local function xref_prep(str)
 		if std.debug_xref then
 			std.err("Wrong object in xref: "..std.tostr(oo), 2)
 		else
-			dprint("Wrong xref: "..std.tostr(oo))
+			std.dprint("Wrong xref: "..std.tostr(oo))
 			return s
 		end
 	end
@@ -318,6 +338,7 @@ local function fmt_post(str)
 end
 
 function std.for_each_xref_outer(s, fn)
+	local orig = s
 	s = string.gsub(s, '\\?[\\{}]',
 			{ ['{'] = '\001', ['}'] = '\002', [ '\\{' ] = '\\{', [ '\\}' ] = '\\}' });
 	local start
@@ -344,6 +365,9 @@ function std.for_each_xref_outer(s, fn)
 			else
 				s = s:sub(1, start - 1)..new..s:sub(n + 1)
 			end
+		else
+			std.err("Unpaired '{' in:"..std.tostr(orig), 2)
+			break
 		end
 	end
 	s = s:gsub('[\001\002]', { ['\001'] = '{', ['\002'] = '}' });
@@ -353,10 +377,10 @@ end
 function std.for_each_xref(s, fn)
 	s = string.gsub(s, '\\?[\\{}]',
 			{ ['{'] = '\001', ['}'] = '\002', [ '\\{' ] = '\\{', [ '\\}' ] = '\\}' });
-	local function prep(s)
-		s = s:gsub("[\001\002]", "")
-		s = fn('{'..s..'}')
-		return s
+	local function prep(str)
+		str = str:gsub("[\001\002]", "")
+		str = fn('{'..str..'}')
+		return str
 	end
 	s = string.gsub(s, '(\001[^\001\002]+\002)', prep)
 	s = s:gsub('[\001\002]', { ['\001'] = '{', ['\002'] = '}' });
@@ -367,21 +391,22 @@ std.fmt = function(str, fmt, state)
 	if type(str) ~= 'string' then
 		return
 	end
-	local xref = xref_prep
 	local s = str
 	s = string.gsub(s, '[\t \n]+', std.space_delim);
 	s = string.gsub(s, '\\?[\\^]', { ['^'] = '\n', ['\\^'] = '^'} ):gsub("\n[ \t]+", "\n")
+	local first = true
 	while true do
 		fmt_refs = {}
 		substs = false
 		s = std.for_each_xref(s, fmt_prep) -- rename all {}
-		if type(fmt) == 'function' then
+		if first and type(fmt) == 'function' then
 			s = fmt(s, state)
 		end
 		s = std.for_each_xref(s, fmt_post) -- rename and xref
 		if not substs then
 			break
 		end
+		first = false
 	end
 	s = s:gsub('\\?'..'[{}]', { ['\\{'] = '{', ['\\}'] = '}' })
 	if state then
@@ -417,7 +442,7 @@ local lua_keywords = {
 }
 
 std.setmt(stead, {
-	__call = function(s, k)
+	__call = function(_, k)
 		return std.ref(k)
 	end;
 })
@@ -443,15 +468,12 @@ function std.is_obj(v, t)
 	return v['__'..(t or 'obj')..'_type']
 end
 
-function std.class(s, inh)
---	s.__parent = function(s)
+function std.class(self, inh)
+--	self.__parent = function(s)
 --		return inh
 	--	end;
-	s.nam = '*class*';
-	s.type = function(s, t)
-		return std.is_obj(s, t)
-	end;
-	s.__call = function(v, n, ...)
+	self.nam = '*class*';
+	self.__call = function(v, n, ...)
 		if std.is_obj(v) and type(n) == 'string' then
 			-- variable access
 			return function(val)
@@ -467,17 +489,17 @@ function std.class(s, inh)
 		std.setmt(n, v)
 		return n
 	end;
-	s.__tostring = function(self)
-		if not std.is_obj(self) then
-			local os = s.__tostring
-			s.__tostring = nil
-			local t = std.tostr(self)
-			s.__tostring = os
+	self.__tostring = function(s)
+		if not std.is_obj(s) then
+			local os = self.__tostring
+			self.__tostring = nil
+			local t = std.tostr(s)
+			self.__tostring = os
 			return t
 		end
-		return std.dispof(self)
+		return std.dispof(s)
 	end;
-	s.__pow = function(s, b)
+	self.__pow = function(s, b)
 		if type(b) == 'string' or type(b) == 'number' then
 			if std.is_tag(b) then
 				return std.rawequal(s.tag, b)
@@ -487,7 +509,7 @@ function std.class(s, inh)
 		end
 		return std.rawequal(s, b)
 	end;
-	s.__dirty = function(s, v)
+	self.__dirty = function(s, v)
 		local o = rawget(s, '__dirty_flag')
 		if v ~= nil then
 			if std.game then
@@ -497,14 +519,14 @@ function std.class(s, inh)
 		end
 		return o
 	end;
-	s.__index = function(t, k)
+	self.__index = function(t, k)
 		local ro = type(rawget(t, '__ro')) == 'table' and t.__ro
 		local v
 		if ro then
 			v = rawget(ro, k)
 		end
 		if v == nil then
-			return s[k]
+			return self[k]
 		end
 		if ro and std.game and type(v) == 'table' then
 			-- make rw if simple table
@@ -516,7 +538,7 @@ function std.class(s, inh)
 		end
 		return v
 	end;
-	s.__newindex = function(t, k, v)
+	self.__newindex = function(t, k, v)
 		local ro = std.is_obj(t) and t.__ro
 
 		if ro and not std.game then
@@ -541,8 +563,8 @@ function std.class(s, inh)
 		end
 		rawset(t, k, v)
 	end
-	std.setmt(s, inh or { __call = s.__call })
-	return s
+	std.setmt(self, inh or { __call = self.__call })
+	return self
 end
 
 function std.is_tag(n)
@@ -570,7 +592,7 @@ end
 
 std.list = std.class {
 	__list_type = true;
-	new = function(s, v)
+	new = function(_, v)
 		if type(v) ~= 'table' then
 			std.err ("Wrong argument to std.list:"..std.tostr(v), 2)
 		end
@@ -679,29 +701,23 @@ std.list = std.class {
 		if o then
 			return o -- already here
 		end
-		if not pos then
-			local o = std.ref(n)
-			if not o then
-				std.err("Wrong argument to list:add(): "..std.tostr(n), 2)
+		if pos then
+			if type(pos) ~= 'number' then
+				std.err("Wrong parameter to list.add:"..std.tostr(pos), 2)
 			end
-			s:__dirty(true)
-			s:__attach(o)
-			table.insert(s, o)
-			s:sort()
-			return o
+			if pos > #s then
+				pos = nil -- add to last position
+			elseif pos < 0 then
+				pos = #s + pos + 1
+			end
+			if pos and pos <= 0 then
+				pos = 1
+			end
 		end
-		if type(pos) ~= 'number' then
-			std.err("Wrong parameter to list.add:"..std.tostr(pos), 2)
+		o = std.ref(n)
+		if not o then
+			std.err("Wrong argument to list:add(): "..std.tostr(n), 2)
 		end
-		if pos > #s then
-			pos = #s
-		elseif pos < 0 then
-			pos = #s + pos + 1
-		end
-		if pos <= 0 then
-			pos = 1
-		end
-		local o = std.ref(n)
 		s:__dirty(true)
 		s:__attach(o)
 		if pos then
@@ -751,7 +767,7 @@ std.list = std.class {
 			std.err("Wrong argument to list:cat(): "..std.tostr(from), 2)
 		end
 		if not pos then pos = #s + 1 end
-		for k, v in ipairs(from) do
+		for _, v in ipairs(from) do
 			s:add(v, pos)
 			pos = pos + 1
 		end
@@ -870,18 +886,21 @@ std.save_var = function(vv, fp, n)
 		elseif type(vv.__save) == 'function' then
 			vv:__save(fp, n)
 		else
-			fp:write(string.format("%s = %s\n", n,  std.dump(vv)))
+			fp:write(string.format("%s = %s\n", n,  std.dump(vv, true)))
 --			std.save_table(vv, fp, n)
 		end
 	elseif vv == nil then
 		fp:write(string.format("%s = nil\n", n))
+	elseif type(vv) == 'userdata' and type(vv.__save) == 'function' then
+		vv:__save(fp, n)
+	else
+		std.err("Can not save var: "..n, 2)
 	end
 end
 
 std.save_members = function(vv, fp, n)
 	local l
 	for k, v in pairs(vv) do
-		l = nil
 		if type(k) == 'number' then
 			l = string.format("%s%s", n, std.varname(k))
 			std.save_var(v, fp, l)
@@ -898,17 +917,23 @@ std.save_table = function(vv, fp, n)
 end
 
 function std:reset(fn) -- reset state
-	self:done()
-	self:init()
+	local reset
+	if std.ref 'game'.__started or fn then
+		self:done()
+		self:init()
+		reset = true
+	end
 	if fn ~= 'main3.lua' then
 		std.startfile = fn -- another start file
 	end
-	std.dofile(fn or 'main3.lua')
+	if reset then
+		std.dofile(fn or 'main3.lua')
+	end
 end
 
 function std:load(fname) -- load save
 	self:reset()
-	std.ref 'game':__ini(false)
+	std.ref 'game':__ini()
 
 	local f, err = std.loadfile(fname) -- load all diffs
 	if not f then
@@ -929,6 +954,7 @@ function std:load(fname) -- load save
 	std.nostrict = strict
 
 	std.ref 'game':__ini(true)
+	std.ref 'game':__start(true)
 	return self.game:lastdisp()
 end
 
@@ -951,8 +977,7 @@ function std.gamefile(fn, reset) -- load game file
 	if reset then
 		std:reset(fn)
 		std.ref 'game':__ini()
-		std.ref 'game'.__started = true
-		local r, v = std.game.player:walk(std.game.player.room, false)
+		local r, v = std.ref 'game':__start()
 		if type(r) == 'string' and std.cctx() then
 			std.pr(r)
 		end
@@ -964,10 +989,14 @@ function std.gamefile(fn, reset) -- load game file
 	table.insert(std.files, fn) -- remember it
 end
 
+-- luacheck: no self
+
 function std:save(fp)
 	local close
+	local name, name_tmp
 	if type(fp) == 'string' then
-		fp = io.open(fp, "wb");
+		name, name_tmp = fp, fp .. '.tmp'
+		fp = io.open(name_tmp, "wb");
 		if not fp then
 			return nil, false -- can create file
 		end
@@ -984,14 +1013,12 @@ function std:save(fp)
 	-- reset
 	if std.startfile then
 		fp:write(string.format("std:reset(%q)\n", std.startfile))
-		fp:write(string.format("std 'game':ini(false)\n"))
+		fp:write(string.format("std 'game':ini()\n"))
 	end
 	-- files
 	for i = 1, #std.files do
 		fp:write(string.format("std.gamefile(%q)\n", std.files[i]))
 	end
-
-	local oo = std.objects
 
 	std.busy(true)
 	std.for_each_obj(function(v)
@@ -1012,37 +1039,18 @@ function std:save(fp)
 	if close then
 		fp:flush();
 		fp:close();
+		std.os.remove(name);
+		std.os.rename(name_tmp, name);
 	end
 	std.busy(false)
-end
-
-function std.for_all(fn, ...)
-	if type(fn) ~= 'function' then
-		std.err("Wrong 1-st argument to for_all(): "..std.tostr(fn), 2)
-	end
-	local a = {...}
-	for i = 1, #a do
-		fn(a[i])
-	end
-end
-
-function std.for_each_obj(fn, ...)
-	local oo = std.objects
-	for k, v in pairs(oo) do
-		if std.is_obj(v) then
-			local a, b = fn(v, ...)
-			if a ~= nil and b ~= nil then
-				return a, b
-			end
-		end
-	end
+	return std.game:lastdisp() -- same scene
 end
 
 local rnd_seed = 1980 + 1978
-
 function std:init()
 	std.rawset(_G, 'iface', std.ref '@iface') -- force iface override
-	std.world { nam = 'game', player = 'player', codepage = 'UTF-8', dsc = [[STEAD3, 2017 by Peter Kosyh^http://instead.syscall.ru^^]] };
+	std.world { nam = 'game', player = 'player', codepage = 'UTF-8',
+		dsc = [[STEAD3, 2020 by Peter Kosyh^https://instead-hub.github.io^^]] };
 	std.room { nam = 'main' }
 	std.player { nam = 'player', room = 'main' }
 
@@ -1062,19 +1070,43 @@ function std:done()
 		if std.is_system(v) then
 			objects[k] = v
 		else
---			print("Deleting "..k)
+			std.dprint("Deleting "..k)
 		end
 	end)
 	std.objects = objects
 	std.tags = {}
 	std.next_dynamic = -1
 	std.files = {}
+	std.startfile = false
 --	std.modules = {}
 	std.includes = {}
 	std.initialized = false
 	std.game = nil
 	std.rawset(_G, 'init', nil)
 	std.rawset(_G, 'start', nil)
+end
+-- luacheck: self
+
+function std.for_all(fn, ...)
+	if type(fn) ~= 'function' then
+		std.err("Wrong 1-st argument to for_all(): "..std.tostr(fn), 2)
+	end
+	local a = {...}
+	for i = 1, #a do
+		fn(a[i])
+	end
+end
+
+function std.for_each_obj(fn, ...)
+	local oo = std.objects
+	for _, v in pairs(oo) do
+		if std.is_obj(v) then
+			local a, b = fn(v, ...)
+			if a ~= nil and b ~= nil then
+				return a, b
+			end
+		end
+	end
 end
 
 function std.dirty(o)
@@ -1156,6 +1188,9 @@ end
 
 std.obj = std.class {
 	__obj_type = true;
+	type = function(self, t)
+		return std.is_obj(self, t)
+	end;
 	with = function(self, ...)
 		local a = {...}
 		for i = 1, #a do
@@ -1209,15 +1244,16 @@ std.obj = std.class {
 			if type(v[i]) ~= 'table' then
 				std.err("Wrong declaration: "..std.tostr(v[i]), 2)
 			end
+			local var = (v[i].__var_type == true) -- raw or var mode
 			for key, val in pairs(v[i]) do
 				if type(key) ~= 'string' then
 					std.err("Wrong var name: "..std.tostr(key), 2)
 				end
-				raw[key] = true
+				raw[key] = not var
 				rawset(v, key, val)
 			end
 		end
-		for i = 1, #v do
+		for _ = 1, #v do
 			table.remove(v, 1)
 		end
 		if not v.obj then
@@ -1229,7 +1265,7 @@ std.obj = std.class {
 		v.obj = std.list(v.obj)
 --		v.obj:attach(v)
 		for key, val in pairs(v) do
-			if type(self[key]) == 'function' and type(val) ~= 'function' then
+			if not std.nostrict_new and type(self[key]) == 'function' and type(val) ~= 'function' then
 				std.err("Overwrited object method: '"..std.tostr(key).. "' in: "..std.tostr(v.nam), 2)
 			end
 			if not raw[key] then
@@ -1272,12 +1308,12 @@ std.obj = std.class {
 		return s
 	end;
 	__ini = function(s, ...)
-		for k, v in pairs(s) do
+		for _, v in pairs(s) do
 			if std.is_obj(v, 'list') then
 				v:__ini(s)
 			end
 		end
-		for k, v in pairs(s.__ro) do
+		for _, v in pairs(s.__ro) do
 			if std.is_obj(v, 'list') then
 				v:__ini(s)
 			end
@@ -1294,7 +1330,7 @@ std.obj = std.class {
 		s:where(ww)
 		while #ww > 0 do
 			local nww = {}
-			for k, v in ipairs(ww) do
+			for _, v in ipairs(ww) do
 				if std.is_obj(v, 'room') then
 					if not o then
 						o = v
@@ -1364,7 +1400,7 @@ std.obj = std.class {
 		s:where(where)
 		for i = 1, #where do
 			local o = where[i]
-			local _, l, i = o:lookup(s)
+			local _, l = o:lookup(s)
 			if l then
 				l:del(s)
 			end
@@ -1403,9 +1439,12 @@ std.obj = std.class {
 		return true
 	end;
 	save = function(s, fp, n)
+		if std.debug_save then
+			std.dprint("Saving: "..std.nameof(s))
+		end
 		if s.__dynamic then -- create
-			local n = std.functions[s.__dynamic.fn]
-			if not n then
+			local nn = std.functions[s.__dynamic.fn]
+			if not nn then
 				std.err("Error while saving dynamic object: "..std.tostr(s), 2)
 			end
 			local arg = s.__dynamic.arg
@@ -1414,23 +1453,23 @@ std.obj = std.class {
 				if arg[i] == s then
 					std.err("Error while saving dynamic object: "..std.tostr(s).." Argument is self-obj.", 2)
 				end
-				l = l .. ', '..std.dump(arg[i])
+				l = l .. ', '..std.dump(arg[i], true, true) -- strict, nested
 			end
 			if type(s.nam) == 'number' then
-				l = string.format("std.new(%s%s):__renam(%d)\n", n, l, s.nam)
+				l = string.format("std.new(%s%s):__renam(%d)\n", nn, l, s.nam)
 			else
-				l = string.format("std.new(%s%s)\n", n, l, s.nam)
+				l = string.format("std.new(%s%s)\n", nn, l, s.nam)
 			end
 			fp:write(l)
 		end
-		for k, v in pairs(s.__ro) do
+		for k, _ in pairs(s.__ro) do
 			local o = s.__ro[k]
 			if std.dirty(o) then
 				local l = string.format("%s%s", n, std.varname(k))
 				std.save_var(s[k], fp, l)
 			end
 		end
-		for k, v in pairs(s.__var) do
+		for k, _ in pairs(s.__var) do
 			local l = string.format("%s%s", n, std.varname(k))
 			std.save_var(s[k], fp, l)
 		end
@@ -1439,8 +1478,8 @@ std.obj = std.class {
 		local d = std.call(self, 'dsc')
 		return d
 	end;
-	__xref = function(self, str, force)
-		if type(str) ~= 'string' then
+	__xref = function(self, text, force)
+		if type(text) ~= 'string' then
 			return
 		end
 
@@ -1450,18 +1489,18 @@ std.obj = std.class {
 			nam = '# '..std.tostr(nam)
 		end
 		local rep = false
-		local s = std.for_each_xref_outer(str, function(str)
+		local s = std.for_each_xref_outer(text, function(str)
 			rep = true
 			local s = str:gsub("^{", ""):gsub("}$", "")
 			local test = string.gsub(s, '\\?[\\{}'..std.delim..']',
 				{ ['{'] = '\001', ['}'] = '\003',
 				  [std.delim] = '\002' });
 			while true do
-				local s = test:gsub("\001[^\001\003]+\003", "")
-				if s == test then
+				local sub = test:gsub("\001[^\001\003]+\003", "")
+				if sub == test then
 					break
 				end
-				test = s
+				test = sub
 			end
 			local a = test:find('\002', 1, true)
 			if not a or test:byte(a) == 1 then -- need to be |
@@ -1478,7 +1517,7 @@ std.obj = std.class {
 		return not s:disabled()
 	end;
 	srch = function(s, w)
-		local o, l, i
+		local o, l, idx
 
 		if not s:visible() or s:closed() then
 			return
@@ -1486,10 +1525,10 @@ std.obj = std.class {
 
 		l = s.obj
 
-		o, i = l:srch(w)
+		o, idx = l:srch(w)
 
 		if o then
-			return o, l, i
+			return o, l, idx
 		end
 
 		for i = 1, #s.obj do
@@ -1502,9 +1541,9 @@ std.obj = std.class {
 	end;
 	lookup = function(s, w)
 		local l = s.obj
-		local o, i = l:lookup(w)
+		local o, idx = l:lookup(w)
 		if o then
-			return o, l, i
+			return o, l, idx
 		end
 		for i = 1, #s.obj do
 			local v = s.obj[i]
@@ -1551,12 +1590,20 @@ std.obj = std.class {
 	end;
 };
 
+function std.var(v)
+	if type(v) ~= 'table' then
+		std.err("Wrong std.var() argument", 2)
+	end
+	v.__var_type = true
+	return v
+end
+
 std.room = std.class({
 	__room_type = true;
 	from  = function(s)
 		return s.__from or s
 	end;
-	new = function(self, v)
+	new = function(_, v)
 		if type(v) ~= 'table' then
 			std.err ("Wrong argument to std.room:"..std.tostr(v), 2)
 		end
@@ -1601,7 +1648,7 @@ std.room = std.class({
 		return
 	end;
 	scene = function(s)
-		local title, dsc, objs
+		local title, dsc
 		title = iface:title(std.titleof(s))
 		dsc = std.call(s, 'dsc')
 		return std.par(std.scene_delim, title or false, dsc)
@@ -1620,7 +1667,7 @@ std.room = std.class({
 
 std.world = std.class({
 	__game_type = true;
-	new = function(self, v)
+	new = function(_, v)
 		if type(v) ~= 'table' then
 			std.err ("Wrong argument to std.pl:"..std.tostr(v), 2)
 		end
@@ -1648,6 +1695,20 @@ std.world = std.class({
 	__ini =  function(s, load)
 		return s:ini(load)
 	end;
+	__start = function(s, load)
+		std.mod_call('start', load)
+		if type(std.rawget(_G, 'start')) == 'function' then
+			start(load) -- start after load
+		end
+		s.__started = true
+		if load ~= true then
+			if std.game.player.room.__from then -- already entered
+				return nil, true
+			end
+			local r, v = std.game.player:walk(std.game.player.room, false)
+			return r, v
+		end
+	end;
 	ini = function(s, load)
 		if s.__in_ini then
 			return -- break recursion
@@ -1673,7 +1734,7 @@ std.world = std.class({
 			if type(std.rawget(_G, 'init')) == 'function' then
 				std.__in_init = {}
 				init()
-				for k, v in ipairs(std.__in_init) do
+				for _, v in ipairs(std.__in_init) do
 					v:__ini(load)
 				end
 				std.__in_init = false
@@ -1681,15 +1742,8 @@ std.world = std.class({
 			std.game = s
 		end
 
-		if load ~= false then
-			std.mod_call('start', load)
-			if type(std.rawget(_G, 'start')) == 'function' then
-				start(load) -- start after load
-			--	std.rawset(_G, 'start', nil)
-			end
-			local d = std.method(s, 'dsc')
-			return std.fmt(d)
-		end
+		local d = std.method(s, 'dsc')
+		return std.fmt(d)
 	end;
 	lifeon = function(s, w, ...)
 		if not w then
@@ -1760,9 +1814,8 @@ std.world = std.class({
 		return ov
 	end;
 	display = function(s, state)
-		local r, l, av, pv
+		local l, av, pv
 		local reaction = s:reaction() or nil
-		r = std.here()
 		if state then
 			reaction = iface:em(reaction)
 			av, pv = s:events()
@@ -1811,12 +1864,12 @@ std.world = std.class({
 		s.player:need_scene(false)
 		std.abort_cmd = false
 		r, v = std.mod_call('cmd', cmd)
+			-- luacheck: push ignore
 		if r ~= nil or v ~= nil then
-
+			-- luacheck: pop
 		elseif cmd[1] == nil or cmd[1] == 'look' then
 			if not s.__started then
-				s.__started = true
-				r, v = s.player:walk(s.player.room, false)
+				r, v = s:__start()
 			else
 				s.player:need_scene(true)
 				v = true
@@ -1851,6 +1904,7 @@ std.world = std.class({
 			local o1 = std.ref(cmd[2])
 			local o2 = std.ref(cmd[3])
 			o1 = s.player:srch(o1)
+
 			if not o1 then
 				return nil, false -- wrong input
 			end
@@ -1897,17 +1951,21 @@ std.world = std.class({
 		end
 
 		if v == false or std.abort_cmd then
-			std.mod_call('step', false)
-			return r, v -- wrong cmd?
+			if cmd[1] == 'save' then
+				std.mod_call('step', nil)
+			else
+				std.mod_call('step', v)
+			end
+			return r, v
 		end
 -- v is true or nil
 		s = std.game -- after reset game is recreated
 		s:reaction(r or false)
 
 		if v then
-			std.mod_call('step', v)
 			s:step()
 		end
+		std.mod_call('step', v)
 		r = s:display(v)
 		if v then
 			s:lastreact(s:reaction() or false)
@@ -1924,7 +1982,7 @@ std.world = std.class({
 
 std.player = std.class ({
 	__player_type = true;
-	new = function(self, v)
+	new = function(_, v)
 		if type(v) ~= 'table' then
 			std.err ("Wrong argument to std.pl:"..std.tostr(v), 2)
 		end
@@ -2011,7 +2069,6 @@ std.player = std.class ({
 		return s:call('inv', w, ...)
 	end;
 	useon = function(s, w1, w2)
-		local r, v, t
 		w1 = std.ref(w1)
 		w2 = std.ref(w2)
 
@@ -2021,7 +2078,7 @@ std.player = std.class ({
 		-- inv mode?
 		return s:call('inv', w1, w2)
 	end;
-	call = function(s, m, w1, w2, ...)
+	call = function(_, m, w1, w2, ...)
 		local w
 		if type(m) ~= 'string' then
 			std.err ("Wrong method in player.call: "..std.tostr(m), 2)
@@ -2032,9 +2089,9 @@ std.player = std.class ({
 			std.err ("Wrong parameter to player.call: "..std.tostr(w1), 2)
 		end
 
-		local r, v, t
+		local r, v, t, _
 		r, v = std.call(std.ref 'game', 'on'..m, w, w2, ...)
-		t = std.par(std.scene_delim, t or false, r)
+		t = std.par(std.scene_delim, false, r)
 		if v == false then
 			return t or r, true, false
 		end
@@ -2044,7 +2101,7 @@ std.player = std.class ({
 			t = std.par(std.scene_delim, t or false, r)
 			if v == true then -- false from used --> pass to use
 				w2['__nr_used'] = (w2['__nr_used'] or 0) + 1
-				r, v = std.call(std.ref 'game', 'afteruse', w, w2, ...)
+				r, _ = std.call(std.ref 'game', 'afteruse', w, w2, ...)
 				t = std.par(std.scene_delim, t or false, r)
 				return t or r, true -- stop chain
 			end
@@ -2054,7 +2111,7 @@ std.player = std.class ({
 		t = std.par(std.scene_delim, t or false, r)
 		if v == true then
 			w['__nr_'..m] = (w['__nr_'..m] or 0) + 1
-			r, v = std.call(std.ref 'game', 'after'..m, w, w2, ...)
+			r, _ = std.call(std.ref 'game', 'after'..m, w, w2, ...)
 			t = std.par(std.scene_delim, t or false, r)
 			return t or r, true
 		end
@@ -2079,18 +2136,19 @@ std.player = std.class ({
 	take = function(s, w, ...)
 		return s:call('tak', w, ...)
 	end;
-	walkin = function(s, w)
-		return s:walk(w, false)
+	walkin = function(s, w, ...)
+		return s:walk(w, false, true, ...)
 	end;
-	walkout = function(s, w)
+	walkout = function(s, w, ...)
 		if w == nil then
 			w = s:where():from()
 		end
-		return s:walk(w, true, false)
+		return s:walk(w, true, false, ...)
 	end;
-	walk = function(s, w, doexit, doenter)
+	walk = function(s, w, doexit, doenter, dofrom)
 		local noexit = (doexit == false)
 		local noenter = (doenter == false)
+		local nofrom = (dofrom == false)
 		local moved = s:moved()
 		if moved then
 			s:moved(false)
@@ -2107,12 +2165,12 @@ std.player = std.class ({
 
 		local inwalk = w
 
-		local r, v, t
+		local r, v, t, _
 		local f = s:where()
 
 		r, v = std.call(std.ref 'game', 'onwalk', f, inwalk)
 
-		t = std.par(std.scene_delim, t or false, r)
+		t = std.par(std.scene_delim, false, r)
 
 		if v == false or s:moved() then -- stop walk
 			if not s:moved() then s:moved(moved) end
@@ -2150,7 +2208,7 @@ std.player = std.class ({
 
 		if not noexit and not s.__in_exit then
 			s.__in_exit = true
-			r, v = std.call(s:where(), 'exit', inwalk)
+			r, _ = std.call(s:where(), 'exit', inwalk)
 			s.__in_exit = false
 			t = std.par(std.scene_delim, t or false, r)
 			if s:moved() then
@@ -2159,30 +2217,30 @@ std.player = std.class ({
 		end
 		-- enter is done
 		s.room = inwalk
-		if f ~= inwalk or not s.room.__from then -- brake self-recursion
+		if not nofrom and (f ~= inwalk or not s.room.__from) then -- brake self-recursion
 			s.room.__from = f
 		end
 		if not noenter then
-			r, v = std.call(inwalk, 'enter', f)
+			r, _ = std.call(inwalk, 'enter', f)
 			t = std.par(std.scene_delim, t or false, r)
 			if s:moved() then
 				return t, true
 			end
 		end
-		s.room.__visits = (s.room.__visits or 0) + 1
+		s:where().__visits = (s:where().__visits or 0) + 1
 		s:need_scene(true)
 		s:moved(true)
 		if not s.__in_afterwalk then
 			s.__in_afterwalk = true
-			r, v = std.call(std.ref 'game', 'afterwalk', f, inwalk)
+			r, _ = std.call(std.ref 'game', 'afterwalk', f, inwalk)
 			s.__in_afterwalk = false
 			t = std.par(std.scene_delim, t or false, r)
 		end
 		return t, true
 	end;
 	go = function(s, w)
-		local r, v
-		r, v = s:where():srch(w)
+		local r
+		r = s:where():srch(w)
 		if not std.is_obj(r, 'room') then
 			return nil, false
 		end
@@ -2190,9 +2248,9 @@ std.player = std.class ({
 	end;
 	where = function(s, where)
 		if type(where) == 'table' then
-			table.insert(where, s.room)
+			table.insert(where, std.ref(s.room))
 		end
-		return s.room
+		return std.ref(s.room)
 	end;
 }, std.obj);
 
@@ -2233,7 +2291,7 @@ std.cctx = function()
 	return std.call_ctx[std.call_top];
 end
 
-std.callpush = function(v, ...)
+std.callpush = function(v)
 	std.call_top = std.call_top + 1;
 	std.call_ctx[std.call_top] = { txt = nil, self = v };
 end
@@ -2295,13 +2353,15 @@ function std.join(a, sep)
 	sep = sep or ' '
 	local rc
 	for i = 1, #a do
-		rc = (rc and rc .. sep or '') .. a[i]
+		if type(a[1]) == 'string' then
+			rc = (rc and rc .. sep or '') .. a[i]
+		end
 	end
 	return rc
 end
 
-function std.split(s, sep)
-	local sep, fields = sep or " ", {}
+function std.split(s, separator)
+	local sep, fields = separator or " ", {}
 	local pattern = string.format("([^%s]+)", sep)
 	if type(s) ~= 'string' and type(s) ~= 'number' then
 		return fields
@@ -2324,7 +2384,11 @@ function std.unesc(s, sym)
 	return s
 end
 
-local function __dump(t, nested)
+function std.is_proxy(t)
+	return (type(t) == 'userdata') or (type(t) == 'table' and t.__proxy_type)
+end
+
+local function __dump(t, strict, nested)
 	local rc = '';
 	if type(t) == 'string' then
 		rc = string.format("%q", t):gsub("\\\n", "\\n")
@@ -2333,9 +2397,11 @@ local function __dump(t, nested)
 	elseif type(t) == 'boolean' then
 		rc = std.tostr(t)
 	elseif type(t) == 'function' then
-		if std.functions[t] and nested then
+		if std.functions[t] then
 			local k = std.functions[t]
 			return string.format("%s", k)
+		elseif strict then
+			std.err("Can not save undeclared function", 2)
 		end
 	elseif type(t) == 'table' and not t.__visited then
 		if std.tables[t] and nested then
@@ -2350,26 +2416,35 @@ local function __dump(t, nested)
 			end
 			return rc
 		end
+		if strict and std.getmt(t) then
+			std.err("Can not save classes", 2)
+		end
 		t.__visited = true
-		local k,v
 		local nkeys = {}
 		local keys = {}
-		for k,v in pairs(t) do
-			if type(v) ~= 'function' and type(v) ~= 'userdata' then
-				if type(k) == 'number' then
-					table.insert(nkeys, { key = k, val = v })
-				elseif k:find("__", 1, true) ~= 1 then
-					table.insert(keys, { key = k, val = v })
+		for k, v in pairs(t) do
+			if strict and type(k) ~= 'number' and type(k) ~= 'string' then
+				std.err("Wrong key type in table: "..type(k), 2)
+			end
+			if type(k) ~= 'string' or k:find("__", 1, true) ~= 1 then
+				if (type(v) ~= 'function' or std.functions[v]) and not std.is_proxy(v) then
+					if type(k) == 'number' then
+						table.insert(nkeys, { key = k, val = v })
+					elseif type(k) == 'string' then
+						table.insert(keys, { key = k, val = v })
+					end
+				elseif strict then
+					std.err("Can not save table item ("..std.tostr(k)..") with type: "..type(v), 2)
 				end
 			end
 		end
 		table.sort(nkeys, function(a, b) return a.key < b.key end)
 		rc = "{ "
-		local n
+		local n, v
 		for k = 1, #nkeys do
 			v = nkeys[k]
 			if v.key == k then
-				rc = rc .. __dump(v.val, true)..", "
+				rc = rc .. __dump(v.val, strict, true)..", "
 			else
 				n = k
 				break
@@ -2378,19 +2453,19 @@ local function __dump(t, nested)
 		if n then
 			for k = n, #nkeys do
 				v = nkeys[k]
-				rc = rc .. "["..std.tostr(v.key).."] = "..__dump(v.val, true)..", "
+				rc = rc .. "["..std.tostr(v.key).."] = "..__dump(v.val, strict, true)..", "
 			end
 		end
 		for k = 1, #keys do
 			v = keys[k]
 			if type(v.key) == 'string' then
 				if v.key:find("^[a-zA-Z_]+[a-zA-Z0-9_]*$") and not lua_keywords[v.key] then
-					rc = rc .. v.key .. " = "..__dump(v.val, true)..", "
+					rc = rc .. v.key .. " = "..__dump(v.val, strict, true)..", "
 				else
-					rc = rc .. "[" .. string.format("%q", v.key) .. "] = "..__dump(v.val, true)..", "
+					rc = rc .. "[" .. string.format("%q", v.key) .. "] = "..__dump(v.val, strict, true)..", "
 				end
 			else
-				rc = rc .. std.tostr(v.key) .. " = "..__dump(v.val, true)..", "
+				rc = rc .. std.tostr(v.key) .. " = "..__dump(v.val, strict, true)..", "
 			end
 		end
 		rc = rc:gsub(",[ \t]*$", "") .. " }"
@@ -2405,15 +2480,38 @@ local function cleardump(t)
 		return
 	end
 	t.__visited = nil
-	for k, v in pairs(t) do
+	for _, v in pairs(t) do
 		cleardump(v)
 	end
 end
 
-function std.dump(t)
-	local rc = __dump(t)
+function std.dump(t, strict, nested)
+	local rc = __dump(t, strict, nested)
 	cleardump(t)
 	return rc
+end
+
+local function clone(src)
+	if type(src) ~= 'table' then return src end
+	if std.is_obj(src) then return src end
+	if src.__visited then
+		std.err("Recursive tables not supported by std.clone")
+	end
+	src.__visited = true
+	local dst = {}
+	for k, _ in pairs(src) do
+		if k ~= '__visited' then
+			dst[std.clone(k)] = clone(src[k])
+		end
+	end
+	return dst
+end
+
+function std.clone(src)
+	cleardump(src)
+	local t = clone(src)
+	cleardump(src)
+	return t
 end
 
 function std.new(fn, ...)
@@ -2426,7 +2524,7 @@ function std.new(fn, ...)
 	if not std.functions[fn] then
 		std.err ("Function is not declared in 1-st argument of std.new", 2)
 	end
-	local arg = { ... }
+	local arg = std.clone({...})
 
 	local o = in_section ('new', function() return fn(std.unpack(arg)) end)
 
@@ -2546,20 +2644,17 @@ std.method = function(v, n, ...)
 		std.callpop()
 		return a, b, c
 	end
-	if type(v[n]) == 'boolean' then
-		return v[n], true
-	end
-	if type(v[n]) == 'table' then
+	if type(v[n]) == 'boolean' or type(v[n]) == 'table' then
 		return v[n], true
 	end
 	std.err ("Method not string nor function:"..std.tostr(n), 2);
 end
 
-std.call = function(v, n, ...)
-	if type(v) ~= 'table' then
+std.call = function(o, n, ...)
+	if type(o) ~= 'table' then
 		std.err("Call on non table object: "..std.tostr(n), 2)
 	end
-	local r, v, c = std.method(v, n, ...)
+	local r, v, c = std.method(o, n, ...)
 	if std.strip_call and type(r) == 'string' then
 		r = r:gsub("^[%^\n\r\t ]+", "") -- extra heading ^ and spaces
 		r = r:gsub("[%^\n\r\t ]+$", "") -- extra trailing ^ and spaces
@@ -2643,11 +2738,11 @@ end
 std.cmd_parse = cmd_parse
 
 function std.me()
-	return std.ref 'game'.player
+	return std.ref(std.ref 'game'.player)
 end
 
 function std.here()
-	return std.me().room
+	return std.ref(std.me().room)
 end
 
 function std.cacheable(n, f)
@@ -2668,10 +2763,10 @@ end
 
 local iface = std.obj {
 	nam = '@iface';
-	cmd = function(self, inp)
-		local cmd = cmd_parse(inp)
+	cmd = function(_, inp)
+		local cmd = std.cmd_parse(inp)
 		if std.debug_input then
-			dprint("* input: ", inp)
+			std.dprint("* input: ", inp)
 		end
 		if not cmd then
 			return "Error in cmd arguments", false
@@ -2685,18 +2780,27 @@ local iface = std.obj {
 		end
 		r = iface:fmt(r, v) -- to force fmt
 		if std.debug_output then
-			dprint("* output: ", r, v)
+			std.dprint("* output: ", r, v)
 		end
 		return r, v
 	end;
-	xref = function(self, str, obj)
+	xref = function(_, str, obj, ...)
 		obj = std.ref(obj)
 		if not obj then
-			return str;
+			return str
 		end
-		return std.cat(str, "("..std.deref(obj)..")");
+		local a = { ... }
+		local args = ''
+		for i = 1, #a do
+			if type(a[i]) ~= 'string' and type(a[i]) ~= 'number' and type(a[i]) ~= 'boolean' then
+				std.err ("Wrong argument to iface:xref: "..std.tostr(a[i]), 2)
+			end
+			args = args .. ' '..std.dump(a[i])
+		end
+		local xref = std.string.format("%s%s", std.deref_str(obj), args)
+		return std.cat(str, "("..xref..")");
 	end;
-	title = function(self, str)
+	title = function(_, str)
 		return "[ "..std.tostr(str).." ]"
 	end;
 	raw_mode = function(s, v)
@@ -2714,12 +2818,12 @@ local iface = std.obj {
 
 		return std.cat(str, '\n')
 	end;
-	em = function(self, str)
+	em = function(_, str)
 		return str
 	end;
 };
 
-local function fmt_stub(self, str)
+local function fmt_stub(_, str)
 	return str
 end
 
@@ -2740,7 +2844,7 @@ iface.imgr = fmt_stub
 iface.under = fmt_stub
 iface.st = fmt_stub
 iface.tab = fmt_stub
-iface.y = fmt_stub
+iface.y = function() return '' end
 
 function std.loadmod(f)
 	if std.game and not std.__in_gamefile then

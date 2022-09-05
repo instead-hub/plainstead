@@ -1,5 +1,5 @@
 stead = {
-	version = "3.1.0",
+	version = "3.5.0",
 	api_version = "1.1.6", -- last version before 1.2.0
 	table = table,
 	delim = ',',
@@ -154,6 +154,7 @@ if _VERSION == "Lua 5.1" then
 else
 	stead.eval = load
 	stead.unpack = table.unpack
+	unpack = table.unpack -- buggy games
 	stead.table.maxn = table_get_maxn
 	string.gfind = string.gmatch
 	math.mod = math.fmod
@@ -2133,7 +2134,7 @@ stead.game_save = function(self, name, file)
 	if name == nil then
 		return nil, false
 	end
-	h = stead.io.open(name,"wb");
+	h = stead.io.open(name .. '.tmp', "wb");
 	if not h then
 		return nil, false
 	end
@@ -2147,6 +2148,8 @@ stead.game_save = function(self, name, file)
 	stead.do_savegame(self, h);
 	h:flush();
 	h:close();
+	stead.os.remove(name);
+	stead.os.rename(name .. '.tmp', name);
 	game.autosave = false; -- we have only one try for autosave
 	stead.restart_game = false
 	return nil;
@@ -2185,7 +2188,7 @@ end
 
 game = game {
 	codepage = "UTF-8";
-	nam = [[INSTEAD -- Simple Text Adventure interpreter v]]..stead.version..[[ '2009-2016 by Peter Kosyh]];
+	nam = [[INSTEAD -- Simple Text Adventure interpreter v]]..stead.version..[[ '2009-2020 by Peter Kosyh]];
 	dsc = [[
 Commands:^
     look(or just enter), act <on what> (or just what), use <what> [on what], go <where>,^
@@ -3088,7 +3091,7 @@ function stead_version(v)
 
 	if not stead.atleast(stead.unpack(stead.api_version_table)) then
 		error ([[The game requires instead engine of version ]] ..v.. [[ or higher.
-		http://instead.sourceforge.net]], 2)
+		https://instead-hub.github.io]], 2)
 	end
 
 	stead.api_version = v
@@ -3266,6 +3269,16 @@ local build_sandbox_output = function(realpath, error, type, find, gsub, savepat
 	end)
 end
 
+local build_sandbox_load = function(eval, error, type, find)
+	return stead.hook(eval, function(f, str, ...)
+		if type(str) == 'string' and find(str, "\x1b", 1, true) == 1 then
+			error ("Loading bytecode is forbidden!", 3)
+			return false
+		end
+		return f(str, ...)
+	end)
+end
+
 io.open = build_sandbox_open(instead_realpath, error, type, string.find, string.gsub,
 		instead_savepath(), instead_gamepath());
 
@@ -3292,6 +3305,13 @@ end
 
 if not DEBUG then
 	debug = nil
+end
+if _VERSION == "Lua 5.1" then
+	loadstring = build_sandbox_load(loadstring, error, type, string.find)
+	stead.eval = loadstring
+else
+	load = build_sandbox_load(load, error, type, string.find)
+	stead.eval = load
 end
 package.cpath = ""
 package.preload = {}
