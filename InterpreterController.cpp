@@ -13,6 +13,7 @@ extern "C" {
 #pragma setlocale("Russian_Russia.1251")
 
 CString InterpreterController::m_gameFile=L"";
+CString InterpreterController::m_gameName=L"";
 CString InterpreterController::m_lastCommand=L"";
 bool InterpreterController::m_wasCommand=false;
 
@@ -69,6 +70,7 @@ void InterpreterController::startGameFile(CString gameFile, CString gameName, CS
 		if (instead_load(&str) == 0)
 		{
 			m_gameFile = gameFile;
+			m_gameName = gameName;
 			m_lastCommand = L"";
 			m_wasCommand = true;
 		}
@@ -95,7 +97,7 @@ void InterpreterController::endInterpreter()
 //Загрузка сохранения в интерпретатор
 bool InterpreterController::loadSave(CString fname)
 {
-	startGameFile(m_gameFile,fname,1);
+	startGameFile(m_gameFile,m_gameName,fname,1);
 	return true;
 }
 

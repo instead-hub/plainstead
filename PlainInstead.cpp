@@ -415,8 +415,9 @@ void CPlainInsteadApp::OnFileOpen()
 			CString userFilePath = fileDialog.GetFolderPath();
 			if (userFilePath == saveDir)
 			{
-				CString userFileName = fileDialog.GetFileName();
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + saveGameNameDir + L"/" + userFileName);
+				CString userFileName = saveGameNameDir + L"/" + fileDialog.GetFileName();
+				InterpreterController::loadSave(userFileName);
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + userFileName);
 				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",L"загрузка");
 				AfxMessageBox(L"Восстановлено!");
 				return;
@@ -500,8 +501,8 @@ void CPlainInsteadApp::OnFileSave()
 			CString userFilePath = fileDialog.GetFolderPath();
 			if (userFilePath == saveDir)
 			{
-				CString userFileName = fileDialog.GetFileName();
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + saveGameNameDir + L"/" + userFileName);
+				CString userFileName = saveGameNameDir + L"/" + fileDialog.GetFileName();
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + userFileName);
 				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",L"сохранение игры");
 				AfxMessageBox(L"Сохранено!");
 				return;
