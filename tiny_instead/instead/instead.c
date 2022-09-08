@@ -70,7 +70,7 @@ static char *MAIN = NULL;
 
 #define STEAD_API_PATH instead_api_path
 
-#define ERR_MSG_MAX 512
+int ERR_MSG_MAX = 512;
 
 static struct list_head extensions = LIST_HEAD_INIT(extensions);
 
@@ -130,13 +130,18 @@ int instead_busy(void)
 	return busy;
 }
 
+void instead_err_msg_max(int max) {
+	if(max>0 &&max<4) max=4;
+	ERR_MSG_MAX = max;
+}
+
 void instead_err_msg(const char *s)
 {
 	if (err_msg)
 		free(err_msg);
 	if (s) {
 		err_msg = strdup(s);
-		if (err_msg && strlen(err_msg) > ERR_MSG_MAX) {
+		if (ERR_MSG_MAX>0  && strlen(err_msg) > ERR_MSG_MAX) {
 			err_msg[ERR_MSG_MAX - 4] = 0;
 			strcat(err_msg, "...");
 		}

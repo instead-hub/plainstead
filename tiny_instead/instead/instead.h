@@ -79,7 +79,7 @@ extern int  instead_busy(void);
 extern int  instead_init_lua(const char *path, int detect);
 extern int  instead_loadscript(char *name, int argc, char **argv, int exec);
 extern int  instead_loadfile(char *name);
-
+extern void instead_err_msg_max(int max);
 extern void 	instead_err_msg(const char *s);
 extern const	char *instead_err(void);
 
