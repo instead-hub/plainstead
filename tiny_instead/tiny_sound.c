@@ -11,22 +11,52 @@ int game_change_vol(int d, int val)
 int gBassInit = 0;
 
 static char play_mus[1024];
+static HSAMPLE back_music;
+static HCHANNEL back_channel;
+static HMUSIC back_mod;
+static float global_snd_lvl = 1.0f;
+static int luaB_volume_sound(lua_State* L) {
+	int rc;
+	const char* fname = luaL_optstring(L, 1, NULL);
+return global_snd_lvl;
+}
 
+static int luaB_free_sound(lua_State *L) {
+//sound_done();
+	return 1;
+}
+
+static int luaB_free_sounds(lua_State *L) {
+//sound_done();
+	return 1;
+}
+
+static int luaB_load_sound(lua_State *L) {
+return 0;
+}
+static const luaL_Reg sound_funcs[] = {
+		{"instead_sound_volume", luaB_volume_sound},
+			{"instead_sound_free",luaB_free_sound},
+			{"instead_sounds_free",luaB_free_sounds},
+	{"instead_sound_load", luaB_load_sound},
+	{NULL, NULL}
+};
 static int sound_done(void)
 {
 	strcpy(play_mus, "");
 	return 0;
 }
-
 static int sound_init(void)
 {
-	return 0;
+	int rc;
+	instead_api_register(sound_funcs);
+	/*		char path[PATH_MAX];
+	snprintf(path, sizeof(path), "%s/%s", instead_stead_path(), "/ext/sound.lua");
+	rc = instead_loadfile(dirpath(path));
+	if (rc)
+		return rc;*/
+return 0;
 }
-
-static HSAMPLE back_music;
-static HCHANNEL back_channel;
-static HMUSIC back_mod;
-static float global_snd_lvl = 1.0f;
 
 static const char *get_filename_ext(const char *filename) {
 	const char *dot = strrchr(filename, '.');
