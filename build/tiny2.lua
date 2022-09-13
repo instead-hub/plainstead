@@ -397,7 +397,27 @@ stead.fmt = function(...)
 	return res
 end
 
-function iface.title(t)
+function iface:title(t)
 	if type(t) ~= 'string' then return end
 	return '['..t..']'
+end
+
+function iface:imgl()
+	return ''
+end
+
+function iface:imgr()
+	return ''
+end
+
+function iface:nb(t)
+	return t == '' and ' ' or t
+end
+
+function iface:y()
+	return ''
+end
+
+function iface:tab(str)
+	return stead.tostr(str)..' '
 end
