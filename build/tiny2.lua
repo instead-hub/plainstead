@@ -396,3 +396,8 @@ stead.fmt = function(...)
 	end
 	return res
 end
+
+function iface.title(t)
+	if type(t) ~= 'string' then return end
+	return '['..t..']'
+end
