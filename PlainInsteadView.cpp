@@ -322,7 +322,7 @@ static std::wstring process_instead_text_act(std::wstring inp, //входной текст
 	return result;
 }
 
-void CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog)
+int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog)
 {
 	CString resout;
 	CString tmp;
@@ -360,6 +360,7 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog)
 			free(str);
 			snprintf(cmd, sizeof(cmd), "%s", command);
 			str = instead_cmd(cmd, &rc);
+			if (textIn.Find(L"save ") >= 0 || textIn.Find(L"load ") >= 0) return rc;
 			resout.Append(getError(L"act"));
 		}
 		else resout.Append(getError(L"go"));
@@ -486,6 +487,7 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog)
 		}
 		flog.Close();
 	}
+	return -1;
 }
 
 ////////////////////////

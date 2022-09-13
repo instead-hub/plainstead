@@ -502,9 +502,9 @@ void CPlainInsteadApp::OnFileSave()
 			if (userFilePath == saveDir)
 			{
 				CString userFileName = saveGameNameDir + L"/" + fileDialog.GetFileName();
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + userFileName);
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",L"сохранение игры");
-				AfxMessageBox(L"Сохранено!");
+				int save = CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + userFileName);
+								CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",L"сохранение игры");
+				AfxMessageBox(save?L"Не удалось сохранить игру!":L"Сохранено!");
 				return;
 			}
 			else
