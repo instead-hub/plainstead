@@ -4,13 +4,14 @@
 ** $Id: lfs.c,v 1.61 2009/07/04 02:10:16 mascarenhas Exp $
 */
 #include "system.h"
+#include "util.h"
 
 #define DIR_METATABLE "directory metatable"
 typedef struct dir_data {
 	int  closed;
 #ifdef _WIN32
-	long hFile;
-	char pattern[MAX_PATH+1];
+	intptr_t hFile;
+	char pattern[PATH_MAX + 1];
 #else
 	DIR *dir;
 #endif
@@ -50,6 +51,8 @@ static int dir_iter (lua_State *L) {
 		}
 	}
 #else
+	if (!d->dir)
+		return 0; /* no directory opened */
 	if ((entry = readdir (d->dir)) != NULL) {
 		lua_pushstring (L, entry->d_name);
 		return 1;
@@ -95,16 +98,16 @@ int dir_iter_factory (lua_State *L) {
 	d->hFile = 0L;
 	luaL_getmetatable (L, DIR_METATABLE);
 	lua_setmetatable (L, -2);
-	if (strlen(path) > MAX_PATH-2)
+	if (strlen(path) > PATH_MAX - 2)
 	  luaL_error (L, "path too long: %s", path);
 	else
 	  sprintf (d->pattern, "%s/*", path);
 #else
 	luaL_getmetatable (L, DIR_METATABLE);
 	lua_setmetatable (L, -2);
-	d->dir = opendir (path);
+	d->dir = opendir (dirpath(path));
 	if (d->dir == NULL)
-		luaL_error (L, "cannot open %s.");
+		luaL_error (L, "cannot open %s.", path);
 #endif
 	return 2;
 }

@@ -1,12 +1,9 @@
 #ifndef __INSTEAD_EXTERNAL_H_
 #define __INSTEAD_EXTERNAL_H_
 
-#ifdef _WIN32_WCE
- #define PATH_MAX 255
+#if defined(WINRT)
  #define errno 0
- #define strerror(a) ""
  #define putenv(a) ;
- #define setlocale(a, b) ;
 #endif
 
 #include <lua.h>
@@ -27,14 +24,10 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <time.h>
-#ifndef S60
+#if !defined(PLAN9)
  #include <libgen.h>
+ #include <math.h>
 #endif
-#ifdef S60
- #include "snprintf.h"
- typedef long ssize_t;
-#endif
-#include <math.h>
 
 #ifndef PATH_MAX
 #define PATH_MAX 	4096
