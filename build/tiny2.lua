@@ -231,8 +231,9 @@ unpack = stead.unpack;
 stead.set_timer = function() end
 
 stead.timer = function()
-	return
+return
 end
+
 instead_theme_name = function() return 'default' end
 
 stead.module_init(function(s) 
@@ -420,4 +421,12 @@ end
 
 function iface:tab(str)
 	return stead.tostr(str)..' '
+end
+function instead_sprite_load(a,b)
+end
+function instead_font_load() end
+function instead_font_scaled_size()
+return 0
+end
+function instead_sprite_text() return ""
 end
