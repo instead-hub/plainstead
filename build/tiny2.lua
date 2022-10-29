@@ -228,6 +228,12 @@ is_music = stead.is_music
 --Для космический рейнджеров
 unpack = stead.unpack;
 
+stead.set_timer = function() end
+
+stead.timer = function()
+return
+end
+
 instead_theme_name = function() return 'default' end
 
 stead.module_init(function(s) 
@@ -424,3 +430,8 @@ return 0
 end
 function instead_sprite_text() return ""
 end
+function instead_sprite_size() return 0,0
+end
+function instead_sprite_scale() return 0
+end
+function instead_sprite_free() end
