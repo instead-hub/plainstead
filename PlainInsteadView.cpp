@@ -208,7 +208,7 @@ void CPlainInsteadView::OnSize(UINT nType, int cx, int cy)
 	if (mListWays.m_hWnd)  mListWays.SetWindowPos(NULL, 2 + cx - sz_list, h_static + h_list + h_static + h_list + h_static, sz_list, h_list, SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
-static bool Utf8ToCString(CString& cstr, const char* utf8Str)
+bool Utf8ToCString(CString& cstr, const char* utf8Str)
 {
 	size_t utf8StrLen = strlen(utf8Str);
 

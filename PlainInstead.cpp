@@ -25,16 +25,14 @@
 #pragma comment( lib, "bass.lib" )
 #include "bassmidi.h"
 #pragma comment( lib, "bassmidi.lib" )
-
 extern "C" {
 	#include "instead\instead.h"
-
 	extern int instead_sound_init(void);
 	extern void setGlobalSoundLevel(int volume);
 	extern int getGlobalSoundLevel();
 	extern void stopAllSound();
 	extern int gBassInit;
-
+	static void CALLBACK EXPORT instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword);
 	static int tiny_init(void)
 	{
 		int rc;
@@ -45,10 +43,75 @@ extern "C" {
 	}
 
 	static struct instead_ext ext;
-	//= {
+		//= {
 	//	.init = tiny_init,
 	//};
+	static struct instead_ext timer_ext;
+	static int timer_id = 1;
+	static int volatile instead_timer_nr = 0;
+	static int luaB_set_timer(lua_State* L) {
+		exit(0);
+		const char* delay = luaL_optstring(L, 1, NULL);
+		int d;
+		if (timer_id > 0) {
+			KillTimer(NULL, timer_id);
+			timer_id = 0;
+		}
+		if (!delay)
+			d = 0;
+		else
+			d = atoi(delay);
+		if (!d)
+			return 0;
+		instead_timer_nr = 0;
+		timer_id = SetTimer(NULL, 1, d, instead_fn);
+		return 0;
+	}
+	static const luaL_Reg timer_funcs[] = {
+{"instead_timer", luaB_set_timer},
+{NULL, NULL}
+	};
 
+	static void onTimer() {
+char* p;
+		instead_timer_nr = 0;
+		/*instead_lock();
+		if (instead_busy() || timer_id == 0) {
+			instead_unlock();
+			return;
+		}*/
+		if (instead_function("stead.timer", NULL)) {
+			instead_clear();
+			instead_unlock();
+				return;
+		}
+		p = instead_retval(0);
+instead_clear();
+		instead_unlock();
+		if (!p) return;
+CString command;
+Utf8ToCString(command, p);
+		free(p);
+		CPlainInsteadView::GetCurrentView()->TryInsteadCommand(command, L"Таймер остановлен");
+				CPlainInsteadView::GetCurrentView()->InitFocusLogic();
+}
+	static void CALLBACK EXPORT  instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword)
+	{
+		if (instead_timer_nr > 0) {
+			return; /* framedrop */
+		}
+		instead_timer_nr++;
+onTimer();
+	}
+	static int timer_init(void) {
+		instead_api_register(timer_funcs);
+		return 0;
+	}
+	static int timer_done(void) {
+		KillTimer(NULL, timer_id);
+		timer_id = 0;
+		return 0;
+	}
 	static void footer(void)
 	{
 		char *p;
@@ -146,6 +209,10 @@ static void RecursiveDelete(CString szPath)
 	}
 }
 
+static void instead_timer_init() {
+	instead_extension(&timer_ext);
+}
+
 BOOL CPlainInsteadApp::InitInstance()
 {
 	// InitCommonControlsEx() требуются для Windows XP, если манифест
@@ -231,13 +298,17 @@ BOOL CPlainInsteadApp::InitInstance()
 
 	/* Инициализация движка для LUA */
 	ext.init = tiny_init;
-
+	timer_ext.init = timer_init;
+	timer_ext.done = timer_done;
+	timer_ext.err = timer_done;
 	if (instead_extension(&ext)) {
 		std::cerr << "Failed set tiny" << std::endl;
+		return false;
 	}
-	else instead_err_msg_max(0);
+	instead_err_msg_max(0);
 	//звуковая подсистема LUA
 	instead_sound_init();
+	instead_timer_init();
 
 	currFilePath=L"";
 	currFileName=L"";

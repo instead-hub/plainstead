@@ -27,6 +27,7 @@ public:
 // Операции
 public:
 	static CPlainInsteadView* GetCurrentView();
+
 	void SetOutputText(CString newText, BOOL useHistory=TRUE);
 	void UpdateSettings();
 	void InitFocusLogic();
@@ -130,7 +131,7 @@ public:
 	CString logFileName;
 	CString savedSelInv;
 };
-
+bool Utf8ToCString(CString& cstr, const char* utf8Str);
 #ifndef _DEBUG  // отладочная версия в PlainInsteadView.cpp
 inline CPlainInsteadDoc* CPlainInsteadView::GetDocument() const
    { return reinterpret_cast<CPlainInsteadDoc*>(m_pDocument); }
