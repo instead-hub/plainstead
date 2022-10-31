@@ -224,6 +224,7 @@ save_music = stead.save_music
 restore_music = stead.restore_music
 
 is_music = stead.is_music
+instead_sound_channel =function() end
 
 --Для космический рейнджеров
 unpack = stead.unpack;
@@ -393,17 +394,15 @@ stead.fmt = function(...)
 end
 
 function iface:title(t)
-	if type(t) ~= 'string' then return end
-	return '['..t..']'
+if type(t) ~= 'string' then return end
+	return t
 end
+function iface:img() return '' end
+function iface:imgl() return '' end
 
-function iface:imgl()
-	return ''
-end
+function iface:imgr() return '' end
 
-function iface:imgr()
-	return ''
-end
+function iface:anchor() return '' end
 
 function iface:nb(t)
 	return t == '' and ' ' or t
@@ -416,16 +415,32 @@ end
 function iface:tab(str)
 	return stead.tostr(str)..' '
 end
-function instead_sprite_load(a,b)
-end
+function instead_sprite_free() end
+function instead_sprites_free() end
+function instead_font_free() end
+function instead_fonts_free() end
 function instead_font_load() end
 function instead_font_scaled_size()
 return 0
 end
-function instead_sprite_text() return ""
+function instead_sprite_alpha() end
+function instead_sprite_colorkey() end
+function instead_sprite_copy(...) end
+function instead_sprite_compose() end
+function instead_sprite_draw() end
+function instead_sprite_dup() end
+
+function instead_sprite_load() end
+
+function instead_sprite_pixel() end
+function instead_sprite_scale() return 0
 end
 function instead_sprite_size() return 0,0
 end
-function instead_sprite_scale() return 0
-end
-function instead_sprite_free() end
+function instead_sprite_text() return "" end
+function instead_sprite_text_size() return 0,0 end
+function instead_sprite_fill() end
+function instead_theme_name() return "." end
+function instead_theme_var(a,b) return 1,"" end
+function stead.mouse_filter() return 0 end
+function hideinv() end
