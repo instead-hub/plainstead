@@ -783,8 +783,8 @@ void LauncherDialog::OnBnClickedBtnUpdate()
 	CString strURL_RSS2 = L"http://dialas.ru/rss_game_list_sander.xml";
 	UpdateNewGamesRssAdditionalInfoFromUrl(strURL_RSS2, L"rss2.xml");
 
-	CString strURL = L"http://instead.sf.net/pool/game_list.xml";
-	UpdateNewGamesFromUrl(strURL, L"temp.xml");
+	/*CString strURL = L"http://instead.sf.net/pool/game_list.xml";
+	UpdateNewGamesFromUrl(strURL, L"temp.xml");*/
 	CString strURL2 = L"http://dialas.ru/instead_game_list.xml";
 	UpdateNewGamesFromUrl(strURL2, L"temp2.xml");
 	CString strURL3 = L"http://dialas.ru/instead_game_list_sander.xml";
@@ -1034,7 +1034,7 @@ void LauncherDialog::OnBnClickedBtnInstall()
 	bool foundInInstalled = false;
 	for (int i = 0; i < m_listInstalled.GetItemCount(); i++)
 	{
-		CString installedGameName = m_listInstalled.GetItemText(sel, N_SUBITEM_LIST_INSTALLED_GNAME);
+		CString installedGameName = m_listInstalled.GetItemText(i, N_SUBITEM_LIST_INSTALLED_GNAME);
 		if (gameName == installedGameName)
 		{
 			foundInInstalled = true;

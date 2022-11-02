@@ -32,7 +32,7 @@ extern "C" {
 	extern int getGlobalSoundLevel();
 	extern void stopAllSound();
 	extern int gBassInit;
-	static void CALLBACK EXPORT instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword);
+void CALLBACK EXPORT instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword);
 	static int tiny_init(void)
 	{
 		int rc;
@@ -716,17 +716,18 @@ void CPlainInsteadApp::OnRestartMenu()
 	// TODO: добавьте свой код обработчика команд
 	if (!GlobalManager::getInstance().isUserSaveLastFile())
 	{
-		int res = MessageBox(NULL,L"Сохранить текущую игру?",L"Файл не сохранен", MB_YESNOCANCEL);
+		int res = MessageBox(NULL, L"Сохранить текущую игру?", L"Файл не сохранен", MB_YESNOCANCEL);
 		if (res == IDYES)
 		{
 			OnFileSave();
-			StartNewGameFile(currFilePath,currFileName);
 		}
 		else if (res == IDNO)
 		{
-			StartNewGameFile(currFilePath,currFileName);
+
 		}
+		StartNewGameFile(currFilePath, currFileName);
 	}
+	else 		StartNewGameFile(currFilePath, currFileName);
 }
 
 void CPlainInsteadApp::OnUpdateRestartMenu(CCmdUI *pCmdUI)
