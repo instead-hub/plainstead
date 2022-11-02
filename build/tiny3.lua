@@ -4,7 +4,7 @@ local instead = std.obj { nam = '@instead' }
 
 instead.nosave = false
 instead.noautosave = false
-
+instead.tiny = true
 local iface = std '@iface'
 local type = std.type
 
@@ -30,6 +30,17 @@ instead.noinv = false
 instead.nopic = false
 
 instead.fading_value = 0
+function instead.mouse_filter()
+	return 0
+end
+
+function instead.render_callback()
+	return false
+end
+
+function instead.wait_use()
+	return true
+end
 
 function instead.fading()
 end
@@ -53,8 +64,26 @@ end
 function instead.version(...)
 end
 
+function instead.text_input()
+	return false
+end
+
 function iface:title(str) -- hide title
+if type(str) ~= 'string' then return end
 	return str
+
+end
+
+function iface:img() return '' end
+
+function iface:imgl() return '' end
+
+function iface:imgr() return '' end
+
+function iface:anchor() return '' end
+
+function iface:nb(t)
+	return t == '' and ' ' or t
 end
 
 std.stat = std.class({
@@ -106,7 +135,6 @@ function iface:xref(str, o, ...)
 	end
 	local xref = std.string.format("%s%s", std.deref_str(o), args)
 	-- std.string.format("%s%s", iface:esc(std.deref_str(o)), iface:esc(args))
-
 	table.insert(dict, xref)
 	xref = std.tostr(#dict)
 
@@ -405,7 +433,7 @@ end
 function theme.win.geom()
 end
 
-function theme.win.color()
+function theme.win.color(f)
 end
 
 function theme.win.font()
@@ -489,9 +517,16 @@ std.mod_init(function()
 end)
 std.mod_start(function()
 	dict = {}
+	local mp = std.ref '@metaparser'
+	if mp then
+		mp.winsize = 0
+		mp.prompt = false
+	end
 end)
 std.mod_step(function(state)
 	if state then
 		dict = {}
 	end
 end)
+
+require "ext/paths"

@@ -101,6 +101,7 @@ public:
 	afx_msg void OnFindNext();
 	afx_msg void OnHistoryStop();
 	afx_msg void OnHistoryStart();
+	int TryInsteadCommand(CString textIn, char* command, CString cmdForLog = L""); //Отправка команды в интерпретатор
 	int TryInsteadCommand(CString textIn, CString cmdForLog = L""); //Отправка команды в интерпретатор
 	void TurnOffLogging();
 	CListBox mListScene;

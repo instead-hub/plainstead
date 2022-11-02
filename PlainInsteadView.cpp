@@ -249,7 +249,7 @@ static CString getError(CString cmd) {
 		CString error;
 		//Конвертируем char* в строку.
 		Utf8ToCString(error, er);
-		if (!cmd) cmd = ""; else cmd += "\n";
+		if (!cmd) cmd = ""; else if(cmd.GetLength() > 0)cmd += "\n";
 		instead_err_msg(NULL);
 		return cmd + error + L"\n";
 	}
@@ -322,7 +322,7 @@ static std::wstring process_instead_text_act(std::wstring inp, //входной текст
 	return result;
 }
 
-int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog)
+int CPlainInsteadView::TryInsteadCommand(CString textIn,char* command, CString cmdForLog)
 {
 	CString resout;
 	CString tmp;
@@ -347,7 +347,7 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog)
 		//Обработка строки в Instead
 		char* str;
 		int rc;
-		char cmd[64];
+char cmd[256];
 		snprintf(cmd, sizeof(cmd), "use %s", command);
 		str = instead_cmd(cmd, &rc);
 		if (rc) { /* try go */
@@ -378,13 +378,22 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog)
 	else
 	{
 		//Обновление окна
-		p = instead_cmd("", NULL);
+		int rc = 0;
+		p = instead_cmd(command,&rc);
+		if (rc) {
+			char cmd[256]; 
+			snprintf(command, sizeof(command), "@metaparser \"%s\"", command);
+			p = instead_cmd(cmd,&rc);
+		}
 		if (p && *p) {
 			Utf8ToCString(tmp, p);
+			free(p);
 			std::wstring buf = tmp.GetBuffer();
 			std::wstring result = process_instead_text(buf, mListScene, pos_id_scene);
 			std::wstring result2 = process_instead_text_act(result, mListScene, act_on_scene);
-			resout.Append(getError());
+			tmp.ReleaseBuffer(tmp.GetLength());
+			Utf8ToCString(tmp, command);
+resout.Append(getError(tmp));
 			resout.Append(result2.data());
 			//resout.Append(tmp);
 			resout.Append(L"\n");
@@ -393,14 +402,13 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog)
 	if (/*m_BeepList && */prev_map.size() != pos_id_scene.size()) {
 		wave_scene->play();
 	}
-
-	mListWays.ResetContent();
+mListWays.ResetContent();
 	prev_map = pos_id_ways;
 	pos_id_ways.clear();
 	p = instead_cmd("way", NULL);
 	resout.Append(getError(L"way"));
 	if (p && *p) {
-		Utf8ToCString(tmp, instead_cmd("way", NULL));
+		Utf8ToCString(tmp, p);
 		//Добавление путей к окну вывода
 		//resout.Append(L">> ");
 		//resout.Append(tmp);
@@ -419,7 +427,7 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog)
 	prev_map = pos_id_inv;
 	pos_id_inv.clear();
 	if (p && *p) {
-		Utf8ToCString(tmp, instead_cmd("inv", NULL));
+		Utf8ToCString(tmp, p);
 		resout.Append(getError(L"inv"));
 		//Добавление инвентаря к окну вывода
 		//resout.Append(L"** ");
@@ -488,8 +496,10 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog)
 		flog.Close();
 	}
 	return -1;
+	}
+int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog) {
+return CPlainInsteadView::TryInsteadCommand(textIn, "", cmdForLog);
 }
-
 ////////////////////////
 
 BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
