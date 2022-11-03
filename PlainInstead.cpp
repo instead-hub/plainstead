@@ -725,9 +725,8 @@ void CPlainInsteadApp::OnRestartMenu()
 		{
 
 		}
-		StartNewGameFile(currFilePath, currFileName);
 	}
-	else 		StartNewGameFile(currFilePath, currFileName);
+	else StartNewGameFile(currFilePath, currFileName);
 }
 
 void CPlainInsteadApp::OnUpdateRestartMenu(CCmdUI *pCmdUI)

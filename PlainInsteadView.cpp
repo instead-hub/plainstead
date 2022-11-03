@@ -21,6 +21,14 @@
 
 extern "C" {
 #include "instead\instead.h"
+	extern char temp_buff[5000];
+	extern BOOL WasReadLine;
+	extern BOOL WasReadScreen;
+	extern char line_buff[1000]; //буфер ввода пользователя
+	extern BOOL AskSaveLoadTadsGame; //запрос на сохранение/загрузку игры
+	extern BOOL IsNeedSaveTadsGame; //Необходимо сохранение игры
+	extern BOOL IsOkSaveLoadTadsGame; //Успешность сохранения/загрузки
+	extern char TadsFileName[200];
 }
 
 
@@ -111,6 +119,7 @@ void CPlainInsteadView::DoDataExchange(CDataExchange* pDX)
 {
 	CFormView::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDIT_OUT, m_OutEdit);
+		DDX_Control(pDX, IDC_EDIT_INP, m_InputEdit);
 	DDX_Control(pDX, IDC_LIST_SCENE, mListScene);
 	DDX_Control(pDX, IDC_LIST_INV, mListInv);
 	DDX_Control(pDX, IDC_LIST_WAYS, mListWays);
@@ -190,7 +199,11 @@ void CPlainInsteadView::OnSize(UINT nType, int cx, int cy)
 
 	// TODO: добавьте свой код обработчика сообщений
 	// Автомасштабирование компонентов	
-
+		if (m_InputEdit.m_hWnd && m_InputEdit.IsWindowVisible()) 
+		{
+			m_InputEdit.ShowWindow(SW_HIDE);
+			m_InputEdit.EnableWindow(FALSE);
+		}
 	int h_static = 30;
 	int dh_static_text = 15;
 	int h_static_text = h_static - dh_static_text;
@@ -322,26 +335,25 @@ static std::wstring process_instead_text_act(std::wstring inp, //входной текст
 	return result;
 }
 
-int CPlainInsteadView::TryInsteadCommand(CString textIn,char* command, CString cmdForLog)
+int CPlainInsteadView::TryInsteadCommand(CString textIn,CString command, CString cmdForLog)
 {
 	CString resout;
 	CString tmp;
 	char* p;
 	std::map<int, int> prev_map;
-
-
-	mListScene.ResetContent();
+			mListScene.ResetContent();
 	prev_map = pos_id_scene;
 	pos_id_scene.clear();
 	act_on_scene.clear();
-	if (!textIn.IsEmpty())
+	bool is_saving = false;
+	if ((!textIn.IsEmpty() && textIn.Find(L"save ") >= 0) ||(!command.IsEmpty() && command.Find(L"save ") >= 0))
 	{
-		bool is_saving = false;
-		if (textIn.Find(L"save ") >= 0)
-		{
-			GlobalManager::getInstance().userSavedFile();
-			is_saving = true;
-		}
+		GlobalManager::getInstance().userSavedFile();
+		is_saving = true;
+	}
+	if (!is_saving &&(!textIn.IsEmpty() || !command.IsEmpty())) GlobalManager::getInstance().userNewCommand();
+		if (!textIn.IsEmpty())
+	{
 		char command[256];
 		strcpy(command, utf8_encode(textIn.GetBuffer()).c_str());
 		//Обработка строки в Instead
@@ -352,7 +364,7 @@ char cmd[256];
 		str = instead_cmd(cmd, &rc);
 		if (rc) { /* try go */
 			free(str);
-			snprintf(cmd, sizeof(cmd), "go %s", command);
+						snprintf(cmd, sizeof(cmd), "go %s", command);
 			str = instead_cmd(cmd, &rc);
 		}
 		else resout.Append(getError(L"use"));
@@ -360,29 +372,40 @@ char cmd[256];
 			free(str);
 			snprintf(cmd, sizeof(cmd), "%s", command);
 			str = instead_cmd(cmd, &rc);
-			if (textIn.Find(L"save ") >= 0 || textIn.Find(L"load ") >= 0) return rc;
+			if (textIn.Find(L"save ") >= 0 || textIn.Find(L"load ") >= 0) {
+				free(str);
+				return rc;
+			}
 			resout.Append(getError(L"act"));
 		}
 		else resout.Append(getError(L"go"));
 		if (str) {
 			Utf8ToCString(tmp, str);
+			free(str);
 			//resout.Append(tmp);
 			std::wstring buf = tmp.GetBuffer();
 			std::wstring result = process_instead_text(buf, mListScene, pos_id_scene);
 			std::wstring result2 = process_instead_text_act(result, mListScene, act_on_scene);
 			resout.Append(result2.data());
 			resout.Append(L"\n");
-			if (!is_saving) GlobalManager::getInstance().userNewCommand();
 		}
+		//Хотелось бы понять,почему после освобождения этих ресурсов программа вылетает.
+		/*free(command);
+		free(cmd);*/
 	}
 	else
 	{
 		//Обновление окна
 		int rc = 0;
-		p = instead_cmd(command,&rc);
+		char cmd[256];
+		strcpy(cmd, utf8_encode(command.GetBuffer()).c_str());
+		p = instead_cmd(cmd,&rc);
 		if (rc) {
-			char cmd[256]; 
-			snprintf(command, sizeof(command), "@metaparser \"%s\"", command);
+			memset(cmd, 0, sizeof(cmd));
+			command.Format(L"@metaparser \"%s\"", command);
+			//Приобразуем строку в юникодовский массив,т.к если просто использовать CT2A,то в instead будет приходить один неправильный символ,из-за чего instead не будет распознавать комманды.
+			strcpy(cmd, utf8_encode(command.GetBuffer()).c_str());
+			//m_InputEdit.SetWindowTextW(command); //(Для отладки,чтобы убедиться,что комманда приобразуется правильно)
 			p = instead_cmd(cmd,&rc);
 		}
 		if (p && *p) {
@@ -392,7 +415,7 @@ char cmd[256];
 			std::wstring result = process_instead_text(buf, mListScene, pos_id_scene);
 			std::wstring result2 = process_instead_text_act(result, mListScene, act_on_scene);
 			tmp.ReleaseBuffer(tmp.GetLength());
-			Utf8ToCString(tmp, command);
+			Utf8ToCString(tmp, cmd);
 resout.Append(getError(tmp));
 			resout.Append(result2.data());
 			//resout.Append(tmp);
@@ -498,7 +521,7 @@ mListWays.ResetContent();
 	return -1;
 	}
 int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog) {
-return CPlainInsteadView::TryInsteadCommand(textIn, "", cmdForLog);
+return CPlainInsteadView::TryInsteadCommand(textIn, L"", cmdForLog);
 }
 ////////////////////////
 
@@ -509,13 +532,13 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 	if ((pMsg->message == WM_CHAR) && (GetFocus() == &m_OutEdit))
 	{
 		//Автоматически перескакиваем на поле ввода если начинаем набирать текст
-		//m_InputEdit.SetFocus();
-		//CString str = _T("");
-		//m_InputEdit.GetWindowText( str );
-		//str.AppendChar(pMsg->wParam);
-		//m_InputEdit.SetWindowText(str);
-		//int len = str.GetLength();
-		//m_InputEdit.SetSel(len,len);
+		m_InputEdit.SetFocus();
+		CString str = _T("");
+		m_InputEdit.GetWindowText( str );
+		str.AppendChar(pMsg->wParam);
+		m_InputEdit.SetWindowText(str);
+		int len = str.GetLength();
+		m_InputEdit.SetSel(len,len);
 	}
 	else if (pMsg->message == WM_KEYDOWN &&
 		pMsg->wParam == VK_RETURN &&
@@ -563,18 +586,100 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 		}
 
 	}
-	else if (pMsg->message == WM_KEYDOWN && ::GetKeyState(VK_CONTROL) < 0 && (GetFocus() == &m_OutEdit))
+	else if (pMsg->message == WM_KEYDOWN && ::GetKeyState(VK_CONTROL) < 0 && (GetFocus() == &m_OutEdit ||GetFocus() ==&m_InputEdit))
 	{
 		CEdit* currEdit = (CEdit*)GetFocus();
 		switch (pMsg->wParam)
 		{
+					case 'Z':
+			currEdit->Undo();
+			return TRUE;
+					case 'X':
+						currEdit->Cut();
+						return TRUE;
+
 		case 'C':
 			currEdit->Copy();
+			return TRUE;
+		case 'V':
+			currEdit->Paste();
 			return TRUE;
 		case 'A':
 			currEdit->SetSel(0, -1);
 			return TRUE;
 		}
+	}
+	else if (pMsg->message == WM_KEYDOWN &&
+		pMsg->wParam == VK_UP &&
+		GetFocus() == &m_InputEdit)
+	{
+		if (!was_enter) GlobalManager::getInstance().previosCommandMove();//) MessageBeep(MB_ICONSTOP);
+		else was_enter = false;
+		m_InputEdit.SetWindowText(GlobalManager::getInstance().commandData());
+		m_InputEdit.SetSel(0, 0);
+	}
+	else if (pMsg->message == WM_KEYDOWN &&
+		pMsg->wParam == VK_DOWN &&
+		GetFocus() == &m_InputEdit)
+	{
+		if (!was_enter) GlobalManager::getInstance().nextCommandMove();//) MessageBeep(MB_ICONSTOP);
+		else was_enter = false;
+		m_InputEdit.SetWindowText(GlobalManager::getInstance().commandData());
+		m_InputEdit.SetSel(0, 0);
+	}
+	else if (pMsg->message == WM_KEYDOWN &&
+		pMsg->wParam == VK_RETURN &&
+		GetFocus() == &m_InputEdit)
+	{
+		if (GlobalManager::getInstance().isUserStartGame())
+		{
+			was_enter = true;
+			//Добавляем новую команду
+			CString textIn;
+			m_InputEdit.GetWindowTextW(textIn);
+			GlobalManager::getInstance().appendCommand(textIn);
+			//Проверяем на специальные команды
+			CString textCheck = textIn;
+			textCheck.MakeLower();
+			textCheck.Trim();
+			if (textCheck == L"выход")
+			{
+				//AfxMessageBox(L"Набрали выход!!!");
+				AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_APP_EXIT, 0L);
+				m_InputEdit.SetWindowTextW(L"");
+					return TRUE;
+			}
+			else if ((textCheck == L"перезапуск") || (textCheck == L"заново"))
+			{
+				AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_RESTART_MENU, 0L);
+				m_InputEdit.SetWindowTextW(L"");
+				GlobalManager::getInstance().userNewCommand();
+				return TRUE;
+			}
+			else if (textCheck == L"сохранить")
+			{
+				AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_FILE_SAVE_GAME, 0L);
+				m_InputEdit.SetWindowTextW(L"");
+				GlobalManager::getInstance().userNewCommand();
+				return TRUE;
+			}
+			else if (textCheck == L"загрузить")
+			{
+				AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_FILE_OPEN, 0L);
+				m_InputEdit.SetWindowTextW(L"");
+				GlobalManager::getInstance().userNewCommand();
+								return TRUE;
+			}
+			//m_OutEdit.SetWindowTextW(L"");
+						m_InputEdit.SetWindowTextW(L"");
+									//m_OutEdit.SetFocus();
+TryInsteadCommand(L"",textIn,L"");
+		}
+		else
+		{
+			AfxMessageBox(L"Никакая игра не выбрана. \nПожалуйста, начните новую игру");
+		}
+		return TRUE; // this doesn't need processing anymore
 	}
 	else if (pMsg->message == WM_KEYDOWN &&
 		pMsg->wParam == VK_RETURN &&
@@ -680,7 +785,31 @@ void CPlainInsteadView::SetOutputText(CString newText, BOOL useHistory)
 			++index;
 		}
 	}
+	if (GlobalManager::getInstance().isUseMenu())
+	{
+		CArray<CString, CString> str;
+		CString field;
+		int index = 0;
+		bool findKeyVal = false;
+		while (AfxExtractSubString(field, newText, index, _T(',')))
+		{
+			//Нашли ключевую фразу меню, после этого будем добавлять номера
+			if (field.Compare(GlobalManager::getInstance().keyMenuString()) == 0)
+			{
 
+			}
+			else
+			{
+				if (findKeyVal == false) str.Add(field);
+				else
+				{
+
+					//m_ListInput.AddString(field);
+				}
+			}
+			++index;
+		}
+	}
 	if (GlobalManager::getInstance().isUserStartGame() && useHistory)
 	{
 		//Добавляем предыдущий ответ к истории
@@ -688,10 +817,19 @@ void CPlainInsteadView::SetOutputText(CString newText, BOOL useHistory)
 	}
 	m_OutEdit.SetWindowTextW(newText);
 	m_newText = newText;
-	//m_InputEdit.SetWindowTextW(L"");
-	//m_InputEdit.SetFocus();
+	m_InputEdit.SetWindowTextW(L"");
+	m_InputEdit.SetFocus();
 	//300 мс задержка для выдачи речи
-	//SetTimer(ID_TIMER_1,300,NULL);
+	SetTimer(ID_TIMER_1,300,NULL);
+}
+void CPlainInsteadView::SendCommand(CString cmd)
+{
+	m_InputEdit.SetWindowTextW(cmd);
+	m_InputEdit.SetFocus();
+	MSG msg;
+	msg.message = WM_KEYDOWN;
+	msg.wParam = VK_RETURN;
+	PreTranslateMessage(&msg);
 }
 
 void CPlainInsteadView::InitFocusLogic()
@@ -792,7 +930,7 @@ void CPlainInsteadView::UpdateFontSize()
 	wcscpy(lf.lfFaceName, L"Arial");    // with face name "Arial".
 	m_fontIn.DeleteObject();
 	m_fontIn.CreateFontIndirect(&lf);    // Create the font.
-	//m_InputEdit.SetFont(&m_fontIn);
+	m_InputEdit.SetFont(&m_fontIn);
 
 	outFontCol = mainSettings.GetInt(L"main", L"OutFontCol", RGB(0, 0, 0));
 	outBackCol = mainSettings.GetInt(L"main", L"OutBackCol", RGB(240, 240, 240));

@@ -30,6 +30,7 @@ public:
 
 	void SetOutputText(CString newText, BOOL useHistory=TRUE);
 	void UpdateSettings();
+	void SendCommand(CString cmd);
 	void InitFocusLogic();
 	void UpdateFocusLogic();
 // Переопределение
@@ -66,7 +67,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CEdit m_OutEdit;
-	//CEdit m_InputEdit;
+	CEdit m_InputEdit;
 	CFont m_fontOut;
 	CFont m_fontIn;
 	int currInpHeight;
@@ -101,8 +102,8 @@ public:
 	afx_msg void OnFindNext();
 	afx_msg void OnHistoryStop();
 	afx_msg void OnHistoryStart();
-	int TryInsteadCommand(CString textIn, char* command, CString cmdForLog = L""); //Отправка команды в интерпретатор
-	int TryInsteadCommand(CString textIn, CString cmdForLog = L""); //Отправка команды в интерпретатор
+	int TryInsteadCommand(CString textIn, CString command, CString cmdForLog); //Отправка команды в интерпретатор
+	int TryInsteadCommand(CString textIn, CString cmdForLog=L""); //Отправка команды в интерпретатор
 	void TurnOffLogging();
 	CListBox mListScene;
 	std::map<int,int> pos_id_scene;
