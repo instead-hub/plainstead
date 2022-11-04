@@ -27,12 +27,22 @@
 #pragma comment( lib, "bassmidi.lib" )
 extern "C" {
 	#include "instead\instead.h"
+	extern int instead_metaparser_init(void);
 	extern int instead_sound_init(void);
 	extern void setGlobalSoundLevel(int volume);
 	extern int getGlobalSoundLevel();
 	extern void stopAllSound();
 	extern int gBassInit;
 void CALLBACK EXPORT instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword);
+void restart() {
+	AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_RESTART_MENU, 0L);
+};
+void save() {
+	AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_FILE_SAVE_GAME, 0L);
+};
+void load() {
+	AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_FILE_OPEN, 0L);
+};
 	static int tiny_init(void)
 	{
 		int rc;
@@ -50,7 +60,6 @@ void CALLBACK EXPORT instead_fn(HWND window, UINT interval, UINT timer_id, DWORD
 	static int timer_id = 1;
 	static int volatile instead_timer_nr = 0;
 	static int luaB_set_timer(lua_State* L) {
-		exit(0);
 		const char* delay = luaL_optstring(L, 1, NULL);
 		int d;
 		if (timer_id > 0) {
@@ -308,6 +317,7 @@ BOOL CPlainInsteadApp::InitInstance()
 	instead_err_msg_max(0);
 	//звуковая подсистема LUA
 	instead_sound_init();
+	instead_metaparser_init();
 	instead_timer_init();
 
 	currFilePath=L"";
@@ -537,7 +547,7 @@ void CPlainInsteadApp::StartNewGameFile(CString file, CString name)
 	saveDir = baseDir + L"saves\\" + gameName;
 
 	//closeAllChannels();
-	InterpreterController::startGameFile(file,name,needAutoLog);
+InterpreterController::startGameFile(file,name,needAutoLog);
     CPlainInsteadView::GetCurrentView()->SetOutputText(L"");
 
 	CFrameWnd *pFrame = (CFrameWnd *)(m_pMainWnd);
@@ -725,6 +735,13 @@ void CPlainInsteadApp::OnRestartMenu()
 		{
 
 		}
+		else if (res == IDCANCEL)
+		{
+			return;
+		}
+
+		StartNewGameFile(currFilePath, currFileName);
+		return;
 	}
 	else StartNewGameFile(currFilePath, currFileName);
 }

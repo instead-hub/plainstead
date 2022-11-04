@@ -4,6 +4,7 @@
 #include <Tlhelp32.h>
 #include <atlconv.h>
 #include <afxconv.h>
+#include <GlobalManager.h>
 #include <string>
 
 extern "C" {
@@ -52,29 +53,37 @@ static void killProcessByName(CString filename)
 
 void InterpreterController::startGameFile(CString gameFile, CString gameName, int autolog)
 {
-    startGameFile(gameFile,gameName,L"",autolog); 
+    startGameFile(gameFile,gameName,L"",autolog);
 }
 
 HANDLE hMachine = NULL;
 DWORD tidMachine = 0;
 
+void InterpreterController::loadFile(CString gameFile,CString gameName) {
+    char* str;
+    if (instead_load(&str) == 0)
+    {
+        m_gameFile = gameFile;
+        m_gameName = gameName;
+        m_lastCommand = L"";
+        m_wasCommand = true;
+        //free(str);
+    }
+
+}
 void InterpreterController::startGameFile(CString gameFile, CString gameName, CString saveFile, int autolog)
 {
-	//TODO: добавить старт игры
-	CT2A ascii(gameFile);
-	instead_done();
-	instead_set_debug(1);
-	if (instead_init(ascii)==0)
-	{
-		char *str;
-		if (instead_load(&str) == 0)
-		{
-			m_gameFile = gameFile;
-			m_gameName = gameName;
-			m_lastCommand = L"";
-			m_wasCommand = true;
-		}
-	}
+    //Чтобы не появлялся диалог с предложением сохраниться,когда мы начинаем новую игру,или начинаем игру заново.
+GlobalManager::getInstance().userSavedFile();
+    //TODO: добавить старт игры
+    CT2A ascii(gameFile);
+    if (saveFile &&!saveFile.IsEmpty() &&instead_get_api() == "stead3") {
+         loadFile(gameFile,gameName);
+        return;
+}
+instead_done();
+    instead_set_debug(1);
+    if (instead_init(ascii) == 0) loadFile(gameFile, gameName);
 }
 
 CString InterpreterController::RunInterpreter(CString command)

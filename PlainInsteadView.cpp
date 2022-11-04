@@ -653,7 +653,7 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 			{
 				AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_RESTART_MENU, 0L);
 				m_InputEdit.SetWindowTextW(L"");
-				GlobalManager::getInstance().userNewCommand();
+				//GlobalManager::getInstance().userNewCommand();
 				return TRUE;
 			}
 			else if (textCheck == L"сохранить")
@@ -830,6 +830,7 @@ void CPlainInsteadView::SendCommand(CString cmd)
 	msg.message = WM_KEYDOWN;
 	msg.wParam = VK_RETURN;
 	PreTranslateMessage(&msg);
+	
 }
 
 void CPlainInsteadView::InitFocusLogic()

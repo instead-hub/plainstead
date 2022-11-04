@@ -17,6 +17,7 @@ protected:
 	static void startGameFile(CString gameFile, CString gameName, CString saveFile, int autolog);
 private:
     static CString m_gameFile;
+	static void InterpreterController::loadFile(CString gameFile, CString gameName);
         static CString m_gameName;
 	static CString m_lastCommand;
 	static bool m_wasCommand;

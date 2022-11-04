@@ -146,6 +146,7 @@
     <ClCompile Include="tiny_instead\instead\tinymt32.c" />
     <ClCompile Include="tiny_instead\instead\util.c" />
     <ClCompile Include="tiny_instead\libgen.cpp" />
+    <ClCompile Include="tiny_instead\tiny_metaparser.c" />
     <ClCompile Include="tiny_instead\tiny_sound.c" />
     <ClCompile Include="unzip.cpp" />
     <ClCompile Include="urlfileDlg.cpp" />
