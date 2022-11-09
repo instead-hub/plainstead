@@ -43,6 +43,9 @@ void save() {
 void load() {
 	AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_FILE_OPEN, 0L);
 };
+void playSound(char* sound,int isLooping) {
+	Wave::Play(sound,isLooping);
+}
 	static int tiny_init(void)
 	{
 		int rc;

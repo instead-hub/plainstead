@@ -2,7 +2,7 @@
 #include "internals.h"
 
 #include "bass.h"
-
+extern void playSound(int isLooping);
 int game_change_vol(int d, int val)
 {
 
@@ -182,6 +182,7 @@ static void game_sound_player(void)
 	unix_path(snd);
 	//Проигрывание звука - пока недоступно
 	//_play_combined_snd(snd, chan, loop);
+	playSound(snd,loop);
 	free(snd);
 }
 
