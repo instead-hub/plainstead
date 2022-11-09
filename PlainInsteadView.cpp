@@ -1,7 +1,7 @@
 // PlainInsteadView.cpp : реализация класса CPlainInsteadView
 //
-
 #include "stdafx.h"
+
 #include "PlainInstead.h"
 
 #include "PlainInsteadDoc.h"
@@ -14,7 +14,6 @@
 #include "global.h"
 #include "StdioFileEx.h"
 #include <regex>
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -334,104 +333,38 @@ static std::wstring process_instead_text_act(std::wstring inp, //входной текст
 	std::regex_replace(std::back_inserter(result), inp.begin(), inp.end(), regex, L"$2");
 	return result;
 }
-
-int CPlainInsteadView::TryInsteadCommand(CString textIn,CString command, CString cmdForLog)
-{
-	CString resout;
-	CString tmp;
-	char* p;
+void CPlainInsteadView::onNewInsteadCommand(char* cmd,char* p,CString cmdForLog) {
 	std::map<int, int> prev_map;
-			mListScene.ResetContent();
+	mListScene.ResetContent();
 	prev_map = pos_id_scene;
 	pos_id_scene.clear();
 	act_on_scene.clear();
-	bool is_saving = false;
-	if ((!textIn.IsEmpty() && textIn.Find(L"save ") >= 0) ||(!command.IsEmpty() && command.Find(L"save ") >= 0))
-	{
-		GlobalManager::getInstance().userSavedFile();
-		is_saving = true;
-	}
-	if (!is_saving &&(!textIn.IsEmpty() || !command.IsEmpty())) GlobalManager::getInstance().userNewCommand();
-		if (!textIn.IsEmpty())
-	{
-		char command[256];
-		strcpy(command, utf8_encode(textIn.GetBuffer()).c_str());
-		//Обработка строки в Instead
-		char* str;
-		int rc;
-char cmd[256];
-		snprintf(cmd, sizeof(cmd), "use %s", command);
-		str = instead_cmd(cmd, &rc);
-		if (rc) { /* try go */
-			free(str);
-						snprintf(cmd, sizeof(cmd), "go %s", command);
-			str = instead_cmd(cmd, &rc);
-		}
-		else resout.Append(getError(L"use"));
-		if (rc) { /* try act */
-			free(str);
-			snprintf(cmd, sizeof(cmd), "%s", command);
-			str = instead_cmd(cmd, &rc);
-			if (textIn.Find(L"save ") >= 0 || textIn.Find(L"load ") >= 0) {
-				free(str);
-				return rc;
-			}
-			resout.Append(getError(L"act"));
-		}
-		else resout.Append(getError(L"go"));
-		if (str) {
-			Utf8ToCString(tmp, str);
-			free(str);
-			//resout.Append(tmp);
-			std::wstring buf = tmp.GetBuffer();
-			std::wstring result = process_instead_text(buf, mListScene, pos_id_scene);
-			std::wstring result2 = process_instead_text_act(result, mListScene, act_on_scene);
-			resout.Append(result2.data());
-			resout.Append(L"\n");
-		}
-		//Хотелось бы понять,почему после освобождения этих ресурсов программа вылетает.
-		/*free(command);
-		free(cmd);*/
-	}
-	else
-	{
-		//Обновление окна
-		int rc = 0;
-		char cmd[256];
-		strcpy(cmd, utf8_encode(command.GetBuffer()).c_str());
-		p = instead_cmd(cmd,&rc);
-		if (rc) {
-			memset(cmd, 0, sizeof(cmd));
-			command.Format(L"@metaparser \"%s\"", command);
-			//Приобразуем строку в юникодовский массив,т.к если просто использовать CT2A,то в instead будет приходить один неправильный символ,из-за чего instead не будет распознавать комманды.
-			strcpy(cmd, utf8_encode(command.GetBuffer()).c_str());
-			//m_InputEdit.SetWindowTextW(command); //(Для отладки,чтобы убедиться,что комманда приобразуется правильно)
-			p = instead_cmd(cmd,&rc);
-		}
-		if (p && *p) {
-			Utf8ToCString(tmp, p);
-			free(p);
-			std::wstring buf = tmp.GetBuffer();
-			std::wstring result = process_instead_text(buf, mListScene, pos_id_scene);
-			std::wstring result2 = process_instead_text_act(result, mListScene, act_on_scene);
-			tmp.ReleaseBuffer(tmp.GetLength());
-			Utf8ToCString(tmp, cmd);
-resout.Append(getError(tmp));
-			resout.Append(result2.data());
-			//resout.Append(tmp);
-			resout.Append(L"\n");
-		}
+
+	CString tmp, resout;
+	if (p && *p) {
+		Utf8ToCString(tmp, p);
+		free(p);
+		std::wstring buf = tmp.GetBuffer();
+		std::wstring result = process_instead_text(buf, mListScene, pos_id_scene);
+		std::wstring result2 = process_instead_text_act(result, mListScene, act_on_scene);
+		tmp.ReleaseBuffer(tmp.GetLength());
+		Utf8ToCString(tmp, cmd);
+		resout.Append(getError(tmp));
+		resout.Append(result2.data());
+		//resout.Append(tmp);
+		resout.Append(L"\n");
 	}
 	if (/*m_BeepList && */prev_map.size() != pos_id_scene.size()) {
 		wave_scene->play();
 	}
-mListWays.ResetContent();
+	mListWays.ResetContent();
 	prev_map = pos_id_ways;
 	pos_id_ways.clear();
 	p = instead_cmd("way", NULL);
 	resout.Append(getError(L"way"));
 	if (p && *p) {
 		Utf8ToCString(tmp, p);
+		free(p);
 		//Добавление путей к окну вывода
 		//resout.Append(L">> ");
 		//resout.Append(tmp);
@@ -443,7 +376,6 @@ mListWays.ResetContent();
 	if (/*m_BeepList && */prev_map.size() != pos_id_ways.size()) {
 		wave_ways->play();
 	}
-
 	p = instead_cmd("inv", NULL);
 	resout.Append(getError(L"inv"));
 	mListInv.ResetContent();
@@ -451,6 +383,7 @@ mListWays.ResetContent();
 	pos_id_inv.clear();
 	if (p && *p) {
 		Utf8ToCString(tmp, p);
+		free(p);
 		resout.Append(getError(L"inv"));
 		//Добавление инвентаря к окну вывода
 		//resout.Append(L"** ");
@@ -463,11 +396,10 @@ mListWays.ResetContent();
 		//PlaySound(baseSoundDir+_T("inventory.wav"), NULL, SND_MEMORY | SND_FILENAME | SND_ASYNC | SND_NOSTOP);
 		wave_inv->play();
 	}
-
 	resout.Replace(L"\n", L"\r\n");
 	m_OutEdit.SetWindowTextW(resout);
-	if (!m_jump_to_out) UpdateFocusLogic();
 	if (m_auto_say) MultiSpeech::getInstance().Say(resout);
+	if (!m_jump_to_out) UpdateFocusLogic();
 	if (m_jump_to_out) m_OutEdit.SetFocus();
 	if (isLogOn)
 	{
@@ -518,11 +450,60 @@ mListWays.ResetContent();
 		}
 		flog.Close();
 	}
-	return -1;
-	}
-int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog) {
-return CPlainInsteadView::TryInsteadCommand(textIn, L"", cmdForLog);
 }
+int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool needSearchVariants, bool isFromEdit)
+{
+	CString resout;
+	int rc;
+	char cmd[256];
+	char* p;
+	bool is_saving = false;
+	if (textIn.Find(L"save ") == 0)
+	{
+		GlobalManager::getInstance().userSavedFile();
+		is_saving = true;
+	}
+	if (!is_saving && !textIn.IsEmpty()) GlobalManager::getInstance().userNewCommand();
+	//Обработка строки в Instead
+	char command[sizeof(cmd)];
+	strcpy(command, utf8_encode(textIn.GetBuffer()).c_str());
+	if (needSearchVariants) {
+
+		textIn.ReleaseBuffer();
+		snprintf(cmd, sizeof(cmd), "use %s", command);
+		p = instead_cmd(cmd, &rc);
+		if (rc) { /* try go */
+			free(p);
+			snprintf(cmd, sizeof(cmd), "go %s", command);
+			p = instead_cmd(cmd, &rc);
+		}
+		if (rc) free(p);
+		//free(command); //Почему мы не можем освободить ресурсы,т.е при попытке освобождения command,в программе возникает ошибка.
+	}
+	if (!needSearchVariants || rc) {
+		if (isFromEdit) /*Метапарсер?*/
+		{
+			if(needSearchVariants) free(p);
+			snprintf(cmd, sizeof(cmd), "@metaparser \"%s\"", command);
+			//m_InputEdit.SetWindowTextW((LPCTSTR) cmd); //(Для отладки,чтобы убедиться,что комманда приобразуется правильно)
+			p = instead_cmd(cmd, &rc);
+			textIn.ReleaseBuffer(textIn.GetLength());
+		}
+		if (rc) {
+			/* try act */
+			strcpy(cmd, utf8_encode(textIn.GetBuffer()).c_str());
+			textIn.ReleaseBuffer(textIn.GetLength());
+			p = instead_cmd(cmd, &rc);
+			if ((textIn.Find(L"save ") == 0 || textIn.Find(L"load ") == 0) && !isFromEdit)
+			{
+				return rc;
+			}
+		}
+	}
+	onNewInsteadCommand(cmd,p, cmdForLog);
+	return rc;
+}
+
 ////////////////////////
 
 BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
@@ -649,7 +630,7 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 				m_InputEdit.SetWindowTextW(L"");
 					return TRUE;
 			}
-			else if ((textCheck == L"перезапуск") || (textCheck == L"заново"))
+			/*else if ((textCheck == L"перезапуск") || (textCheck == L"заново"))
 			{
 				AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_RESTART_MENU, 0L);
 				m_InputEdit.SetWindowTextW(L"");
@@ -669,11 +650,11 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 				m_InputEdit.SetWindowTextW(L"");
 				GlobalManager::getInstance().userNewCommand();
 								return TRUE;
-			}
+			}*/
 			//m_OutEdit.SetWindowTextW(L"");
 						m_InputEdit.SetWindowTextW(L"");
 									//m_OutEdit.SetFocus();
-TryInsteadCommand(L"",textIn,L"");
+			TryInsteadCommand(textIn,L"Ввод текста", false, true);
 		}
 		else
 		{

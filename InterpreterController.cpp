@@ -67,7 +67,7 @@ void InterpreterController::loadFile(CString gameFile,CString gameName) {
         m_gameName = gameName;
         m_lastCommand = L"";
         m_wasCommand = true;
-        //free(str);
+        free(str);
     }
 
 }
@@ -77,8 +77,9 @@ void InterpreterController::startGameFile(CString gameFile, CString gameName, CS
 GlobalManager::getInstance().userSavedFile();
     //TODO: добавить старт игры
     CT2A ascii(gameFile);
-    if (saveFile &&!saveFile.IsEmpty() &&instead_get_api() == "stead3") {
-         loadFile(gameFile,gameName);
+    if (!saveFile.IsEmpty() && strcmp(instead_get_api(), "stead3") == 0) {
+        //Ничего не делаем,т.к всё загрузится автоматом.
+         //loadFile(gameFile,gameName);
         return;
 }
 instead_done();

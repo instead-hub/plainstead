@@ -102,8 +102,8 @@ public:
 	afx_msg void OnFindNext();
 	afx_msg void OnHistoryStop();
 	afx_msg void OnHistoryStart();
-	int TryInsteadCommand(CString textIn, CString command, CString cmdForLog); //Отправка команды в интерпретатор
-	int TryInsteadCommand(CString textIn, CString cmdForLog=L""); //Отправка команды в интерпретатор
+int TryInsteadCommand(CString textIn, CString cmdForLog = L"", bool needSearchVariants=true,bool isFromEdit=false); //Отправка команды в интерпретатор
+void onNewInsteadCommand(char*cmd, char* p,CString cmdForLog = L"");
 	void TurnOffLogging();
 	CListBox mListScene;
 	std::map<int,int> pos_id_scene;

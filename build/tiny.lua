@@ -6,6 +6,7 @@
 
 if API == 'stead3' then
 	require 'tiny3'
+	require "ext/sound"
 	local instead = std '@instead'
 	local iface = std '@iface'
 	instead.music_callback = function() end
@@ -33,10 +34,9 @@ if API == 'stead3' then
 	std.mod_start(function()
 		std.mod_init(function()
 			std.rawset(_G, 'instead', instead)
-			require "ext/sandbox"
+			--=require "ext/sandbox"
 		end)
 	end)
 else
 	require 'tiny2'
 end
-require "ext/sound"
