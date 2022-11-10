@@ -63,7 +63,8 @@ static int timer_init(void) {
 	char path[1024];
 	snprintf(path, sizeof(path), "%s/%s", instead_stead_path(), "/ext/timer.lua");
 instead_api_register(timer_funcs);
-return instead_loadfile(dirpath(path));
+//return instead_loadfile(dirpath(path));
+return 0;
 }
 static int timer_done(void) {
 		KillTimer(NULL, timer_id);

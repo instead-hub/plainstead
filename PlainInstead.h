@@ -49,7 +49,8 @@ public:
 	afx_msg void OnUpdateViewFullHist(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateViewPrevHist(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateViewNextHist(CCmdUI *pCmdUI);
-	afx_msg void OnNewGameFromFile();
+	afx_msg void OnUpdateDebug(CCmdUI* pCmdUI);
+		afx_msg void OnNewGameFromFile();
 	afx_msg void OnNewGameFromLib();
 	afx_msg void OnRestartMenu();
 	afx_msg void OnUpdateRestartMenu(CCmdUI *pCmdUI);

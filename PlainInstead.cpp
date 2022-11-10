@@ -84,6 +84,7 @@ BEGIN_MESSAGE_MAP(CPlainInsteadApp, CWinApp)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_FULL_HIST, &CPlainInsteadApp::OnUpdateViewFullHist)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_PREV_HIST, &CPlainInsteadApp::OnUpdateViewPrevHist)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_NEXT_HIST, &CPlainInsteadApp::OnUpdateViewNextHist)
+	ON_UPDATE_COMMAND_UI(ID_MENU_DEBUG, &CPlainInsteadApp::OnUpdateDebug)
 	ON_COMMAND(ID_NEW_GAME_FROM_FILE, &CPlainInsteadApp::OnNewGameFromFile)
 	ON_COMMAND(ID_NEW_GAME, &CPlainInsteadApp::OnNewGameFromLib)
 	ON_COMMAND(ID_RESTART_MENU, &CPlainInsteadApp::OnRestartMenu)
@@ -558,16 +559,19 @@ void CPlainInsteadApp::OnUpdateViewFullHist(CCmdUI *pCmdUI)
 	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && (GlobalManager::getInstance().nextHistoryHave() || GlobalManager::getInstance().previosHistoryHave()) );
 }
 
-void CPlainInsteadApp::OnUpdateViewPrevHist(CCmdUI *pCmdUI)
-{
+void CPlainInsteadApp::OnUpdateViewPrevHist(CCmdUI* pCmdUI) {
 	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && GlobalManager::getInstance().previosHistoryHave());
 }
+
+
 
 void CPlainInsteadApp::OnUpdateViewNextHist(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && GlobalManager::getInstance().nextHistoryHave());
 }
-
+void CPlainInsteadApp::OnUpdateDebug(CCmdUI* pCmdUI) {
+	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame());
+}
 void CAboutDlg::OnClose()
 {
 	//AfxMessageBox(L"Окно о программе закрыто");

@@ -18,7 +18,6 @@ protected: // создать только из сериализации
 
 public:
 	enum{ IDD = IDD_PLAININSTEAD_FORM };
-
 // Атрибуты
 public:
 	CPlainInsteadDoc* GetDocument() const;
@@ -103,6 +102,7 @@ public:
 	afx_msg void OnHistoryStop();
 	afx_msg void OnHistoryStart();
 int TryInsteadCommand(CString textIn, CString cmdForLog = L"", bool needSearchVariants=true,bool isFromEdit=false); //Отправка команды в интерпретатор
+void updateText();
 void onNewInsteadCommand(char*cmd, char* p,CString cmdForLog = L"");
 	void TurnOffLogging();
 	CListBox mListScene;
@@ -129,6 +129,7 @@ void onNewInsteadCommand(char*cmd, char* p,CString cmdForLog = L"");
 	Wave* wave_scene;
 	Wave* wave_ways;
 	afx_msg void OnMenuLog();
+	afx_msg void OnMenuDebug();
 	bool isLogOn;
 	CString logFileName;
 	CString savedSelInv;

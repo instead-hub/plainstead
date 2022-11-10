@@ -43,7 +43,8 @@ CPlainInsteadView* CPlainInsteadView::GetCurrentView()
 // CPlainInsteadView
 
 static UINT WM_FINDREPLACE = ::RegisterWindowMessage(FINDMSGSTRING);
-
+static CString text[2];
+static bool debug;
 IMPLEMENT_DYNCREATE(CPlainInsteadView, CFormView)
 
 BEGIN_MESSAGE_MAP(CPlainInsteadView, CFormView)
@@ -82,6 +83,7 @@ BEGIN_MESSAGE_MAP(CPlainInsteadView, CFormView)
 	ON_COMMAND(ID_GOTO_INV, &CPlainInsteadView::OnGotoInv)
 	ON_COMMAND(ID_GOTO_WAYS, &CPlainInsteadView::OnGotoWays)
 	ON_COMMAND(ID_MENU_LOG, &CPlainInsteadView::OnMenuLog)
+	ON_COMMAND(ID_MENU_DEBUG, &CPlainInsteadView::OnMenuDebug)
 END_MESSAGE_MAP()
 
 // создание/уничтожение CPlainInsteadView
@@ -261,7 +263,7 @@ static CString getError(CString cmd) {
 		CString error;
 		//Конвертируем char* в строку.
 		Utf8ToCString(error, er);
-		if (!cmd) cmd = ""; else if(cmd.GetLength() > 0)cmd += "\n";
+		if (!cmd) cmd = ""; else if(cmd.GetLength() > 0)cmd = L"\n"+cmd+L"\n";
 		instead_err_msg(NULL);
 		return cmd + error + L"\n";
 	}
@@ -275,12 +277,13 @@ static CString getError() {
 static std::wstring process_instead_text(std::wstring inp, //входной текст
 	CListBox& resBox, //Поле для добавления элементов
 	std::map<int/*list_pos*/, int/*id_obj*/>& map_action, //Карта соответсвий поля со id-объекта
-	bool append_num = false //добавлять номер в список (для отладки)
+	bool append_num = false, //добавлять номер в список (для отладки)
+	bool clear =false //Очищать ли элементы массива,перед добавлением туда текста
 ) {
 	//Обработка отображения объектов сцены
 	//const std::wregex regex(L"\\{\\s*(\\w+)\\s*\\#(\\d+)\\}"); //Для фигурных скобочек
 	//const std::wregex regex(L"(\\w+)\\s*\\((\\d+)\\)"); //Для круглых после
-	const std::wregex regex(L"\\[a\\]([^]*?)\\#(\\d+)\\[\\/a\\]"); //для тэгов [a]
+	const std::wregex regex(L"\\[a\\]([^]*?)\\#(\\d+)\\[/a\\]"); //для тэгов [a]
 	std::wsmatch match;
 	;
 	std::wsregex_iterator next(inp.begin(), inp.end(), regex);
@@ -313,7 +316,7 @@ static std::wstring process_instead_text_act(std::wstring inp, //входной текст
 	//Обработка отображения объектов сцены
 	//const std::wregex regex(L"\\{\\s*(\\w+)\\s*\\#(\\d+)\\}"); //Для фигурных скобочек
 	//const std::wregex regex(L"(\\w+)\\s*\\((\\d+)\\)"); //Для круглых после
-	const std::wregex regex(L"\\[a\\:([^\\]]*)\\]([^\\[]*)\\[\\/a\\]");//для тэгов [a: code]text[\a]
+	const std::wregex regex(L"\\[a\\:([^\\]]*)\\]([^\\[]*)\\[/a\\]");//для тэгов [a: code]text[\a]
 	std::wsregex_iterator next(inp.begin(), inp.end(), regex);
 	std::wsregex_iterator end;
 	while (next != end) {
@@ -335,24 +338,30 @@ static std::wstring process_instead_text_act(std::wstring inp, //входной текст
 }
 void CPlainInsteadView::onNewInsteadCommand(char* cmd,char* p,CString cmdForLog) {
 	std::map<int, int> prev_map;
+	CString er;
 	mListScene.ResetContent();
 	prev_map = pos_id_scene;
 	pos_id_scene.clear();
 	act_on_scene.clear();
-
-	CString tmp, resout;
-	if (p && *p) {
-		Utf8ToCString(tmp, p);
+	text[0] = L"";
+	text[1] = L"";
+		CString tmp;
+		Utf8ToCString(tmp, cmd);
+		//free(cmd);
+		er = getError(tmp);
+		text[0].Append(er);
+		text[1].Append(er);
+			if (p && *p) {
+Utf8ToCString(tmp, p);
 		free(p);
 		std::wstring buf = tmp.GetBuffer();
+		text[1].Append(tmp);
 		std::wstring result = process_instead_text(buf, mListScene, pos_id_scene);
+		tmp.ReleaseBuffer();
 		std::wstring result2 = process_instead_text_act(result, mListScene, act_on_scene);
-		tmp.ReleaseBuffer(tmp.GetLength());
 		Utf8ToCString(tmp, cmd);
-		resout.Append(getError(tmp));
-		resout.Append(result2.data());
-		//resout.Append(tmp);
-		resout.Append(L"\n");
+		text[0].Append(result2.data());
+		//text[0].Append(tmp);
 	}
 	if (/*m_BeepList && */prev_map.size() != pos_id_scene.size()) {
 		wave_scene->play();
@@ -361,46 +370,46 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd,char* p,CString cmdForLog)
 	prev_map = pos_id_ways;
 	pos_id_ways.clear();
 	p = instead_cmd("way", NULL);
-	resout.Append(getError(L"way"));
+	er = getError(L"way");
+	text[0].Append(er);
+	text[1].Append(er);
 	if (p && *p) {
 		Utf8ToCString(tmp, p);
 		free(p);
 		//Добавление путей к окну вывода
-		//resout.Append(L">> ");
-		//resout.Append(tmp);
-		//resout.Append(L"\n");
+		//text[0].Append(L">> ");
+		//text[0].Append(tmp);
+		//text[0].Append(L"\n");
 		std::wstring buf = tmp.GetBuffer();
 		std::wstring result = process_instead_text(buf, mListWays, pos_id_ways);
-		resout.Append(getError(L"way"));
 	}
 	if (/*m_BeepList && */prev_map.size() != pos_id_ways.size()) {
 		wave_ways->play();
 	}
 	p = instead_cmd("inv", NULL);
-	resout.Append(getError(L"inv"));
 	mListInv.ResetContent();
 	prev_map = pos_id_inv;
 	pos_id_inv.clear();
+	er = getError(L"inv");
+	text[0].Append(er);
+	text[1].Append(er);
 	if (p && *p) {
 		Utf8ToCString(tmp, p);
 		free(p);
-		resout.Append(getError(L"inv"));
 		//Добавление инвентаря к окну вывода
-		//resout.Append(L"** ");
-		//resout.Append(tmp);
-		//resout.Append(L"\n");
+		//text[0].Append(L"** ");
+		//text[0].Append(tmp);
+		//text[0].Append(L"\n");
 		std::wstring buf = tmp.GetBuffer();
 		std::wstring result = process_instead_text(buf, mListInv, pos_id_inv);
+		tmp.ReleaseBuffer();
 	}
 	if (/*m_BeepList && */prev_map.size() != pos_id_inv.size()) {
 		//PlaySound(baseSoundDir+_T("inventory.wav"), NULL, SND_MEMORY | SND_FILENAME | SND_ASYNC | SND_NOSTOP);
 		wave_inv->play();
 	}
-	resout.Replace(L"\n", L"\r\n");
-	m_OutEdit.SetWindowTextW(resout);
-	if (m_auto_say) MultiSpeech::getInstance().Say(resout);
-	if (!m_jump_to_out) UpdateFocusLogic();
-	if (m_jump_to_out) m_OutEdit.SetFocus();
+	text[0].Replace(L"\n", L"\r\n");
+	updateText();
 	if (isLogOn)
 	{
 		CStdioFileEx flog;
@@ -413,7 +422,7 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd,char* p,CString cmdForLog)
 		flog.SeekToEnd();
 		flog.WriteString(L"\n\n>" + cmdForLog + L"\n");
 		flog.SeekToEnd();
-		flog.WriteString(resout);
+		flog.WriteString(text[debug]);
 		flog.SeekToEnd();
 		if (mListScene.GetCount() > 0)
 		{
@@ -450,6 +459,12 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd,char* p,CString cmdForLog)
 		}
 		flog.Close();
 	}
+}
+void CPlainInsteadView::updateText() {
+	m_OutEdit.SetWindowTextW(text[debug]);
+	if (m_auto_say) MultiSpeech::getInstance().Say(text[debug]);
+	if (!m_jump_to_out) UpdateFocusLogic();
+	if (m_jump_to_out) m_OutEdit.SetFocus();
 }
 int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool needSearchVariants, bool isFromEdit)
 {
@@ -577,8 +592,7 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 					case 'X':
 						currEdit->Cut();
 						return TRUE;
-
-		case 'C':
+								case 'C':
 			currEdit->Copy();
 			return TRUE;
 		case 'V':
@@ -1383,7 +1397,16 @@ void CPlainInsteadView::OnMenuLog()
 		}
 	}
 }
-
+void CPlainInsteadView::OnMenuDebug() {
+	debug = !debug;
+	CMenu* pMenu = AfxGetApp()->GetMainWnd()->GetMenu();
+	if (pMenu != NULL) {
+		/*CIniFile mainSettings;
+		mainSettings.WriteNumber(L"main", L"debug", debug);*/
+		pMenu->CheckMenuItem(ID_MENU_DEBUG, (debug?MF_CHECKED: MF_UNCHECKED) | MF_BYCOMMAND);
+		updateText();
+		}
+}
 void CPlainInsteadView::TurnOffLogging()
 {
 	if (isLogOn) OnMenuLog();

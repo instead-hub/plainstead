@@ -164,7 +164,8 @@
 #define ID_LISTSND_DOWN                 32903
 #define ID_LISTSND_UP                   32904
 #define ID_32909                        32909
-#define ID_MENU_LOG                     32910
+#define ID_MENU_DEBUG                     32910
+#define ID_MENU_LOG                     32911
 
 // Next default values for new objects
 // 

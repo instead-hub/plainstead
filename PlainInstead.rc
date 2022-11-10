@@ -128,6 +128,7 @@ BEGIN
         MENUITEM "Перейти к списку о&бъектов \t\tCTRL+1", ID_GOTO_SCENE
         MENUITEM "Перейти к списку &инвентаря\tCTRL+2", ID_GOTO_INV
         MENUITEM "Перейти к списку п&утей\t CTRL+3", ID_GOTO_WAYS
+        MENUITEM "Режим отладки\t CTRL+D", ID_MENU_DEBUG,
         MENUITEM "Включить логирование",        ID_MENU_LOG
     END
     POPUP "&Справка"
@@ -182,6 +183,7 @@ BEGIN
     "M",            ID_OPEN_MANAGER,        VIRTKEY, CONTROL, NOINVERT
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
     "R",            ID_RESTART_MENU,        VIRTKEY, CONTROL, NOINVERT
+	    "D",            ID_MENU_DEBUG,        VIRTKEY, CONTROL, NOINVERT
     VK_F5,          ID_UPDATE,              VIRTKEY, NOINVERT
     VK_F24,         ID_UPDATE_FORM,         VIRTKEY, NOINVERT
     VK_OEM_MINUS,   ID_VOLUME_DOWN,         VIRTKEY, CONTROL, NOINVERT
