@@ -34,7 +34,7 @@ if API == 'stead3' then
 	std.mod_start(function()
 		std.mod_init(function()
 			std.rawset(_G, 'instead', instead)
-			--=require "ext/sandbox"
+			--require "ext/sandbox"
 		end)
 	end)
 else
