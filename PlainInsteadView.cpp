@@ -468,8 +468,7 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 	char command[sizeof(cmd)];
 	strcpy(command, utf8_encode(textIn.GetBuffer()).c_str());
 	if (needSearchVariants) {
-
-		textIn.ReleaseBuffer();
+				textIn.ReleaseBuffer();
 		snprintf(cmd, sizeof(cmd), "use %s", command);
 		p = instead_cmd(cmd, &rc);
 		if (rc) { /* try go */

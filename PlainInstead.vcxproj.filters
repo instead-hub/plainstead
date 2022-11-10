@@ -105,6 +105,9 @@
     <ClCompile Include="tiny_instead\tiny_metaparser.c">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="tiny_instead\tiny_timer.c">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ColorPickerCB.h">
