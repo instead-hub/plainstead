@@ -497,13 +497,13 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 	if (!needSearchVariants || rc) {
 		if (isFromEdit) /*Метапарсер?*/
 		{
-			if(needSearchVariants) free(p);
+						if(needSearchVariants) free(p);
 			snprintf(cmd, sizeof(cmd), "@metaparser \"%s\"", command);
 			//m_InputEdit.SetWindowTextW((LPCTSTR) cmd); //(Для отладки,чтобы убедиться,что комманда приобразуется правильно)
 			p = instead_cmd(cmd, &rc);
 			textIn.ReleaseBuffer(textIn.GetLength());
 		}
-		if (rc) {
+		if (!isFromEdit ||rc) {
 			/* try act */
 			strcpy(cmd, utf8_encode(textIn.GetBuffer()).c_str());
 			textIn.ReleaseBuffer(textIn.GetLength());
