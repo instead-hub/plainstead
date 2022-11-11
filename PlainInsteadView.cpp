@@ -888,8 +888,10 @@ void CPlainInsteadView::UpdateSettings()
 {
 	CIniFile mainSettings;
 	m_auto_say = mainSettings.GetInt(L"main", L"m_CheckAutosay", 1);
-	m_jump_to_out = mainSettings.GetInt(L"main", L"m_CheckSetFocusToOut", 0);
+		m_jump_to_out = mainSettings.GetInt(L"main", L"m_CheckSetFocusToOut", 0);
+		debug = mainSettings.GetInt(L"main", L"debug", 0);
 	//m_BeepList = mainSettings.GetInt(L"main", L"mCheckSoundList", 1);
+
 	UpdateFontSize();
 	//Обновляем музыкальные стили
 	int currWaveStyle = mainSettings.GetInt(L"main", L"m_ComboStyleAnnounce", 0);
@@ -1401,8 +1403,8 @@ void CPlainInsteadView::OnMenuDebug() {
 	debug = !debug;
 	CMenu* pMenu = AfxGetApp()->GetMainWnd()->GetMenu();
 	if (pMenu != NULL) {
-		/*CIniFile mainSettings;
-		mainSettings.WriteNumber(L"main", L"debug", debug);*/
+		CIniFile mainSettings;
+		mainSettings.WriteNumber(L"main", L"debug", debug);
 		pMenu->CheckMenuItem(ID_MENU_DEBUG, (debug?MF_CHECKED: MF_UNCHECKED) | MF_BYCOMMAND);
 		updateText();
 		}

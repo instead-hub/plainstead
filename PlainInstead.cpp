@@ -571,6 +571,8 @@ void CPlainInsteadApp::OnUpdateViewNextHist(CCmdUI *pCmdUI)
 }
 void CPlainInsteadApp::OnUpdateDebug(CCmdUI* pCmdUI) {
 	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame());
+	CIniFile mainSettings;
+	pCmdUI->SetCheck(mainSettings.GetInt(L"main", L"debug", 0));
 }
 void CAboutDlg::OnClose()
 {
@@ -812,6 +814,8 @@ void CPlainInsteadApp::OnUpdateVolumeDown(CCmdUI *pCmdUI)
 void CPlainInsteadApp::OnUpdateVolumeOn(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame());
+	CIniFile mainSettings;
+	pCmdUI->SetCheck(!mainSettings.GetInt(L"main", L"mMuteMusic", 0));
 }
 
 void CPlainInsteadApp::OnUpdateVolumeOff(CCmdUI *pCmdUI)
@@ -868,10 +872,13 @@ void CPlainInsteadApp::OnListsndUp()
 }
 
 
-void CPlainInsteadApp::OnUpdateListsndOn(CCmdUI *pCmdUI)
+void CPlainInsteadApp::OnUpdateListsndOn(CCmdUI* pCmdUI)
 {
 	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame());
+	CIniFile mainSettings;
+	pCmdUI->SetCheck(!mainSettings.GetInt(L"main", L"mMuteEffects", 0));
 }
+
 
 
 void CPlainInsteadApp::OnUpdateListsndDown(CCmdUI *pCmdUI)
