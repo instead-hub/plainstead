@@ -1,6 +1,6 @@
 // PlainInstead.cpp : Определяет поведение классов для приложения.
 //
-
+#include <chrono>
 #include "stdafx.h"
 #include <locale.h>
 #include <iostream>
@@ -27,6 +27,7 @@
 #pragma comment( lib, "bassmidi.lib" )
 extern "C" {
 	#include "instead\instead.h"
+	static uint64_t millis;
 	extern int instead_metaparser_init(void);
 	extern int instead_sound_init(void);
 	extern int instead_timer_init(void);
@@ -48,6 +49,9 @@ void playSound(char* sound,int isLooping) {
 }
 void onNewInsteadCommand(char* cmd,char* p) {
 	CPlainInsteadView::GetCurrentView()->onNewInsteadCommand(cmd, p, L"Таймер остановлен");
+}
+uint64_t getTicks() {
+	return millis-std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();;
 }
 	static int tiny_init(void)
 	{
@@ -421,7 +425,7 @@ void CPlainInsteadApp::OnFileOpen()
 				CString userFileName = saveGameNameDir + L"/" + fileDialog.GetFileName();
 				InterpreterController::loadSave(userFileName);
 				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + userFileName);
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",L"загрузка");
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",L"загрузка",false);
 				AfxMessageBox(L"Восстановлено!");
 				return;
 			}
@@ -440,6 +444,7 @@ void CPlainInsteadApp::OnFileOpen()
 
 void CPlainInsteadApp::StartNewGameFile(CString file, CString name)
 {
+	millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 	CIniFile mainSettings;
 	int needAutoLog = mainSettings.GetInt(L"main", L"mCheckAutoLog", 0 );
 	int savedVol = mainSettings.GetInt(L"main", L"mSavedVol", 80 );
@@ -479,7 +484,7 @@ InterpreterController::startGameFile(file,name,needAutoLog);
 	}
 
 	GlobalManager::getInstance().userStartGame();
-	CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"", L"начало игры "+ name);
+	CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"", L"начало игры "+ name,false);
 	CPlainInsteadView::GetCurrentView()->InitFocusLogic();
 	GlobalManager::lastString = 0;
 }

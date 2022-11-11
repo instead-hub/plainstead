@@ -430,7 +430,7 @@ function instead_sprite_compose() end
 function instead_sprite_draw() end
 function instead_sprite_dup() end
 
-function instead_sprite_load() end
+function instead_sprite_load() return "" end
 
 function instead_sprite_pixel() end
 function instead_sprite_scale() return 0
@@ -443,4 +443,6 @@ function instead_sprite_fill() end
 function instead_theme_name() return "." end
 function instead_theme_var(a,b) return 1,"" end
 function stead.mouse_filter() return 0 end
+	function stead.mouse_pos() return 0,0 end
 function hideinv() end
+stead.ticks =instead_ticks

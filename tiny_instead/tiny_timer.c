@@ -7,6 +7,7 @@
 	static int volatile instead_timer_nr = 0;
 	static void CALLBACK instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword);
 	extern void onNewInsteadCommand(char* cmd, char* p);
+	extern uint64_t getTicks();
 	static int luaB_set_timer(lua_State* L) {
 		const char* delay = luaL_optstring(L, 1, NULL);
 		int d;
@@ -55,8 +56,13 @@ static void CALLBACK instead_fn(HWND window, UINT interval, UINT timer_id, DWORD
 	instead_timer_nr++;
 	onTimer();
 }
+static int luaB_get_ticks(lua_State* L) {
+	lua_pushinteger(L, getTicks());
+	return 1;
+}
 static const luaL_Reg timer_funcs[] = {
 {"instead_timer", luaB_set_timer},
+{"instead_ticks", luaB_get_ticks},
 {NULL, NULL}                                                                                                                                                                                                                                                                                                                  
 };
 static int timer_init(void) {
