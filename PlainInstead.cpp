@@ -53,6 +53,9 @@ void onNewInsteadCommand(char* cmd,char* p) {
 uint64_t getTicks() {
 	return millis-std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();;
 }
+void updateText(char* text) {
+	CPlainInsteadView::GetCurrentView()->updateText(text);
+		}
 	static int tiny_init(void)
 	{
 		int rc;

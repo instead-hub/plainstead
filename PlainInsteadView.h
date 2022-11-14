@@ -102,7 +102,7 @@ public:
 	afx_msg void OnHistoryStop();
 	afx_msg void OnHistoryStart();
 int TryInsteadCommand(CString textIn, CString cmdForLog = L"", bool needSearchVariants=true,bool isFromEdit=false); //Отправка команды в интерпретатор
-void updateText();
+void updateText(char* txt=NULL);
 void onNewInsteadCommand(char*cmd, char* p,CString cmdForLog = L"");
 	void TurnOffLogging();
 	CListBox mListScene;

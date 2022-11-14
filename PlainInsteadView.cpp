@@ -460,8 +460,16 @@ Utf8ToCString(tmp, p);
 		flog.Close();
 	}
 }
-void CPlainInsteadView::updateText() {
-	m_OutEdit.SetWindowTextW(text[debug]);
+void CPlainInsteadView::updateText(char* txt) {
+	if (txt) {
+				CString tmp;
+		Utf8ToCString(tmp, txt);
+		//free(txt);
+text[0] =L"Смузи";
+text[1] =L"Смузи";
+tmp.ReleaseBuffer(tmp.GetLength());
+		}
+	m_OutEdit.SetWindowTextW(&text[debug]);
 	if (m_auto_say) MultiSpeech::getInstance().Say(text[debug]);
 	if (!m_jump_to_out) UpdateFocusLogic();
 	if (m_jump_to_out) m_OutEdit.SetFocus();

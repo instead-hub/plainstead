@@ -437,7 +437,7 @@ function instead_sprite_scale() return 0
 end
 function instead_sprite_size() return 0,0
 end
-function instead_sprite_text() return "" end
+--function instead_sprite_text() return "" end
 function instead_sprite_text_size() return 0,0 end
 function instead_sprite_fill() end
 function instead_theme_name() return "." end
