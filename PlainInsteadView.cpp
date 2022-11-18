@@ -465,11 +465,9 @@ void CPlainInsteadView::updateText(char* txt) {
 				CString tmp;
 		Utf8ToCString(tmp, txt);
 		//free(txt);
-text[0] =L"Смузи";
-text[1] =L"Смузи";
 tmp.ReleaseBuffer(tmp.GetLength());
 		}
-	m_OutEdit.SetWindowTextW(&text[debug]);
+	m_OutEdit.SetWindowTextW(text[debug]);
 	if (m_auto_say) MultiSpeech::getInstance().Say(text[debug]);
 	if (!m_jump_to_out) UpdateFocusLogic();
 	if (m_jump_to_out) m_OutEdit.SetFocus();
@@ -1292,7 +1290,7 @@ void CPlainInsteadView::OnUpdateOutView()
 			curr_box = &mListWays;
 		}
 
-		TryInsteadCommand(L"", L"обновить");
+		TryInsteadCommand(L"", L"обновить",false);
 
 		if (!m_jump_to_out && curr_box)
 		{

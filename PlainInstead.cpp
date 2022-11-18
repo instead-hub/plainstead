@@ -272,8 +272,8 @@ BOOL CPlainInsteadApp::InitInstance()
 			/*
 			if (useAutosave)
 			{
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load autosave");
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"");
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load autosave",false);
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",false);
 				CPlainInsteadView::GetCurrentView()->InitFocusLogic();
 				GlobalManager::lastString = 0;
 			}
@@ -427,7 +427,7 @@ void CPlainInsteadApp::OnFileOpen()
 			{
 				CString userFileName = saveGameNameDir + L"/" + fileDialog.GetFileName();
 				InterpreterController::loadSave(userFileName);
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + userFileName);
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + userFileName,false);
 				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",L"загрузка",false);
 				AfxMessageBox(L"Восстановлено!");
 				return;
@@ -513,8 +513,8 @@ void CPlainInsteadApp::OnFileSave()
 			if (userFilePath == saveDir)
 			{
 				CString userFileName = saveGameNameDir + L"/" + fileDialog.GetFileName();
-				int save = CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + userFileName);
-								CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",L"сохранение игры");
+				int save = CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + userFileName,false);
+								CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",L"сохранение игры",false);
 				AfxMessageBox(save?L"Не удалось сохранить игру!":L"Сохранено!");
 				return;
 			}
