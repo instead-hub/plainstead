@@ -3,7 +3,7 @@
 -- stat, menu
 -- fake audio
 -- fake input
-
+if not prefs then prefs ={} end
 if API == 'stead3' then
 	require 'tiny3'
 	require "ext/sound"
