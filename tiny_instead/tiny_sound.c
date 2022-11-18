@@ -15,35 +15,78 @@ static HSAMPLE back_music;
 static HCHANNEL back_channel;
 static HMUSIC back_mod;
 static float global_snd_lvl = 1.0f;
+static void musFree(char* mus) {
+	BASS_ChannelStop(back_channel);
+	if (back_music) BASS_SampleFree(back_music);
+	if (mus &&*mus &&strlen(mus)>0) {
+		free(mus);
+		mus = NULL;
+	}
+}
+static void sounds_free() {
+	}
 static int luaB_volume_sound(lua_State* L) {
-	int rc;
-	const char* fname = luaL_optstring(L, 1, NULL);
-return global_snd_lvl;
+	int vol = luaL_optnumber(L, 1, -1);
+	//vol = snd_volume_mus(vol);
+	lua_pushinteger(L, vol);
+	return 1;
+}
+static int luaB_channel_sound(lua_State* L) {
+	const char* s;
+	int ch = luaL_optinteger(L, 1, 0);
+	return 0;
+}
+static int luaB_panning_sound(lua_State* L) {
+	int chan = luaL_optinteger(L, 1, -1);
+	int left = luaL_optnumber(L, 2, 255);
+	int right = luaL_optnumber(L, 3, 255);
+	return 0;
 }
 
 static int luaB_free_sound(lua_State *L) {
-//sound_done();
-	return 1;
-}
+	const char* fname = luaL_optstring(L, 1, NULL);
+	if (!fname)
+		return 0;
+	//sound_unload(fname);
+	return 0;
+	}
 
 static int luaB_free_sounds(lua_State *L) {
-//sound_done();
-	return 1;
+	sounds_free();
+	return 0;
 }
 
 static int luaB_load_sound(lua_State *L) {
+	const char* fname = luaL_optstring(L, 1, NULL);
 return 0;
+}
+static int luaB_load_sound_mem(lua_State* L) {
+	int hz = luaL_optinteger(L, 1, -1);
+	int channels = luaL_optinteger(L, 2, -1);
+	return 0;
+}
+static int luaB_music_callback(lua_State* L) {
+	if (!gBassInit)
+		return 0;
+
+	return 0;
 }
 static const luaL_Reg sound_funcs[] = {
 		{"instead_sound_volume", luaB_volume_sound},
 			{"instead_sound_free",luaB_free_sound},
 			{"instead_sounds_free",luaB_free_sounds},
 	{"instead_sound_load", luaB_load_sound},
+	{"instead_sound_load_mem", luaB_load_sound_mem},
+		{"instead_sound_channel", luaB_channel_sound},
+	{"instead_sound_panning", luaB_panning_sound},
+	{"instead_music_callback", luaB_music_callback},
 	{NULL, NULL}
 };
 static int sound_done(void)
 {
 	strcpy(play_mus, "");
+	musFree(play_mus);
+	sounds_free();
 	return 0;
 }
 static int sound_init(void)
@@ -91,11 +134,9 @@ static void game_music_player(void)
 	instead_unlock();
 	*/
 
-	if (mus && loop == -1) { /* disabled, 0 - forever, 1-n - loops */
-		BASS_ChannelStop(back_channel);
+	if (mus && loop == -1) { /* -1 - disabled, 0 - forever, 1-n - loops */
 		strcpy(play_mus, "");
-		free(mus);
-		mus = NULL;
+		musFree(mus);
 	}
 
 	if (loop == 0)
@@ -105,10 +146,9 @@ static void game_music_player(void)
 	if (mus) {
 		if (strcmp(play_mus, mus) != 0)
 		{
-			if (back_channel) BASS_ChannelStop(back_channel);
+			musFree(NULL);
 			strcpy(play_mus, mus);
-
-			DWORD loop_flag = 0;
+						DWORD loop_flag = 0;
 			if (loop <= 0) loop_flag |= BASS_SAMPLE_LOOP;
 			if ((strcmp(get_filename_ext(mus),"xm")==0) ||
 				(strcmp(get_filename_ext(mus),"s3m")==0) ||
@@ -137,7 +177,7 @@ static void game_music_player(void)
 		
 		//Выдача ошибки, если что не так
 		//game_res_err_msg(mus, debug_sw);
-		free(mus);
+		//musFree(mus);
 	}
 }
 
