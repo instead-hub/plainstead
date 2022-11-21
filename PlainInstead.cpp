@@ -243,7 +243,6 @@ BOOL CPlainInsteadApp::InitInstance()
 		std::cerr << "Failed set tiny" << std::endl;
 		return false;
 	}
-	instead_err_msg_max(0);
 
 	//звуковая подсистема LUA
 	instead_sound_init();
