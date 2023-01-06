@@ -30,15 +30,12 @@ protected:
 	void showNewTabControls();
 	void CreateColumns();
 	void RescanInstalled();
-	void AddInstalledGame(CString name, CString version, std::pair<CString, CString> path);
-	void AddNewGame(CString name, CString version, CString sz, CString page, std::pair<CString, CString> downloadPageAndInstallName);
+	void updateDataAfterInstalationOfGame(CString gameName, int sel, bool gameWasRemoved = false);
+	void AddNewGame(CString date,CString name,CString author,CString description, CString version, CString language, std::pair<CString, CString> downloadPageAndInstallName, CListCtrl& games, CString sz = L"", CString page = L"",bool is_sander=false);
 	void SetCell(CListCtrl& ctrl, CString value, int nRow, int nCol);
-	void UpdateNewGamesFromUrl(CString url, CString temp_xmlfile, bool is_sander = false);
-	void ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool is_sander);
-	void UpdateNewGamesRssAdditionalInfoFromUrl(CString url, CString temp_xmlfile);
-	void ReadAdditionalInfoFromXMLRss(CString temp_xmlfile);
-	bool UpdateApprovedGamesFromUrl(CString url, CString res_path);
-	void UpdateApprovedFromFile();
+	bool UpdateGamesFromUrl(CString url, CString res_path,bool is_sander=false);
+	void ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool is_sander,bool updateInstalledGames=true);
+	void updateAllGames(bool updateInstalledGames=true);
 	void ClearNewList();
 	void SortColumn(CListCtrl* ctrl, int columnIndex, bool ascending);
 
@@ -49,11 +46,8 @@ protected:
 	//std::set<CString> networkGameName;
 
 	std::map<CString/*game name*/, std::pair<CString /*approve*/, CString /*info*/> > approveInfo;
-	std::map<CString/*game title*/, std::pair<CString /*pubDate*/, CString /*Desc*/> > rssInfo;
-
 	CString m_stGamePath;
 	CString m_stGameTitle;
-	CString m_gameBaseDir;
 	bool    m_wantPlay;
 	int     m_lastSelFilter;
 	bool    m_sortInstalledUp;

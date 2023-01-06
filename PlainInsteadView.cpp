@@ -12,7 +12,6 @@
 #include "GlobalManager.h"
 #include "IniFile.h"
 #include "global.h"
-#include "StdioFileEx.h"
 #include <regex>
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -336,6 +335,15 @@ static std::wstring process_instead_text_act(std::wstring inp, //входной текст
 	std::regex_replace(std::back_inserter(result), inp.begin(), inp.end(), regex, L"$2");
 	return result;
 }
+static CString getLogsDir() {
+	TCHAR buff[MAX_PATH];
+	::GetModuleFileName(NULL, buff, sizeof(buff));
+	CString baseDir = buff;
+	/*free(buff);
+	delete[] buff;*/
+	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
+	return baseDir + L"logs\\";
+}
 void CPlainInsteadView::onNewInsteadCommand(char* cmd,char* p,CString cmdForLog) {
 	std::map<int, int> prev_map;
 	CString er;
@@ -412,13 +420,18 @@ Utf8ToCString(tmp, p);
 	updateText();
 	if (isLogOn)
 	{
-		CStdioFileEx flog;
-		if (!flog.Open(logFileName, CFile::modeCreate | CFile::modeWrite | CFile::modeNoTruncate))
+		CString logsDir = getLogsDir();
+		if (GetFileAttributes(logsDir) == INVALID_FILE_ATTRIBUTES) SHCreateDirectoryEx(NULL, logsDir, NULL);
+		FILE* fStream;
+		//errno = 0;
+		int result = _tfopen_s(&fStream, logFileName, L"at,ccs=UTF-8");
+				if (result )
 		{
 			AfxMessageBox(L"Не могу записать файл лога! Логирование отключаю.");
 			TurnOffLogging();
+			return;
 		}
-		flog.SetCodePage(CP_UTF8);
+				CStdioFile flog(fStream);
 		flog.SeekToEnd();
 		flog.WriteString(L"\n\n>" + cmdForLog + L"\n");
 		flog.SeekToEnd();
@@ -1380,7 +1393,6 @@ void CPlainInsteadView::OnGotoWays()
 	}
 }
 
-
 void CPlainInsteadView::OnMenuLog()
 {
 	// TODO: добавьте свой код обработчика команд
@@ -1392,11 +1404,7 @@ void CPlainInsteadView::OnMenuLog()
 			pMenu->CheckMenuItem(ID_MENU_LOG, MF_CHECKED | MF_BYCOMMAND);
 			// uses printf() format specifications for time
 			CString t = CTime::GetCurrentTime().Format("%y%m%d_%H%M");
-			TCHAR buff[MAX_PATH];
-			::GetModuleFileName(NULL, buff, sizeof(buff));
-			CString baseDir = buff;
-			baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
-			logFileName = baseDir + L"logs\\" + L"log_" + t + L".txt";
+			logFileName= getLogsDir() + L"log_" + t + L".txt";
 			AfxMessageBox(L"Логирование включено. Лог сохраниться в папке logs под именем: " + logFileName);
 		}
 		else
