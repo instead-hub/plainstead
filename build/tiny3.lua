@@ -67,6 +67,7 @@ end
 function instead.text_input()
 	return false
 end
+function instead.screen_size() return 0,0 end
 
 function iface:title(str) -- hide title
 if type(str) ~= 'string' then return end
