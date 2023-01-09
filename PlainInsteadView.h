@@ -127,8 +127,11 @@ public:
 	Wave* wave_ways;
 	afx_msg void OnMenuLog();
 	bool isLogOn;
+	bool isStartComment;
 	CString logFileName;
 	CString savedSelInv;
+	afx_msg void OnMenuAddComment();
+	afx_msg void OnUpdateMenuAddComment(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // отладочная версия в PlainInsteadView.cpp
