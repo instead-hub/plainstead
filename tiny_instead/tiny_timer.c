@@ -68,6 +68,7 @@ static int luaB_text_sprite(lua_State* L) {
 	const char* desc = luaL_optstring(L, 5, NULL);
 	if (text) {
 		updateText(text);
+		free(text);
 	}
 	lua_pushstring(L, "");
 	return 1;

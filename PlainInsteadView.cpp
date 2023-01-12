@@ -477,6 +477,8 @@ void CPlainInsteadView::updateText(char* txt) {
 	if (txt) {
 				CString tmp;
 		Utf8ToCString(tmp, txt);
+		text[0] = tmp;
+		text[1] = tmp;
 		//free(txt);
 tmp.ReleaseBuffer(tmp.GetLength());
 		}
@@ -1302,9 +1304,8 @@ void CPlainInsteadView::OnUpdateOutView()
 			sel_pos = mListWays.GetCurSel();
 			curr_box = &mListWays;
 		}
-
 		TryInsteadCommand(L"", L"обновить",false);
-
+		exit(0);
 		if (!m_jump_to_out && curr_box)
 		{
 			if (curr_box->GetCount() > sel_pos) {
