@@ -483,9 +483,9 @@ void CPlainInsteadView::updateText(char* txt) {
 tmp.ReleaseBuffer(tmp.GetLength());
 		}
 	m_OutEdit.SetWindowTextW(text[debug]);
-	if (m_auto_say) MultiSpeech::getInstance().Say(text[debug]);
 	if (!m_jump_to_out) UpdateFocusLogic();
 	if (m_jump_to_out) m_OutEdit.SetFocus();
+	if (m_auto_say) MultiSpeech::getInstance().Say(text[debug]);
 }
 int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool needSearchVariants, bool isFromEdit)
 {
@@ -830,12 +830,13 @@ void CPlainInsteadView::SetOutputText(CString newText, BOOL useHistory)
 		//Добавляем предыдущий ответ к истории
 		GlobalManager::getInstance().appendLastRespond(newText);
 	}
-	m_OutEdit.SetWindowTextW(newText);
-	m_newText = newText;
+	text[0] = newText;
+	text[1] = newText;
+	m_OutEdit.SetWindowTextW(text[debug]);
 	m_InputEdit.SetWindowTextW(L"");
 	m_InputEdit.SetFocus();
 	//300 мс задержка для выдачи речи
-	SetTimer(ID_TIMER_1,300,NULL);
+	SetTimer(ID_TIMER_1,200,NULL);
 }
 void CPlainInsteadView::SendCommand(CString cmd)
 {
@@ -900,13 +901,13 @@ void CPlainInsteadView::OnEnSetfocusEditOut()
 
 void CPlainInsteadView::OnTimer(UINT uTime)
 {
-	if (m_auto_say) MultiSpeech::getInstance().Say(m_newText);
-	if (m_jump_to_out) m_OutEdit.SetFocus();
+	updateText();
 	KillTimer(ID_TIMER_1);
 }
 
 void CPlainInsteadView::UpdateSettings()
 {
+
 	CIniFile mainSettings;
 	m_auto_say = mainSettings.GetInt(L"main", L"m_CheckAutosay", 1);
 		m_jump_to_out = mainSettings.GetInt(L"main", L"m_CheckSetFocusToOut", 0);
@@ -918,15 +919,18 @@ void CPlainInsteadView::UpdateSettings()
 	int currWaveStyle = mainSettings.GetInt(L"main", L"m_ComboStyleAnnounce", 0);
 	char wave_pos[30];
 	sprintf(wave_pos, "sounds\\scene%d.wav", currWaveStyle + 1);
-	if (!wave_scene) delete wave_scene;
+	if (wave_scene) {
+		delete wave_scene;
+		exit(0);
+	}
 	wave_scene = new Wave(wave_pos);
 
 	sprintf(wave_pos, "sounds\\inventory%d.wav", currWaveStyle + 1);
-	if (!wave_inv) delete wave_inv;
+	if (wave_inv) delete wave_inv;
 	wave_inv = new Wave(wave_pos);
 
 	sprintf(wave_pos, "sounds\\ways%d.wav", currWaveStyle + 1);
-	if (!wave_ways) delete wave_ways;
+	if (wave_ways) delete wave_ways;
 	wave_ways = new Wave(wave_pos);
 }
 
@@ -1305,7 +1309,6 @@ void CPlainInsteadView::OnUpdateOutView()
 			curr_box = &mListWays;
 		}
 		TryInsteadCommand(L"", L"обновить",false);
-		exit(0);
 		if (!m_jump_to_out && curr_box)
 		{
 			if (curr_box->GetCount() > sel_pos) {

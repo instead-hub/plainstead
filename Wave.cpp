@@ -27,6 +27,7 @@ void Wave::Play(char* sound,int isLooping) {
 Wave::Wave(char *filename)
 {
 	sample = BASS_SampleLoad(FALSE, filename, 0, 0, 1, 0);
+	free(filename);
 }
 
 void Wave::play(bool ignore_settings)
