@@ -210,7 +210,11 @@ void CPlainInsteadView::OnSize(UINT nType, int cx, int cy)
 	int sz_list = 200;
 	int h_list = (cy / 3 - h_static);
 	if (m_OutEdit.m_hWnd) m_OutEdit.SetWindowPos(NULL, 0, 0, cx - sz_list, cy, SWP_NOACTIVATE | SWP_NOZORDER);
-
+	if (m_InputEdit.m_hWnd && !m_InputEdit.IsWindowVisible())
+	{
+		m_InputEdit.ShowWindow(SW_SHOW);
+		m_InputEdit.EnableWindow(TRUE);
+	}
 	//if (mStaticScene.m_hWnd) mStaticScene.SetWindowPos(NULL, 2+cx - sz_list, dh_static_text, sz_list, h_static_text, SWP_NOACTIVATE | SWP_NOZORDER);
 	if (mListScene.m_hWnd) mListScene.SetWindowPos(NULL, 2 + cx - sz_list, h_static, sz_list, h_list, SWP_NOACTIVATE | SWP_NOZORDER);
 
