@@ -147,6 +147,7 @@
     <ClCompile Include="tiny_instead\instead\util.c" />
     <ClCompile Include="tiny_instead\libgen.cpp" />
     <ClCompile Include="tiny_instead\tiny_metaparser.c" />
+    <ClCompile Include="tiny_instead\tiny_paths.c" />
     <ClCompile Include="tiny_instead\tiny_sound.c" />
     <ClCompile Include="tiny_instead\tiny_timer.c" />
     <ClCompile Include="unzip.cpp" />

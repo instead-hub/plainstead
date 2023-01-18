@@ -254,11 +254,6 @@ stead.objects.input =  function()
 	};
 end;
 
---Место сохранений
-function instead_savepath()
-    return "../../" --Разрешаем сохранять на 2 уровня выше
-end
-
 stead.list_search = function(self, n, dis)
 	local i
 	if stead.tonum(n) then

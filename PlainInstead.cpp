@@ -25,10 +25,13 @@
 #pragma comment( lib, "bass.lib" )
 #include "bassmidi.h"
 #pragma comment( lib, "bassmidi.lib" )
+CString saveDir;
+CString saveGameNameDir;
 extern "C" {
-	#include "instead\instead.h"
+		#include "instead\instead.h"
 	static uint64_t millis;
-	extern int instead_metaparser_init(void);
+		extern int instead_metaparser_init(void);
+		extern int instead_paths_init(void);
 	extern int instead_sound_init(void);
 	extern int instead_timer_init(void);
 	extern void setGlobalSoundLevel(int volume);
@@ -51,11 +54,25 @@ void onNewInsteadCommand(char* cmd,char* p) {
 	CPlainInsteadView::GetCurrentView()->onNewInsteadCommand(cmd, p, L"Таймер остановлен");
 }
 uint64_t getTicks() {
-	return millis-std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();;
+	return millis - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();;
 }
 void updateText(char* text) {
 	CPlainInsteadView::GetCurrentView()->updateText(text);
 		}
+char* getGamePath() {
+	char buff[MAX_PATH];
+	//memset(buff, 0, MAX_PATH);
+	GetCurrentDirectoryA(MAX_PATH, buff);
+	strcat(buff, "\\");
+	return buff;
+}
+char* getSavePath() {
+	if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) SHCreateDirectoryEx(NULL, saveDir, NULL);
+	CT2A buff(saveDir);
+strcat(buff,"\\");
+		//MessageBoxA(0, buff, "", 0);
+		return buff;
+}
 	static int tiny_init(void)
 	{
 		int rc;
@@ -243,7 +260,7 @@ BOOL CPlainInsteadApp::InitInstance()
 		std::cerr << "Failed set tiny" << std::endl;
 		return false;
 	}
-
+	instead_paths_init();
 	//звуковая подсистема LUA
 	instead_sound_init();
 	instead_metaparser_init();
@@ -466,7 +483,7 @@ void CPlainInsteadApp::StartNewGameFile(CString file, CString name)
 	mainSettings.WriteString(L"main", L"lastGameFile", file);
 	mainSettings.WriteString(L"main", L"lastGameName", name);
 	//Определяем путь для сохранения
-	TCHAR buff[MAX_PATH];
+TCHAR buff[MAX_PATH];
 	memset(buff, 0, MAX_PATH);
 	::GetModuleFileName(NULL, buff, sizeof(buff));
 	CString baseDir = buff;
@@ -496,7 +513,7 @@ void CPlainInsteadApp::OnFileSave()
 	//Cохранение файла
 	if (Tolk_IsSpeaking()) Tolk_Silence();
 	//Создаем каталог для сохранения (если его еще не было)
-	if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) {
+if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) {
 		SHCreateDirectoryEx(NULL, saveDir, NULL);
 		if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) {
 			AfxMessageBox(L"Не могу создать директорию для сохранения!");

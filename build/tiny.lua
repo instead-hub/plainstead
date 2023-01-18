@@ -12,7 +12,6 @@ if API == 'stead3' then
 	instead.music_callback = function() end
 	instead.restart = instead_restart
 	instead.menu = instead_menu
-	instead.savepath = function() return "../.." end
 	std.savepath = instead.savepath
 	function iface:em(str)
 		if type(str) == 'string' then
@@ -40,3 +39,4 @@ if API == 'stead3' then
 else
 	require 'tiny2'
 end
+require "ext/paths"

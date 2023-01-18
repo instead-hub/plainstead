@@ -536,5 +536,3 @@ std.mod_step(function(state)
 		dict = {}
 	end
 end)
-
-require "ext/paths"
