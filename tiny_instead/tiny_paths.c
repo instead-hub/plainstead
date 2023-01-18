@@ -4,15 +4,17 @@ extern char* getGamePath();
 extern char* getSavePath();
 static int luaB_get_savepath(lua_State *L) {
 	char* save = getSavePath();
+	strcat(save, "\\");
 		//unix_path(save);
 	lua_pushstring(L, save);
 	//free(save);
+	//MessageBoxA(0, save, "", 0);
 	return 1;
 }
 
 static int luaB_get_exepath(lua_State* L) {
 	char* instead_exec = getGamePath();
-	strcat(instead_exec, "../..");
+	strcat(instead_exec, "..\\..");
 	//unix_path(instead_exec);
 	lua_pushstring(L, instead_exec);
 	//free(instead_exec);

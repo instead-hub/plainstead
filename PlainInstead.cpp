@@ -63,15 +63,13 @@ char* getGamePath() {
 	char buff[MAX_PATH];
 	//memset(buff, 0, MAX_PATH);
 	GetCurrentDirectoryA(MAX_PATH, buff);
-	strcat(buff, "\\");
 	return buff;
 }
 char* getSavePath() {
 	if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) SHCreateDirectoryEx(NULL, saveDir, NULL);
-	CT2A buff(saveDir);
-strcat(buff,"\\");
-		//MessageBoxA(0, buff, "", 0);
-		return buff;
+char buf[MAX_PATH];
+strcpy(buf, CT2A(saveDir));
+		return buf;
 }
 	static int tiny_init(void)
 	{
