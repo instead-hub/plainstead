@@ -6,7 +6,7 @@ static int luaB_get_savepath(lua_State *L) {
 	char* save = getSavePath();
 		//unix_path(save);
 	lua_pushstring(L, save);
-	free(save);
+	//free(save);
 	return 1;
 }
 
@@ -15,7 +15,7 @@ static int luaB_get_exepath(lua_State* L) {
 	strcat(instead_exec, "../..");
 	//unix_path(instead_exec);
 	lua_pushstring(L, instead_exec);
-	free(instead_exec);
+	//free(instead_exec);
 	return 1;
 }
 
@@ -24,7 +24,7 @@ static int luaB_get_gamepath(lua_State* L) {
 	strcat(game_path, "\\");
 	//unix_path(game_path);
 	lua_pushstring(L, game_path);
-	free(game_path);
+	//free(game_path);
 	return 1;
 }
 
@@ -33,7 +33,7 @@ static int luaB_get_gamespath(lua_State *L) {
 	strcat(games_path,"..");
 	//unix_path(games_path);
 	lua_pushstring(L, games_path);
-	free(games_path);
+	//free(games_path);
 	return 1;
 }
 
