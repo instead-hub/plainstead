@@ -40,3 +40,4 @@ else
 	require 'tiny2'
 end
 require "ext/paths"
+require "ext/timer"

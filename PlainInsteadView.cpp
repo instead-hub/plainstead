@@ -357,6 +357,7 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd,char* p,CString cmdForLog)
 	act_on_scene.clear();
 	text[0] = L"";
 	text[1] = L"";
+	inv_save = L"";
 		CString tmp;
 		Utf8ToCString(tmp, cmd);
 		//free(cmd);
@@ -387,7 +388,7 @@ Utf8ToCString(tmp, p);
 	text[1].Append(er);
 	if (p && *p) {
 		Utf8ToCString(tmp, p);
-		free(p);
+				free(p);
 		//Добавление путей к окну вывода
 		//text[0].Append(L">> ");
 		//text[0].Append(tmp);

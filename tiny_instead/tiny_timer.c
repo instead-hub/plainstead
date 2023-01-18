@@ -4,7 +4,7 @@
 #include <string.h>
 
 	static int timer_id = 1;
-	static int volatile instead_timer_nr = 0;
+	static int volatile unsigned instead_timer_nr = 0;
 	static void CALLBACK instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword);
 	extern void onNewInsteadCommand(char* cmd, char* p);
 	extern uint64_t getTicks();
@@ -46,14 +46,13 @@ instead_clear();
 int rc;
 char* p=instead_cmd(cmd,&rc);
 		if(!rc)onNewInsteadCommand(cmd,p);
-		free(p);
 }
 static void CALLBACK instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword)
 {
 	if (instead_timer_nr > 0) {
 		return; /* framedrop */
 	}
-	instead_timer_nr++;
+	instead_timer_nr =1;
 	onTimer();
 }
 static int luaB_get_ticks(lua_State* L) {
@@ -68,7 +67,7 @@ static int luaB_text_sprite(lua_State* L) {
 	const char* desc = luaL_optstring(L, 5, NULL);
 	if (text) {
 		updateText(text);
-		free(text);
+		//free(text);
 	}
 	lua_pushstring(L, "");
 	return 1;
