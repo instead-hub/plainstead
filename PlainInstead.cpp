@@ -28,49 +28,48 @@
 CString saveDir;
 CString saveGameNameDir;
 extern "C" {
-		#include "instead\instead.h"
+#include "instead\instead.h"
 	static uint64_t millis;
-		extern int instead_metaparser_init(void);
-		extern int instead_paths_init(void);
+	extern int instead_metaparser_init(void);
+	extern int instead_paths_init(void);
 	extern int instead_sound_init(void);
 	extern int instead_timer_init(void);
 	extern void setGlobalSoundLevel(int volume);
 	extern int getGlobalSoundLevel();
 	extern void stopAllSound();
 	extern int gBassInit;
-void restart() {
-	AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_RESTART_MENU, 0L);
-};
-void save() {
-	AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_FILE_SAVE_GAME, 0L);
-};
-void load() {
-	AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_FILE_OPEN, 0L);
-};
-void playSound(char* sound,int isLooping) {
-	Wave::Play(sound,isLooping);
+	void restart() {
+		AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_RESTART_MENU, 0L);
+	};
+	void save() {
+		AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_FILE_SAVE_GAME, 0L);
+	};
+	void load() {
+		AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_FILE_OPEN, 0L);
+	};
+	void playSound(char* sound, int isLooping) {
+		Wave::Play(sound, isLooping);
+	}
+	void onNewInsteadCommand(char* cmd, char* p) {
+		CPlainInsteadView::GetCurrentView()->onNewInsteadCommand(cmd, p, L"Таймер остановлен");
+	}
+	uint64_t getTicks() {
+		return millis - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();;
+	}
+	void updateText(char* text) {
+		CPlainInsteadView::GetCurrentView()->updateText(text);
+	}
+	void getSavePath(char* buf) {
+		if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) SHCreateDirectoryEx(NULL, saveDir, NULL);
+		strcpy(buf, CT2A(saveDir));
+	}
+
+	void getGamePath(char* buf) {
+		//memset(buff, 0, MAX_PATH);
+		GetCurrentDirectoryA(MAX_PATH, buf);
+	}
 }
-void onNewInsteadCommand(char* cmd,char* p) {
-	CPlainInsteadView::GetCurrentView()->onNewInsteadCommand(cmd, p, L"Таймер остановлен");
-}
-uint64_t getTicks() {
-	return millis - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();;
-}
-void updateText(char* text) {
-	CPlainInsteadView::GetCurrentView()->updateText(text);
-		}
-char* getGamePath() {
-	char buff[MAX_PATH];
-	//memset(buff, 0, MAX_PATH);
-	GetCurrentDirectoryA(MAX_PATH, buff);
-	return buff;
-}
-char* getSavePath() {
-	if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) SHCreateDirectoryEx(NULL, saveDir, NULL);
-char buf[MAX_PATH];
-strcpy(buf, CT2A(saveDir));
-		return buf;
-}
+
 	static int tiny_init(void)
 	{
 		int rc;
@@ -84,9 +83,8 @@ strcpy(buf, CT2A(saveDir));
 		//= {
 	//	.init = tiny_init,
 	//};
-	}
-
-#ifdef _DEBUG
+	
+	#ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 // CPlainInsteadApp

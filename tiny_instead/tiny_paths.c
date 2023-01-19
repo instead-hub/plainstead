@@ -1,19 +1,20 @@
 #include "externals.h"
 #include "internals.h"
-extern char* getGamePath();
-extern char* getSavePath();
+extern void getGamePath(char* path);
+extern void getSavePath(char* savepath);
 static int luaB_get_savepath(lua_State *L) {
-	char* save = getSavePath();
-	strcat(save, "\\");
-		//unix_path(save);
-	lua_pushstring(L, save);
-	//free(save);
-	//MessageBoxA(0, save, "", 0);
+	char savepath[MAX_PATH];
+	getSavePath(savepath);
+	//MessageBoxA(0, savepath, "", 0);
+		//unix_path(savepath);
+	lua_pushstring(L, savepath);
+	//free(savepath);
 	return 1;
 }
 
 static int luaB_get_exepath(lua_State* L) {
-	char* instead_exec = getGamePath();
+	char instead_exec[MAX_PATH];
+getGamePath(instead_exec);
 	strcat(instead_exec, "..\\..");
 	//unix_path(instead_exec);
 	lua_pushstring(L, instead_exec);
@@ -22,8 +23,8 @@ static int luaB_get_exepath(lua_State* L) {
 }
 
 static int luaB_get_gamepath(lua_State* L) {
-	char* game_path = getGamePath();
-	strcat(game_path, "\\");
+	char game_path[MAX_PATH];
+getGamePath(game_path);
 	//unix_path(game_path);
 	lua_pushstring(L, game_path);
 	//free(game_path);
@@ -31,7 +32,8 @@ static int luaB_get_gamepath(lua_State* L) {
 }
 
 static int luaB_get_gamespath(lua_State *L) {
-	char* games_path =getGamePath();
+	char games_path[MAX_PATH];
+	getGamePath(games_path);
 	strcat(games_path,"..");
 	//unix_path(games_path);
 	lua_pushstring(L, games_path);
