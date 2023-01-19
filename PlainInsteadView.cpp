@@ -75,6 +75,8 @@ BEGIN_MESSAGE_MAP(CPlainInsteadView, CFormView)
 	ON_COMMAND(ID_GOTO_INV, &CPlainInsteadView::OnGotoInv)
 	ON_COMMAND(ID_GOTO_WAYS, &CPlainInsteadView::OnGotoWays)
 	ON_COMMAND(ID_MENU_LOG, &CPlainInsteadView::OnMenuLog)
+	ON_COMMAND(ID_MENU_ADD_COMMENT, &CPlainInsteadView::OnMenuAddComment)
+	ON_UPDATE_COMMAND_UI(ID_MENU_ADD_COMMENT, &CPlainInsteadView::OnUpdateMenuAddComment)
 END_MESSAGE_MAP()
 
 // создание/уничтожение CPlainInsteadView
@@ -313,7 +315,15 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog)
 	CString tmp;
 	char *p;
 	std::map<int, int> prev_map;
+	CString userComments;
 
+	//Если был комментарий, то запоминаем и убираем флаг
+	if (isLogOn && isStartComment) {
+		m_OutEdit.GetWindowTextW(userComments);
+		userComments = L"\n*" + userComments;
+		isStartComment = false;
+		m_OutEdit.SetReadOnly(TRUE);
+	}
 
 	mListScene.ResetContent();
 	prev_map = pos_id_scene;
@@ -424,6 +434,12 @@ void CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog)
 		}
 		flog.SetCodePage(CP_UTF8);
 		flog.SeekToEnd();
+		//Добавка комментариев, если были
+		if (!userComments.IsEmpty())
+		{
+			flog.WriteString(userComments);
+			flog.SeekToEnd();
+		}
 		flog.WriteString(L"\n\n>"+ cmdForLog +L"\n");
 		flog.SeekToEnd();
 		flog.WriteString(resout);
@@ -1222,10 +1238,14 @@ void CPlainInsteadView::OnMenuLog()
 			baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
 			logFileName = baseDir + L"logs\\" + L"log_" + t +L".txt";
 			AfxMessageBox(L"Логирование включено. Лог сохраниться в папке logs под именем: "+ logFileName);
+			isStartComment = false;
+			
 		}
 		else
 		{
 			pMenu->CheckMenuItem(ID_MENU_LOG, MF_UNCHECKED | MF_BYCOMMAND);
+			m_OutEdit.SetReadOnly(TRUE);
+			isStartComment = false;
 		}
 	}
 }
@@ -1233,4 +1253,27 @@ void CPlainInsteadView::OnMenuLog()
 void CPlainInsteadView::TurnOffLogging()
 {
 	if (isLogOn) OnMenuLog();
+}
+
+
+void CPlainInsteadView::OnMenuAddComment()
+{
+	// TODO: добавьте свой код обработчика команд
+	if (isLogOn) {
+		isStartComment = true;
+		CString prepareComment = L"*";
+		m_OutEdit.SetWindowTextW(prepareComment);
+		m_OutEdit.SetReadOnly(FALSE);
+		m_OutEdit.SetFocus();
+	}
+	else
+	{
+		AfxMessageBox(L"Пункт работает только при включенном логировании!");
+	}
+}
+
+
+void CPlainInsteadView::OnUpdateMenuAddComment(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(isLogOn);
 }

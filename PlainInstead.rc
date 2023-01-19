@@ -128,7 +128,8 @@ BEGIN
         MENUITEM "Перейти к списку о&бъектов \t\tCTRL+1", ID_GOTO_SCENE
         MENUITEM "Перейти к списку &инвентаря\tCTRL+2", ID_GOTO_INV
         MENUITEM "Перейти к списку п&утей\t CTRL+3", ID_GOTO_WAYS
-        MENUITEM "Включить логирование",        ID_MENU_LOG
+        MENUITEM "Включить &логирование\tCTRL+ALT+L", ID_MENU_LOG
+        MENUITEM "Добавить &комментарий к логу\tCTRL+ALT+C", ID_MENU_ADD_COMMENT
     END
     POPUP "&Справка"
     BEGIN
@@ -187,6 +188,8 @@ BEGIN
     VK_OEM_MINUS,   ID_VOLUME_DOWN,         VIRTKEY, CONTROL, NOINVERT
     "0",            ID_VOLUME_ON,           VIRTKEY, CONTROL, NOINVERT
     VK_OEM_PLUS,    ID_VOLUME_UP,           VIRTKEY, CONTROL, NOINVERT
+    "L",            ID_MENU_LOG,            VIRTKEY, CONTROL, ALT, NOINVERT
+    "C",            ID_MENU_ADD_COMMENT,    VIRTKEY, CONTROL, ALT, NOINVERT
 END
 
 
@@ -299,8 +302,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,1,0,0
- PRODUCTVERSION 2,1,0,0
+ FILEVERSION 2,3,0,0
+ PRODUCTVERSION 2,3,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -317,12 +320,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ласточкин А. П."
             VALUE "FileDescription", "интерпретатор менюшных квестов PlainInstead"
-            VALUE "FileVersion", "2.1.0.0"
+            VALUE "FileVersion", "2.3.0.0"
             VALUE "InternalName", "PlainInstead.exe"
-            VALUE "LegalCopyright", "(c) 2017. Все права защищены."
+            VALUE "LegalCopyright", "(c) 2022. Все права защищены."
             VALUE "OriginalFilename", "PlainInstead.exe"
             VALUE "ProductName", "интерпретатор менюшных квестов PlainInstead"
-            VALUE "ProductVersion", "2.1.0.0"
+            VALUE "ProductVersion", "2.3.0.0"
         END
     END
     BLOCK "VarFileInfo"

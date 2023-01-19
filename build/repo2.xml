@@ -1,0 +1,1623 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<game_list version="1.0">
+ <game>
+  <name>Petka_Vasin</name>
+  <date>2022-05-13</date>
+  <title>Приключения Петьки Васькина</title>
+  <author>ZoXic_Avenger</author>
+  <description>Петька Васькин просыпается у себя дома с похмелья. Пародия на игры с подобным сюжетом.</description>
+  <version>1.1</version>
+  <image>https://instead-games.ru/games/screenshots/20220513192936878.jpg</image>
+  <url>https://instead-games.ru//download/instead-Petka_Vasin-1.1.zip</url>
+  <size>4095</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=376</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>fred</name>
+  <date>2022-04-16</date>
+  <title>Возвращение Телепузиков, или Месть Фредди Крюгера</title>
+  <author>ZombX</author>
+  <description>Четырнадцать часов утра. Дня. Четверг. Птицы щебечут, бабочки порхают, листья шелестят, а вы сидите на скамейке возле своего дома, и нервно курите.</description>
+  <version>1.0</version>
+  <image>https://instead-games.ru/games/screenshots/20220416113249921.jpg</image>
+  <url>https://instead-games.ru//download/instead-fred-1.0.zip</url>
+  <size>14405</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=373</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>stepan</name>
+  <date>2022-04-16</date>
+  <title>Похождения отважного кота Степана: Часть первая</title>
+  <author>Ник В.</author>
+  <description>Вы — кот Степан, неизвестной породы; Вам хорошо живется в этом доме, но однажды Вы понимаете, что так жить нельзя. Настоящая жизнь — это долгие ночи под звездами, свежий воздух, каждый день — новые впечатления и т. д. Что ж, первое что вам нужно сделать — это выйти из дома.. На первый взгляд просто. Ну посмотрим, что у вас получится...</description>
+  <version>1.0</version>
+  <image>https://instead-games.ru/games/screenshots/20220416153708603.jpg</image>
+  <url>https://instead-games.ru//download/instead-stepan-1.0.zip</url>
+  <size>4184</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=374</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>stepan2</name>
+  <date>2022-04-16</date>
+  <title>Похождения отважного кота Степана: Часть вторая</title>
+  <author>Ник В.</author>
+  <description>Во второй части Вам предстоит выбраться непосредственно с территории дома. Это... мммм.. такой обширный садик, или палисадник. Я в этом плохо разбираюсь. В общем, задача такова — попасть на улицу!</description>
+  <version>1.1</version>
+  <image>https://instead-games.ru/games/screenshots/20220416182628546.jpg</image>
+  <url>https://instead-games.ru//download/instead-stepan2-1.1.zip</url>
+  <size>4044</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=375</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>detektiv-raf</name>
+  <date>2022-04-14</date>
+  <title>Детектив Раф</title>
+  <author>Ник В.</author>
+  <description>Родители уехали. Полная свобода! Можно забыть на месяц о школе, водном поло, мытье посуды и прочей глупости...&#13;
+&#13;
+Единственное, что сейчас омрачает ситуацию, так это то, что вчера ты что-то такое придумал, сногсшибательное и головокружительное, но за ночь забыл.. Бывает.</description>
+  <version>1.2</version>
+  <image>https://instead-games.ru/games/screenshots/20220414104817828.jpg</image>
+  <url>https://instead-games.ru//download/instead-detektiv-raf-1.2.zip</url>
+  <size>8707</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=372</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>17rooms-curse</name>
+  <date>2022-04-13</date>
+  <title>17 комнат: Проклятие старого поместья</title>
+  <author>vvollo + авторы оригинала</author>
+  <description>Изначально планировалась только как форк игры «17 комнат» с косметическими изменениями, но он очень быстро оброс идеями и превратился в... римейк? спин-офф? фанфик? Даже не знаю, как правильно назвать :)</description>
+  <version>2.0.0</version>
+  <image>https://instead-games.ru/games/screenshots/20220413125355109.png</image>
+  <url>https://instead-games.ru//download/instead-17rooms-curse-2.0.0.zip</url>
+  <size>775708</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=371</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>smetankin</name>
+  <date>2022-04-11</date>
+  <title>Дмитрий Сметанин-1: Начало...</title>
+  <author>ДВИДМ</author>
+  <description>Родился Дмитрий Сметанин сравнительно недавно - всего каких-то 14 лет назад, а ума у него... Если ум Сметанина оценить по стобальной шкале, то его &amp;quot;умственная оценка&amp;quot; - 0,001. Вот так вот! В данном квесте Вы играете за этого, мягко говоря, не совсем доразвитого мальчика.</description>
+  <version>1.1</version>
+  <image>https://instead-games.ru/games/screenshots/20220411093746191.jpg</image>
+  <url>https://instead-games.ru//download/instead-smetankin-1.1.zip</url>
+  <size>6556</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=369</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>go_home</name>
+  <date>2022-04-11</date>
+  <title>Go Home</title>
+  <author>Пит Сэ</author>
+  <description>Школьник Стас живет в отдаленных турецких районах города. Однажды в школе ему изуродовали куртку и украли проездной билет. Как же ему теперь попасть домой?</description>
+  <version>1.0</version>
+  <image>https://instead-games.ru/games/screenshots/20220411214639597.jpg</image>
+  <url>https://instead-games.ru//download/instead-go_home-1.0.zip</url>
+  <size>3755</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=370</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>Sick-Mind</name>
+  <date>2022-02-18</date>
+  <title>[URQ] Больной разум: (Эпизод 1)</title>
+  <author>HACK_87</author>
+  <description>Джеймс Роуд получает в наследство от своей бабушки трёхэтажный особняк.&#13;
+B oдин дoвoльнo жyткий мoмeнт Джeймc нaxoдит cтapый пoдвaл, гдe eмy нa глaзa пoпaдaeтcя дpeвняя и oчeнь cтapиннaя книгa c нeпoнятными ему иepoглифaми.&#13;
+&#13;
+Пo oшибкe Джeймc кидaeт книгy в кaмин, книгa cгopaeт, нo пocлe этoгo в его доме  нaчинают пpoиcxoдить oчeнь cтpaнныe и не объяснимые вeщи.&#13;
+Bcкope Джeймc cxoдит c yмa, и кидaeтcя пoд пoeзд, нo cмepть oбxoдит eгo cтopoнoй.&#13;
+Пapня cпacaют, нo пpи этoм, пoмeщaют eгo в пcиxиaтpичecкyю бoльницy.&#13;
+Чepeз нecкoлькo днeй в бoльницe пpoиcxoдит пoжap, и вcex бoльныx пepeвoдят в дpyгoe зaвeдeниe, а этy бoльницy пoкидaют, cлyчaйнo выбpocив из пaмяти, чтo в oднoй из пaлaт ocтaлcя Джeймc.&#13;
+&#13;
+Bыживeт ли Джeймc?&#13;
+И нeyжeли вo вceм винoвaтa книгa?&#13;
+Этoт вoпpoc тaк и ocтaлcя для вcex тaйным.&#13;
+&#13;
+Это интерактивная квест-книга в жанре хоррор/детектив.</description>
+  <version>1.0</version>
+  <image>https://instead-games.ru/games/screenshots/20220218151005564.jpg</image>
+  <url>https://instead-games.ru//download/instead-Sick-Mind-1.0.zip</url>
+  <size>3771101</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=368</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>snowyearesperanto</name>
+  <date>2022-02-06</date>
+  <title>Neĝa jaro</title>
+  <author>AA</author>
+  <description>Helpu Ŝariko en lin neĝan aventuron! Savu Avo Frosto!&#13;
+&#13;
+Ludo sur ЗОК 2019</description>
+  <version>1.6</version>
+  <image>https://instead-games.ru/games/screenshots/20211214182407437.png</image>
+  <url>https://instead-games.ru//download/instead-snowyearesperanto-1.6.zip</url>
+  <size>175474</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=339</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>instead-urq-Last_Case</name>
+  <date>2021-09-25</date>
+  <title>[URQ] БРАЗИ: Последнее дело</title>
+  <author>T1MACHEANS</author>
+  <description>«За тобой должок, Лука. Последний должок, помнишь? Помнишь, как мы вытащили твоего племянника из камеры в краю виноградников и оливок? Помнишь, кто остановил миланского прокурора, готового засадить твоего брата Гвидо? &#13;
+Припоминаешь? …Так вот — теперь твой черёд! Твоя цель — Джонни Ирландец…» &#13;
+Оригинал этой игры вы можете найти на http://quest-book.ru/directory/brazi_poslednee_delo/ebook_express/response/</description>
+  <version>1.0</version>
+  <image>https://instead-games.ru/games/screenshots/20210925030852588.jpg</image>
+  <url>https://instead-games.ru//download/instead-instead-urq-Last_Case-1.0.zip</url>
+  <size>1200687</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=365</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>instead-the-iruman-steeds-0.4.3</name>
+  <date>2021-05-24</date>
+  <title>The Iruman Steeds</title>
+  <author>Eugene aGGreSSor Sobolev</author>
+  <description>Новелла по мотивам повести Олега Дивова &amp;quot;Предатель&amp;quot; вышедшей во втором номере журнала &amp;quot;ЕСЛИ&amp;quot; за 2001 год.&#13;
+&#13;
+В 2002 году группе tPA потребовалось продемонстрировать возможности нового движка в электронном журнале PowerAmiga для компьютеров Amiga. Тогда автор взял текст Олега Дивова и за пару вечеров преобразовал 1/3 оригинального повествования в интерактивную игру. Это переосмысление той самой игры на движке Instead, 20 лет спустя.</description>
+  <version>0.4.3</version>
+  <image>https://instead-games.ru/games/screenshots/20210524174147419.png</image>
+  <url>https://instead-games.ru//download/instead-instead-the-iruman-steeds-0.4.3-0.4.3.zip</url>
+  <size>8403529</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=364</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>peterburg</name>
+  <date>2021-01-23</date>
+  <title>Полёт в Петербург</title>
+  <author>Александр Яковлев</author>
+  <description>Ты летишь в эконом-классе, читая увлекательную книгу и всё идёт хорошо, да только потом начинаются неприятности.&#13;
+&#13;
+Жанр — побег из запертой комнаты. Игра содержит особые виды вандализма, в том числе над метапарсером.&#13;
+&#13;
+Считайте это вагончиком №42.</description>
+  <version>1.3.13</version>
+  <image>https://instead-games.ru/games/screenshots/20210108145023699.jpg</image>
+  <url>https://instead-games.ru//download/instead-peterburg-1.3.13.zip</url>
+  <size>235388</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=358</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>cipollino</name>
+  <date>2021-01-03</date>
+  <title>Чиполлино</title>
+  <author>epoxa</author>
+  <description>Фанфик по известной сказке.&#13;
+Писали всей семьей около двух лет с перерывами. Прохождение - 10-15 минут.&#13;
+</description>
+  <version>1.01</version>
+  <image>https://instead-games.ru/games/screenshots/20201231064950758.jpg</image>
+  <url>https://instead-games.ru//download/instead-cipollino-1.01.zip</url>
+  <size>10113555</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=357</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>sfa</name>
+  <date>2020-12-11</date>
+  <title>Шопливая лиса</title>
+  <author>Повелительница Хаоса, Zlobot, Артур А.</author>
+  <description>Вы должны помочь лисе Алисе бороться с преступностью. Вам будет мешать отсутствие логики, здравого смысла, интерфейс и насморк. Тридцать восьмая паровозная неделя выдалась непростой.</description>
+  <version>0.6</version>
+  <image>https://instead-games.ru/games/screenshots/20201205230108991.png</image>
+  <url>https://instead-games.ru//download/instead-sfa-0.6.zip</url>
+  <size>820152</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=355</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>Potvora-Istorija_chetvertaja</name>
+  <date>2020-11-25</date>
+  <title>Потвора - История четвертая.</title>
+  <author>MAlischka</author>
+  <description>Если позволит время и фантазия, то появиться сборник историй про жизнь одного села, которую перевернуло внезапное появление старой Потворы.&#13;
+По многократным просьбам некоторых членов общества в данной истории кто-то приделал ёлке ноги.</description>
+  <version>1.2</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-Potvora-Istorija_chetvertaja-1.2.zip</url>
+  <size>4625</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=354</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>TheChroniclesOfTheYashaar</name>
+  <date>2020-10-19</date>
+  <title>Хроники Йашаара</title>
+  <author>Fancryer</author>
+  <description>Квест повествует о приключениях человека Йашаара до становления его бравным полководцем.</description>
+  <version>0.11</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-TheChroniclesOfTheYashaar-0.11.zip</url>
+  <size>153559</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=352</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>Potvora-Istorija_tretja</name>
+  <date>2020-10-19</date>
+  <title>Потвора - История третья.</title>
+  <author>MAlischka</author>
+  <description>Если позволит время и фантазия, то появиться сборник историй про жизнь одного села, которую перевернуло внезапное появление старой Потворы.&#13;
+По многократным просьбам некоторых членов общества в данной истории Потворе предстоит знакомство с пастухом.</description>
+  <version>1.0</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-Potvora-Istorija_tretja-1.0.zip</url>
+  <size>11331</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=353</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>Potvora-Istorija_vtoraja</name>
+  <date>2020-10-01</date>
+  <title>Потвора - История вторая.</title>
+  <author>MAlischka</author>
+  <description>Если позволит время и фантазия, то появиться сборник историй про жизнь одного села, которую перевернуло внезапное появление старой Потворы.&#13;
+История вторая, в которой Потвора Сигиымундовна встречает своего помощника.&#13;
+Мир вокруг дома старушки открывается ещё немного.</description>
+  <version>1.0</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-Potvora-Istorija_vtoraja-1.0.zip</url>
+  <size>7860</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=347</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>Potvora-Istorija_pervaja</name>
+  <date>2020-10-01</date>
+  <title>Потвора - История первая.</title>
+  <author>MAlischka</author>
+  <description>Если позволит время и фантазия, то появиться сборник историй про жизнь одного села, которую перевернуло внезапное появление старой Потворы. &#13;
+История первая – про трёх маленьких смельчаков и появление старушки.</description>
+  <version>1.0</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-Potvora-Istorija_pervaja-1.0.zip</url>
+  <size>8916</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=345</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>attackmars</name>
+  <date>2020-09-06</date>
+  <title>Атака Марса</title>
+  <author>Артур А.</author>
+  <description>Мини-игра про события, связанные с Марсом...</description>
+  <version>4.3</version>
+  <image>https://instead-games.ru/games/screenshots/20181227203658182.jpg</image>
+  <url>https://instead-games.ru//download/instead-attackmars-4.3.zip</url>
+  <size>3191851</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=302</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>jump</name>
+  <date>2020-08-18</date>
+  <title>Прыжок</title>
+  <author>Артур А.</author>
+  <description>Обыкновенный день в параллельной вселенной...</description>
+  <version>1.2</version>
+  <image>https://instead-games.ru/games/screenshots/20181227203843889.jpg</image>
+  <url>https://instead-games.ru//download/instead-jump-1.2.zip</url>
+  <size>1536175</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=306</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>space</name>
+  <date>2020-08-17</date>
+  <title>Система</title>
+  <author>Артур А.</author>
+  <description>Очень короткий парсерный квест на тему &amp;quot;Марса&amp;quot;</description>
+  <version>3.1</version>
+  <image>https://instead-games.ru/games/screenshots/20181227203910616.jpg</image>
+  <url>https://instead-games.ru//download/instead-space-3.1.zip</url>
+  <size>2430321</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=307</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>hepexod</name>
+  <date>2020-08-17</date>
+  <title>Подземный переход</title>
+  <author>Артур А.</author>
+  <description>Агент, с важными данными, бежит по улочкам и закоулкам. Его преследуют четверо в черном и намереваются вернуть украденное...&#13;
+&#13;
+Небольшая ветвистая история на Паровозик 6</description>
+  <version>1.4</version>
+  <image>https://instead-games.ru/games/screenshots/20200427113234738.png</image>
+  <url>https://instead-games.ru//download/instead-hepexod-1.4.zip</url>
+  <size>977717</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=342</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>treasure_seekers</name>
+  <date>2020-05-15</date>
+  <title>Затонувшие сокровища</title>
+  <author>Lucky Ook</author>
+  <description>Порт книги-игры &amp;quot;Затонувшие сокровища&amp;quot;.&#13;
+Создан, как демонстрационный проект.</description>
+  <version>0.1.2</version>
+  <image>https://instead-games.ru/games/screenshots/20191106235309800.jpg</image>
+  <url>https://instead-games.ru//download/instead-treasure_seekers-0.1.2.zip</url>
+  <size>2823865</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=340</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>radical</name>
+  <date>2020-04-09</date>
+  <title>Радикал</title>
+  <author>Василий Воронков</author>
+  <description>Выкладываю демо новой игры. Рабочее название - &amp;quot;Радикал&amp;quot; (скорее всего, изменится). Жанр - НФ. Действие происходит на Земле smile Демо включает в себя пролог (довольно короткий) и первую главу. В плане геймплея/сюжета демо, наверное, не слишком показательна, но уж что есть.</description>
+  <version>0.1.2</version>
+  <image>https://instead-games.ru/games/screenshots/20140818210221973.png</image>
+  <url>https://instead-games.ru//download/instead-radical-0.1.2.zip</url>
+  <size>19838514</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=183</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>Zarisovka_s_Linor</name>
+  <date>2019-08-29</date>
+  <title>Линор Пролог.</title>
+  <author>Ruido</author>
+  <description>Маленькая тестовая игра в которой героине нужно найти свой телефон. &#13;
+Три варианта прохождения разной степени адекватности.&#13;
+&#13;
+Ничего особого ждать от игры не приходится.</description>
+  <version>0.1</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-Zarisovka_s_Linor-0.1.zip</url>
+  <size>21298</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=336</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>dark</name>
+  <date>2019-08-04</date>
+  <title>Dark</title>
+  <author>Aiwasan(BWR_N6)</author>
+  <description>События происходят в далёком будущем. Там, где покоряются и исследуются планеты.&#13;
+Вот и эта история начинается на одной пока ещё безымянной ледяной планете, на которой то и дело простираются снежные и ледяные долины и большие моря. Где главный герой оказался без памяти и неизвестно как...&#13;
+&#13;
+Игра на ЗОК 2019</description>
+  <version>1.0</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-dark-.zip</url>
+  <size>2394942</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=322</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>valley</name>
+  <date>2019-06-02</date>
+  <title>Valley</title>
+  <author>Aiwasan(BWR_N6)</author>
+  <description>Главный герой - игрок, который заинтересовался необычным явлением, о котором услышал &amp;quot;из народу&amp;quot;. Теперь он хочет узнать, что же произошло.&#13;
+&#13;
+Игра написана на Паравозик 5</description>
+  <version>2</version>
+  <image>https://instead-games.ru/games/screenshots/20190429173428359.png</image>
+  <url>https://instead-games.ru//download/instead-valley-2.zip</url>
+  <size>934628</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=330</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>soulstory</name>
+  <date>2019-04-14</date>
+  <title>Путник</title>
+  <author>Дмитрий Петрук и Юля Непейвода</author>
+  <description>Иллюстрированная история. Мой небольшой рассказ, который попробовал превратить в нечто большее. Звуки, музыка, картинки - прилагаются. Управление состоит из одной-единственной кнопки, сразу предупреждаю. Предполагается, что человек читает фразу и не спеша жмёт на кнопку. До самого конца. Настоятельно рекомендую запускать со звуком. В этом вся фишка. Надеюсь, вы найдёте это занимательным.&#13;
+Спасибо хорошей девушке Юле за большой труд в создании иллюстраций, если бы не её старания, релиза бы не было.</description>
+  <version>0.01</version>
+  <image>https://instead-games.ru/games/screenshots/20190414032612966.png</image>
+  <url>https://instead-games.ru//download/instead-soulstory-0.01.zip</url>
+  <size>14202766</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=329</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>gitr</name>
+  <date>2019-03-28</date>
+  <title>Игра на Инстеде Четыре Комнаты</title>
+  <author>Aiwasan(BWR_N6)</author>
+  <description>Выберись из странной/ых комнат/ы! Или попади в паутину неудач!&#13;
+&#13;
+Исправлена критическая ошибка</description>
+  <version>1</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-gitr-1.zip</url>
+  <size>3516</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=327</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>engineer</name>
+  <date>2019-03-01</date>
+  <title>Инженер</title>
+  <author>Alexander Yakovlev</author>
+  <description>Вы - инженер-ремонтник, которая (-ый? -ое? -ые?) направляется в удалённую деревню Жестиана по гарантийному вызову.&#13;
+&#13;
+Исследуйте оригинальный фантастический мир с нелинейными квестами.&#13;
+&#13;
+Для запуска нужна сборка INSTEAD 2.5+ не старше 31 марта 2017 года.</description>
+  <version>1.2</version>
+  <image>https://instead-games.ru/games/screenshots/20170401122740914.png</image>
+  <url>https://instead-games.ru//download/instead-engineer-1.2.zip</url>
+  <size>1152650</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=248</descurl>
+  <accessible>1</accessible>
+  <accessibleComment>В принципе если бы игра была лучше доработана,в неё можно было бы играть.</accessibleComment>
+ </game>
+ <game>
+  <name>antarctida</name>
+  <date>2019-02-25</date>
+  <title>Антарктида</title>
+  <author>Aiwasan(BWR_N6)</author>
+  <description>Далёкое будущее. Мир развивается стремительными темпами, но государственные деления всё прежде существуют. &#13;
+История пойдёт о Антарктиде. Службы всего мира в тайне объявили охоту на группу исследователей и их потомков, которые вернулись давным-давно с Антарктиды. Особенно их интересует один журналист... Вам необходимо доставить дополнительное досье и ещё некоторые документы по этим делам доктору Семёну Павловичу.&#13;
+&#13;
+Игра на ЗОК 2019</description>
+  <version>1.1</version>
+  <image>https://instead-games.ru/games/screenshots/20190804172135388.jpg</image>
+  <url>https://instead-games.ru//download/instead-antarctida-1.1.zip</url>
+  <size>3007674</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=323</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>slonik</name>
+  <date>2019-01-19</date>
+  <title>Слоник</title>
+  <author>goraph</author>
+  <description>Когда наваливаются невзгоды, можно и поплакать, да. Но потом лучше встать и пойти искать решения проблем. Вот прямо как герой этой игры, Слоник, у которого улетел красный шарик, да и Слониха к тому же ушла к Медведю.&#13;
+&#13;
+Игра на метапарсере. Участвовала в самом первом паровозике 2015г.</description>
+  <version>0.1</version>
+  <image>https://instead-games.ru/games/screenshots/20190119135354442.png</image>
+  <url>https://instead-games.ru//download/instead-slonik-0.1.zip</url>
+  <size>41092</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=316</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>deadmars</name>
+  <date>2019-01-08</date>
+  <title>Dead Mars</title>
+  <author>Aiwasan(BWR_N6)</author>
+  <description>Шахтёрская группа &amp;quot;МарсГорПром&amp;quot;, находящаяся на орбите Марса и добывающая минералы на его лунах Фобосе  и Деймосе, обнаружила удивительную находку...</description>
+  <version>0.1</version>
+  <image>https://instead-games.ru/games/screenshots/20190108151004943.png</image>
+  <url>https://instead-games.ru//download/instead-deadmars-0.1.zip</url>
+  <size>14198619</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=315</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>cvantium-cats</name>
+  <date>2018-12-27</date>
+  <title>Квантовые котейки</title>
+  <author>Айвазян(BWR_N6)</author>
+  <description>Квантовые котейки против всех! Уничтожьте человечество!</description>
+  <version>1.0</version>
+  <image>https://instead-games.ru/games/screenshots/20181211203126288.png</image>
+  <url>https://instead-games.ru//download/instead-cvantium-cats-1.0.zip</url>
+  <size>6595468</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=313</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>mini_quest_son</name>
+  <date>2018-12-07</date>
+  <title>Город 13</title>
+  <author>Айвазян(BWR_N6)</author>
+  <description>*Совсем* маленькое &amp;quot;произведением&amp;quot; сна. Сон естественно догадались чей</description>
+  <version>1.0</version>
+  <image>https://instead-games.ru/games/screenshots/20181207182131812.png</image>
+  <url>https://instead-games.ru//download/instead-mini_quest_son-1.0.zip</url>
+  <size>1837487</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=312</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>urq-bot</name>
+  <date>2018-11-30</date>
+  <title>[URQ] Бот</title>
+  <author>Айвазян(BWR_N6)</author>
+  <description>Одно из множеств приключений &amp;quot;Системы&amp;quot;...&#13;
+&#13;
+Находится в разработке</description>
+  <version>1</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-urq-bot-1.zip</url>
+  <size>8420801</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=308</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>speccy_3d_stead3</name>
+  <date>2018-10-05</date>
+  <title>Три сферы</title>
+  <author>Kerbal Space</author>
+  <description>Порт демо со спектрума на stead3. Три прыгающие сферы.</description>
+  <version>0.1</version>
+  <image>https://instead-games.ru/games/screenshots/20181005021310629.jpg</image>
+  <url>https://instead-games.ru//download/instead-speccy_3d_stead3-0.1.zip</url>
+  <size>1510</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=305</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>speccy_3d_stead2</name>
+  <date>2018-10-03</date>
+  <title>Две сферы</title>
+  <author>Kerbal Space</author>
+  <description>Порт демо со спектрума на stead2. Две прыгающие сферы.</description>
+  <version>0.2</version>
+  <image>https://instead-games.ru/games/screenshots/20181003211205586.jpg</image>
+  <url>https://instead-games.ru//download/instead-speccy_3d_stead2-0.2.zip</url>
+  <size>1550</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=303</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>mars_trailer</name>
+  <date>2018-09-01</date>
+  <title>Трейлер &amp;quot;Испытание Марсом&amp;quot;</title>
+  <author>Irremann</author>
+  <description>Это эпичный трейлер новой игры «Испытание Марсом». Игра выйдет на КРИЛ2018 где-то около 8 декабря.&#13;
+&#13;
+Трейлер сделан на инстеде при помощи модуля cutscene и модуля timer. Использована музыка со свободной лицензией.</description>
+  <version>0.01</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-mars_trailer-0.01.zip</url>
+  <size>17217630</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=301</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>backup</name>
+  <date>2018-07-15</date>
+  <title>Backup</title>
+  <author>v.v.b.</author>
+  <description>Игра в жанре кибер-панк.&#13;
+В настоящее время только 4 части из ?.&#13;
+&#13;
+v.0.4 alpha (13.07.2018)&#13;
+--------------------------&#13;
+ * Добавлена четвёртая часть игры.&#13;
+ + Выполнен рефакторинг кода (все части теперь выполняются независимо).&#13;
+ + Исправлены многочисленные ошибки и опечатки в первой, второй и третьей частях.&#13;
+ + Переделана вторая часть игры.&#13;
+ + Всё управление музыкой теперь идёт через отдельный объект mplayer.&#13;
+ + Для первой части игры добавлен английский перевод.</description>
+  <version>0.4</version>
+  <image>https://instead-games.ru/games/screenshots/20180715121226293.jpg</image>
+  <url>https://instead-games.ru//download/instead-backup-0.4.zip</url>
+  <size>82779164</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=76</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>wizards_trailer</name>
+  <date>2018-07-06</date>
+  <title>Трейлер Волшебников</title>
+  <author>Irremann</author>
+  <description>Это эпичный трейлер новой игры &amp;quot;Волшебники и Камень&amp;quot;&#13;
+&#13;
+Трейлер сделан на инстеде при помощи модуля cutscene. Использована музыка со свободной лицензией.</description>
+  <version>0.02</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-wizards_trailer-0.02.zip</url>
+  <size>1964490</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=295</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>urq-bee1</name>
+  <date>2018-05-19</date>
+  <title>[URQ] Приключения Пчелы</title>
+  <author>Demon</author>
+  <description>Обычная игра, для веселья!&#13;
+Пройти быстро, но интересно.&#13;
+Кстати, хотел бы сказать, вторая часть будет НАМНОГО больше:)&#13;
+Поэтому....</description>
+  <version>0.1</version>
+  <image>https://instead-games.ru/games/screenshots/20180520113518578.png</image>
+  <url>https://instead-games.ru//download/instead-urq-bee1-0.1.zip</url>
+  <size>135759</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=293</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>dn_mission_autograph</name>
+  <date>2018-01-05</date>
+  <title>Death Note: Миссия &lt;&lt;Автограф&gt;&gt;</title>
+  <author>SpeakingStone</author>
+  <description>Игра по аниме Death Note.&#13;
+</description>
+  <version>0.1.1</version>
+  <image>https://instead-games.ru/games/screenshots/20121225165716637.jpg</image>
+  <url>https://instead-games.ru//download/instead-dn_mission_autograph-0.1.1.zip</url>
+  <size>7706</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=23</descurl>
+  <accessible>2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>dream_desert</name>
+  <date>2017-12-21</date>
+  <title>Пустыня сновидений</title>
+  <author>Антон Ласточкин</author>
+  <description>Я снова здесь, в этом таинственном пространстве где нет ничего реального кроме движения. Каждый раз оно выглядит иначе, единственное что остаётся неизменным, здесь всегда безлюдно. Даже мой наставник, здесь такой же гость, как и я. Одиночество, одна из немногих постоянных этого мира. Это холодное чувство проникает даже в мою обычную жизнь, хотя люди и окружают меня.&#13;
+Не понимаю, почему родители стараются спрятать меня от других? Они говорят, что это для моего же блага, но я начинаю сомневаться. Я не смогу долго так жить, недавняя встреча окончательно убедила меня в этом. Скоро придёт время расставить всё на свои места в реальности и здесь, в пустыне сновидений...&#13;
+Внимание! Необходимо иметь настрой на вдумчивое чтение и быть готовым решать абстрактные головоломки.&#13;
+Игра на конкурс КРИЛ-2017</description>
+  <version>1.0</version>
+  <image>https://instead-games.ru/games/screenshots/20171221112849541.png</image>
+  <url>https://instead-games.ru//download/instead-dream_desert-1.0.zip</url>
+  <size>31634657</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=287</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>alone_in_the_void</name>
+  <date>2017-10-16</date>
+  <title>Один в пустоте</title>
+  <author>Андрей Лобанов</author>
+  <description>Попытка изобразить косморогалик на STEAD2.</description>
+  <version>0.0</version>
+  <image>https://instead-games.ru/games/screenshots/20171016153401277.png</image>
+  <url>https://instead-games.ru//download/instead-alone_in_the_void-0.0.zip</url>
+  <size>17816531</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=279</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>sum_of_lies</name>
+  <date>2017-10-10</date>
+  <title>Sum of Lies</title>
+  <author>v.v.b.</author>
+  <description>Игра &amp;quot;Сумма Лжи&amp;quot;.&#13;
+====&#13;
+ Не очень отдаленное будущее. Служащему одной из крупнейших корпораций Гелиополиса Ричарду Эндарку снятся тревожные повторяющиеся сны, делая и без того несчастную одинокую жизнь невыносимой. Каждый день он спешит на работу, которую ненавидит, чтобы вечером снова вернуться в свою тесную квартиру, где только фотографии напоминают о том, что он потерял.&#13;
+&#13;
+Однажды Ричард узнает, что странные сны снятся не ему одному.&#13;
+&#13;
+И эти сны опасны для жизни. &#13;
+====&#13;
+Автор оригинальной игры — Junkie Hipsta.&#13;
+Адаптация для INSTEAD — Вадим В. Балашов (v.v.b.)&#13;
+Жанр игры &amp;quot;Сумма Лжи&amp;quot; -- киберпанк.</description>
+  <version>0.2</version>
+  <image>https://instead-games.ru/games/screenshots/20170911220804955.jpg</image>
+  <url>https://instead-games.ru//download/instead-sum_of_lies-0.2.zip</url>
+  <size>4525948</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=267</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>red_hood_quest_ru</name>
+  <date>2017-08-23</date>
+  <title>Красная Шапочка : в поисках начинки</title>
+  <author>NLB project</author>
+  <description>Это нелинейный квест про выбор начинки для пирожков. Один и тот же вид начинки можно добыть различными способами. Игра использует обычные возможности INSTEAD, кроме того, там есть сцены с использованием графических объектов.&#13;
+В дальнейшем улучшенная версия этого квеста с ачивками войдёт в расширенную версию Возвращения Красной Шапочки для Steam.</description>
+  <version>1.01</version>
+  <image>https://instead-games.ru/games/screenshots/20170823213228490.04.07.png</image>
+  <url>https://instead-games.ru//download/instead-red_hood_quest_ru-1.01.zip</url>
+  <size>20674375</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=266</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>instead_navigator</name>
+  <date>2017-05-26</date>
+  <title>Instead навигатор</title>
+  <author>Casper_nn, 2017</author>
+  <description>Навигатор поможет сориентироваться в играх, созданных для платформы INSTEAD. Он группирует игры по разным признакам и показывает их в виде списков.</description>
+  <version>1.2</version>
+  <image>https://instead-games.ru/games/screenshots/20170521181517286.png</image>
+  <url>https://instead-games.ru//download/instead-instead_navigator-1.2.zip</url>
+  <size>7631228</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=258</descurl>
+  <accessible>2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>urq-cursed_city</name>
+  <date>2017-04-30</date>
+  <title>[URQ] Cursed City</title>
+  <author>Беляев Никита aka Nikitoz</author>
+  <description>Несколько советов:&#13;
+ Ты начинаешь игру безоружным поэтому не забывай вооружаться.&#13;
+ Сохраниться можно только 5 раз.&#13;
+ Эта игра тестировалась только на FireURQ и так что и на др. платформах хорошая работа не гарантируется.&#13;
+ Чтобы не испортить впечатление от игры нужно каждый раз подходя к пишушей машинки вводить своё имя, для того чтобы после загрузки оно не заменилось на 0.&#13;
+&#13;
+Создателем данного творения являюсь я: Беляев Никита aka Nikitoz.&#13;
+Портирование под FireURQ - Chicago1920 (ICQ 254881271, e-mail Chicago1920@mail.ru)&#13;
+Просьба присылать все комментарии на мыло: Nikitozbel@mail.ru&#13;
+И ещё если обнаружишь какие либо баги НЕ ЗАЛАСЬ В КОД И НЕ ИСПРАВЛЯЙ ИХ а напиши мне.&#13;
+&#13;
+Портирование под INSTEAD &amp;quot;V.Balashov&amp;quot; &amp;lt;vvb.backup@rambler.ru&amp;gt; (2013)</description>
+  <version>1.6.1</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-urq-cursed_city-1.6.1.zip</url>
+  <size>2019125</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=97</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>urq-an_ace_of_death</name>
+  <date>2017-04-30</date>
+  <title>[URQ] На волосок от смерти</title>
+  <author>Korwin</author>
+  <description>Искренне благодарен Евг'у за то, что конкурс ЛОКа 2012 состоялся, Акеле за проведенное бета-тестирование, своей любимой Дженни за моральную и творческую поддержку! &#13;
+&#13;
+Портирование на INSTEAD &amp;quot;V.Balashov&amp;quot; aka v.v.b.</description>
+  <version>1.6.1</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-urq-an_ace_of_death-1.6.1.zip</url>
+  <size>149675</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=98</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>urq-pod</name>
+  <date>2017-04-30</date>
+  <title>[URQ] Кокон</title>
+  <author>Korwin</author>
+  <description>Благодарю за вдохновение и поддержку - мою любимую, за терпение и перенос сроков Евг'а, за моральную поддержку - uux'a и chicago1920, за тестирование - Black Klit'a, и отдельно Fireton'a за                ...замечательный интерпретатор FireURQ.                                                                                           &#13;
+Также благодарю автора замечательной книги, создателя использованной в игре Вселенной, у которого мной, Korwin'ым, были честно украдены (сфальсифицированы) все идеи, сюжет, герои, названия и общая         ...тема... В целях маскировки идеи были заменены своими, названия и сюжет искажены до неузнаваемости, герои согласились за взятку сниматься под чужими именами... Тема игры не совпадает с темой книги. Тем      ...не менее, во избежание эксцессов и возможных претензий автора, а равно и его родственников, по поводу попранных авторских прав, ему (им) через подставных морд было предложено незаконное                     ...вознаграждение... Так же благодарю моего злейшего друга Goraph'a, из-за действий которого я вынужден прибегать к таким сложным и дорогостоящим способам литературного плагиата...&#13;
+&#13;
+Портирование под INSTEAD &amp;quot;V.Balashov&amp;quot; &amp;lt;vvb.backup@rambler.ru&amp;gt;</description>
+  <version>1.6.1</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-urq-pod-1.6.1.zip</url>
+  <size>172088</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=99</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>urq-mirror_spaceman</name>
+  <date>2017-04-30</date>
+  <title>[URQ] Mirror Spaceman...</title>
+  <author>Korwin</author>
+  <description>ЗЕРКАЛЬНЫЙ КОСМОНАВТ &#13;
+Если тебе когда-нибудь захочется найти такого человека, который сможет одолеть любую, даже самую тяжелую беду и сделать тебя счастливым, когда этого не может больше никто: ты просто посмотри в зеркало и скажи: &amp;quot;Привет!&amp;quot; (c)Ричард Бах &#13;
+&#13;
+Портирование под INSTEAD &amp;quot;V.Balashov&amp;quot; vvb.backup@rambler.ru</description>
+  <version>0.0.2</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-urq-mirror_spaceman-0.0.2.zip</url>
+  <size>156994</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=180</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>urq-mystcastle</name>
+  <date>2017-04-30</date>
+  <title>[URQ] Тайна заброшенного замка</title>
+  <author>Kalten</author>
+  <description>Наступили каникулы, и ты поехал в гости к Майклу и Джейн. Это твои двоюродные брат и сестра.&#13;
+&#13;
+Вскоре после твоего приезда они берут тебя на прогулку по окрестностям.&#13;
+На вершине холма ты замечаешь огромный каменный дом.&#13;
+&#13;
+Родственники сказали, что этот заброшенный замок проклят,но ты не поверил и решил сам разведать, что да как.&#13;
+&#13;
+Автор: Эдвард Паккард;&#13;
+Портировал на URQ: Kalten;&#13;
+&#13;
+http://urq.plut.info/node/1064</description>
+  <version>0.3</version>
+  <image>https://instead-games.ru/games/screenshots/20140825144719461.jpg</image>
+  <url>https://instead-games.ru//download/instead-urq-mystcastle-0.3.zip</url>
+  <size>1541838</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=184</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>urq-hamster_6</name>
+  <date>2017-04-30</date>
+  <title>Похождения отважного хомяка Семена-6: В Роще</title>
+  <author>Сергей Ткач (Apromix)</author>
+  <description>Вы - хомяк по кличке Семен. Если Вы прошли предыдущие игры из серии, то должны помнить, что Вас коварно заточили в клетку, но Вам удалось вырваться на свободу и покинуть дом и двор, перемахнув через забор. Но и здесь злопамятный кот не оставил Вас в покое. В конце-концов Вам удалось обмануть кота и убежать от него в рощу... Пока все.</description>
+  <version>1.1</version>
+  <image>https://instead-games.ru/games/screenshots/20170131121615142.png</image>
+  <url>https://instead-games.ru//download/instead-urq-hamster_6-1.1.zip</url>
+  <size>138398</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=245</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>urq-hamster_5</name>
+  <date>2017-04-30</date>
+  <title>Похождения отважного хомяка Семена - 5: На дороге</title>
+  <author>Сергей Ткач (Apromix)</author>
+  <description>Вы - хомяк по кличке Семен. Тот еще крепкий орешек! Если Вы прошли предыдущие игры из серии, то должны помнить, что Семена коварно заточили в клетку, но ценой неимоверных усилий отважному хомяку удалось вырваться на свободу... В конце-концов он оказался за забором на пыльной дороге... Пока все.</description>
+  <version>1.1</version>
+  <image>https://instead-games.ru/games/screenshots/20170131123113786.png</image>
+  <url>https://instead-games.ru//download/instead-urq-hamster_5-1.1.zip</url>
+  <size>140130</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=246</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>constellation4</name>
+  <date>2017-02-06</date>
+  <title>Созвездие: Возвращение Сержанта</title>
+  <author>Шкк Irremann</author>
+  <description>Это не игра, это прототип игры. Движок даже. Контент полностью отсутствует. Название рабочее.&#13;
+&#13;
+Перемещаться по карте можно компасом, а также wasd, стрелками и стрелками на нампаде (8462).</description>
+  <version>0.01alpha</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-constellation4-0.01alpha.zip</url>
+  <size>2980812</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=244</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>bout_nothing</name>
+  <date>2016-10-16</date>
+  <title>Ни о чём</title>
+  <author>OgurechniKiller</author>
+  <description>Обычный день, трое друзей собрались на поход в заброшенное здание, чтобы получить немного адреналина. Вроде бы, ничего не предвещает беды, хотя...&#13;
+***&#13;
+Тестовая игра, с небольшими динамическими вставками, предназначенная для ознакомления с инстедом. Связный сюжет практически отсутствует. В коде могут быть ошибки. Графика скорее отсутствует, чем присутствует.</description>
+  <version>0.5</version>
+  <image>https://instead-games.ru/games/screenshots/20161015182508676.png</image>
+  <url>https://instead-games.ru//download/instead-bout_nothing-0.5.zip</url>
+  <size>11643489</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=231</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>ork</name>
+  <date>2016-08-16</date>
+  <title>Im Dienste des Brazoragh</title>
+  <author>kerbal</author>
+  <description>Обычно в мире Авентурии ты играешь роль героя. Но на сей раз тебе предстоит из первых рук узнать кое-что о типичных чертах культуры орков и их психологии, потому что в этом приключении ты – ОРК!&#13;
+Игра участвует в конкурсе EnterКИ&#13;
+&amp;gt; http://quest-book.ru/competition/enterki/</description>
+  <version>0.3</version>
+  <image>https://instead-games.ru/games/screenshots/20160821200923872.jpg</image>
+  <url>https://instead-games.ru//download/instead-ork-0.3.zip</url>
+  <size>2249804</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=229</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>chess</name>
+  <date>2016-06-26</date>
+  <title>Шахматы</title>
+  <author>kerbal</author>
+  <description>Игра в шахматы. Основана на движке sunfish. Спасибо symbian9 за идею со шрифтом.</description>
+  <version>0.3</version>
+  <image>https://instead-games.ru/games/screenshots/20160626104714307.jpg</image>
+  <url>https://instead-games.ru//download/instead-chess-0.3.zip</url>
+  <size>423458</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=225</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>park</name>
+  <date>2016-04-28</date>
+  <title>Парк</title>
+  <author>Ordos</author>
+  <description>Пример работы с изображениями (модуль sprites) и сетью (через LuaSocket) в Instead. Для запуска этого примера необходимо:&#13;
+1. Установить LuaSocket.&#13;
+2. Запустить сервер (есть простой пример на python в каталоге server).&#13;
+3. Запустить Instead с параметром -standalone.&#13;
+&#13;
+P.S. Код не вычищал - оставил как есть. Так что не пугайтесь :)</description>
+  <version>0.1</version>
+  <image>https://instead-games.ru/games/screenshots/20160428153020855.png</image>
+  <url>https://instead-games.ru//download/instead-park-0.1.zip</url>
+  <size>37015</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=226</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>dice_game_big_pig</name>
+  <date>2016-04-12</date>
+  <title>Игра в кости &amp;quot;Большая Свинья&amp;quot;</title>
+  <author>NLB project</author>
+  <description>Standalone-вариант игры в кости, предназначенный для игры от NLB project&#13;
+&amp;quot;Варвар и подземные пещеры&amp;quot;&#13;
+&#13;
+Цель игры первым набрать 100 или больше очков.&#13;
+Вы бросаете две кости, полученное число складываете с уже имеющимся. Вы можете бросать кости до тех пор, пока сами не решите передать ход или пока вам не выпадет 1. В этом случае, набранные в текущей серии бросков очки аннулируются, а право хода автоматически передаётся противнику. Но если единицы выпали на обоих кубиках, вы получаете сразу 25 очков и право хода по-прежнему остаётся за вами. Если выпал дубль из любых других чисел, то количество очков просто удваивается (например: выпало 3 и 3, значит вы получаете 12 очков).&#13;
+В каждом следующем раунде игры право первого броска получает победитель предыдущего раунда (то есть игрок, набравший 100 очков). Далее ход передаётся по часовой стрелке.&#13;
+У каждого игрока имеется некоторая сумма денег. Перед началом каждого раунда игроки должны сделать ставку. Минимальная ставка составляет 100 монет, но можно её удвоить. При этом максимальная ставка не может превышать количество монет имеющееся у любого из игроков. (например: у одного игрока имеется 500 монет, у другого – 400 и у третьего – 300, следовательно максимальная ставка будет 300 монет). Помните, что удвоив ставку, вы уже не сможете поменять своё решение. В конце раунда победивший игрок забирает весь банк. Игра продолжается до тех пор, пока один игрок не завладеет всеми монетами своих соперников. Независимо от количества выигранных (проигранных) монет, вы можете выйти из игры в любой момент, когда получите право хода.</description>
+  <version>1.2</version>
+  <image>https://instead-games.ru/games/screenshots/20160412195052223.14.09.png</image>
+  <url>https://instead-games.ru//download/instead-dice_game_big_pig-1.2.zip</url>
+  <size>26892945</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=220</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>tale_of_roland</name>
+  <date>2016-03-12</date>
+  <title>Сказ о Роланде</title>
+  <author>Dwarf Vader</author>
+  <description>Маленькая сказочка приуроченная к 8 Марта. Создано как пародия на рыцарский роман.&#13;
+&#13;
+Внимание: Финальную загадку со входом в башню разгадывайте сразу - она пока не доработана. Загадка очень простая, но после загрузки придется решать ее не при помощи логики, а банальным перебором.</description>
+  <version>0.4</version>
+  <image>https://instead-games.ru/games/screenshots/20160312171731441.JPG</image>
+  <url>https://instead-games.ru//download/instead-tale_of_roland-0.4.zip</url>
+  <size>15148</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=219</descurl>
+  <accessible>2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>violet</name>
+  <date>2016-02-21</date>
+  <title>Виолетта</title>
+  <author>Ordos</author>
+  <description>Совсем небольшая интерактивная сказка, выполненная в духе &amp;quot;визуальной новеллы&amp;quot;. Здесь вы не найдете квестов и умопомрачительного сюжета - только добрая сказка про принцессу и рыцаря.&#13;
+&#13;
+(Проект временно заморожен)</description>
+  <version>1.0</version>
+  <image>https://instead-games.ru/games/screenshots/20160221001241513.PNG</image>
+  <url>https://instead-games.ru//download/instead-violet-1.0.zip</url>
+  <size>2499263</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=217</descurl>
+  <accessible>1</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>building_N6-demo</name>
+  <date>2016-01-14</date>
+  <title>Корпус #6. Эпизод 1</title>
+  <author>CaveMan ProgrammerZ</author>
+  <description>Интерактивное приключение на движке INSTEAD.&#13;
+Идея:&#13;
+Дмитрий Крестьянкин, Михаил Молчанов&#13;
+&#13;
+&amp;quot;В конференц-зале научного центра РАН в Подмосковье собралось немало народа. Некоторые из них были мне хорошо знакомы - коллеги по институту, завсегдатаи конференций, - но многих я видел впервые. Впрочем, одно о всех присутствующих можно было сказать определенно: это были ученые, причем наверняка одаренные. Иначе бы профессор Вишняков не собрал бы их здесь...&amp;quot;</description>
+  <version>1.0.1</version>
+  <image>https://instead-games.ru/games/screenshots/20130204222422950.png</image>
+  <url>https://instead-games.ru//download/instead-building_N6-demo-1.0.1.zip</url>
+  <size>24494961</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=72</descurl>
+  <accessible>2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>scrumble</name>
+  <date>2015-10-28</date>
+  <title>SCRUMBLE SLUG [love2d]</title>
+  <author>David Mekersa AKA Rockford</author>
+  <description>Игра с конкурса LD31, написанная на love2d и запущенная на INSTEAD с помощью маленькой прослойки.</description>
+  <version>0.3</version>
+  <image>https://instead-games.ru/games/screenshots/20150103183401921.png</image>
+  <url>https://instead-games.ru//download/instead-scrumble-0.3.zip</url>
+  <size>656152</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=192</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>barlad</name>
+  <date>2015-10-28</date>
+  <title>Ты нужен Барладу Дэрту!</title>
+  <author>Alterlimbus</author>
+  <description>Тяжела жизнь зелёного новобранца… А уж если попал в орден Зелёных рыцарей – вдвойне! А тут ещё Капитул посылает на службу к какому-то тёмному магу. Но даже в Зачарованном лесу найдётся место подлости! &#13;
+Или подвигу? &#13;
+Как всегда, всё зависит только от вас...&#13;
+Это книга-игра по вселенной цикла романов Дмитрия Браславского «Войны магов» и книге-игре «Подземелья Чёрного Замка».&#13;
+http://braslavsky.ru&#13;
+Релиз версии v1.1&#13;
+Текстовую версию вы сможете найти на сайте &amp;quot;Книги-игры и интерактивные рассказы&amp;quot; по адресу&#13;
+http://quest-book.ru/directory/ti_nujen_bd/&#13;
+За предоставленную возможность размещения, вёрстку и оформление спасибо администрации сайта в лице Jumangee&#13;
+&#13;
+В оформлении игры использованы живопись и музыка 17-19 веков.&#13;
+Пожалуйста, при выкладывании в интернет пользуйтесь версией игры только с данного сайта&#13;
+http://instead-games.ru/game.php?ID=209&#13;
+За любое другое оформление автор ответственности не несёт.&#13;
+&#13;
+Если вам понравилась моя книга-игра, приглашаю вас на одну из моих страничек в интернете, где&#13;
+наиболее удобно расположены другие мои произведения  &#13;
+ficbook.net/authors/231413&#13;
+Искренне влюблённый в фэнтэзи&#13;
+Юри Линн</description>
+  <version>1.1</version>
+  <image>https://instead-games.ru/games/screenshots/20151012125405469.png</image>
+  <url>https://instead-games.ru//download/instead-barlad-1.1.zip</url>
+  <size>34021880</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=209</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>Gramlend</name>
+  <date>2015-02-04</date>
+  <title>Грамленд</title>
+  <author>Андреев Сергей</author>
+  <description>Игра приключение. Мир населенный монстрами и людьми, где идет кровопролитная война за выживание.</description>
+  <version>1.1</version>
+  <image>https://instead-games.ru/games/screenshots/20150203180026736.jpg</image>
+  <url>https://instead-games.ru//download/instead-Gramlend-.zip</url>
+  <size>303529</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=199</descurl>
+  <accessible>1</accessible>
+  <accessibleComment>Лучше её проходить в instead-cli.</accessibleComment>
+ </game>
+ <game>
+  <name>petals</name>
+  <date>2015-01-12</date>
+  <title>Лепестки</title>
+  <author>Дмитрий Блинов</author>
+  <description>Я сидел за столом и потягивал кофе. Он был очень горячим, и я чуть ли не обжигался. От пара запотело окно. На улице светило яркое солнце - приятная осенняя погода, желтые листья ковром застилали асфальт, в попытке скрыть городскую серость. Я был в печали, не понимая, от чего конкретно. Но что-то не давало насладиться всей этой красотой золотых листьев, что-то глубоко в душе терзало меня. Я сделал еще глоток и поставил напиток на стол.</description>
+  <version>1.1</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-petals-1.1.zip</url>
+  <size>1519853</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=196</descurl>
+  <accessible>2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>maze_of_death</name>
+  <date>2015-01-04</date>
+  <title>The Maze of The Death [love2d]</title>
+  <author>jfroco</author>
+  <description>Еще одна игра с love2d. Довольно хардкорная аркада в стиле zx.&#13;
+В игру включен более развитый вариант прослойки запуска игр love2d.</description>
+  <version>0.1</version>
+  <image>https://instead-games.ru/games/screenshots/20150104225650574.png</image>
+  <url>https://instead-games.ru//download/instead-maze_of_death-0.1.zip</url>
+  <size>439770</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=193</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>urq-blacktower</name>
+  <date>2014-08-12</date>
+  <title>[URQ] Черная Башня</title>
+  <author>Mumey</author>
+  <description>Книга-игра ПОДЗЕМЕЛЬЯ ЧЕРНОГО ЗАМКА&#13;
+Дмитрий Браславский (braslavsky.ru)&#13;
+&#13;
+В сказочное королевство приходит беда. Злой волшебник Барлад  Дэрт,  поселившийся в таинственном и мрачном Черном замке в самом сердце Зачарованного леса, хочет взять в  жены  единственную дочь Короля. Получив отказ, он похищает Принцессу и с помощью черной магии погружает ее в волшебный сон.  Много смельчаков, вызвавшись освободить      &#13;
+Принцессу, отправились на поиски Черного замка, но ни один не вернулся назад.</description>
+  <version>0.1</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-urq-blacktower-0.1.zip</url>
+  <size>4872102</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=179</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>boiling_reactor</name>
+  <date>2014-08-12</date>
+  <title>Кипящий реактор</title>
+  <author>gavriil</author>
+  <description>Одна из игр не вошедших в ИНСТЕДОЗ #3&#13;
+&#13;
+&amp;quot;Вас резко вытолкнуло из креокамеры в которой вы проводили путишествие.                                                     &#13;
+В глазах темнит из за резкого пробуждения от сна. Вы заметили наполовину уничтоженный робот возле рубильника креокамеры.&amp;quot;</description>
+  <version>0.3.0</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-boiling_reactor-0.3.0.zip</url>
+  <size>6371</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=182</descurl>
+  <accessible>2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>wooden_city</name>
+  <date>2014-03-15</date>
+  <title>Wooden City</title>
+  <author>Вадим Балашов aka v.v.b.</author>
+  <description>Вашему вниманию предлагается очередной ремейк игры. На сей раз с Квестера. &amp;quot;Деревянный Город&amp;quot;.&#13;
+Пока реализована только первая история из трёх.&#13;
+В игре несколько концовок и несколько способов их достигнуть. Игру можно отнести к жанру деревопанк.&#13;
+&#13;
+Автор ремейка: v.v.b. aka Vadim Balashov</description>
+  <version>0.0.1</version>
+  <image>https://instead-games.ru/games/screenshots/20140316004143999.png</image>
+  <url>https://instead-games.ru//download/instead-wooden_city-0.0.1.zip</url>
+  <size>10700727</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=177</descurl>
+  <accessible>2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>game_of_life</name>
+  <date>2014-02-28</date>
+  <title>Игра «Жизнь»</title>
+  <author>Андрей Лобанов</author>
+  <description>Реализация клеточного автомата Джона Хортона Конвея на INSTEAD.&#13;
+&#13;
+Управление мышью либо с клавиатуры:&#13;
+Клавиши курсора -- перемещение по полю&#13;
+C -- очистить поле&#13;
+Space -- запустить эволюцию&#13;
+Enter -- просчитать одно поколение&#13;
+1, 2 -- изменить масштаб.</description>
+  <version>0.3</version>
+  <image>https://instead-games.ru/games/screenshots/20140228081428585.png</image>
+  <url>https://instead-games.ru//download/instead-game_of_life-0.3.zip</url>
+  <size>109787</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=150</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>commissar</name>
+  <date>2013-11-30</date>
+  <title>Komissarъ</title>
+  <author>Dorevolutsionerъ и Коъ</author>
+  <description>Игра присланная на конкурс &amp;quot;ВЖЖ - сенокос!&amp;quot; (15 августа 2012 г.)&#13;
+Полный угар про комиссара, корову и зомби. Ничего не понятно, не смешно и вообще как-то... странно.&#13;
+&#13;
+Судейские комментарии и информацию по конкурсу можно найти http://rilarhiv.ru/ifmagazine2/02.2012/9/index.htm</description>
+  <version>0.1</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-commissar-0.1.zip</url>
+  <size>4517</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=143</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>samhain-demo</name>
+  <date>2013-11-29</date>
+  <title>Семь ночей Самайна</title>
+  <author>Andante</author>
+  <description>Привет всем Инстедовцам! В преддверии Хеллоуина хочу представить на суд общественности свой первый текстовый квест, вернее - пролог к нему. Надеюсь на конструктивную критику и оценку своего творчества.&#13;
+&#13;
+Впервые выложено в сеть&#13;
+2011-10-30&#13;
+andante89_at_mail_dot_ru</description>
+  <version>0.0.1</version>
+  <image>https://instead-games.ru/games/screenshots/20131129011605940.png</image>
+  <url>https://instead-games.ru//download/instead-samhain-demo-0.0.1.zip</url>
+  <size>8600339</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=128</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>lourence-demo</name>
+  <date>2013-11-29</date>
+  <title>Лоуренс</title>
+  <author>Lernos</author>
+  <description>Полумистический квест о приключениях детектива-инспектора Эндрю Стивена Лоуренса, который неожиданно приходит в себя связанным в деревянном сарае. Графическое и звуковое оформление отсутствует. В ранней стадии своего развития &amp;quot;Лоуренс&amp;quot; уже пару раз засветился на форуме, теперь же мне хочется знать общее мнение наших форумчан о моей задумке. Кроме того, &amp;quot;Лоуренс&amp;quot; является моей первой серьезной работой по программированию (не считая программы для вывода таблицы умножения, которую я написал четко по инструкции на диалекте G-Basic еще в детстве). Прошу любить и жаловать.</description>
+  <version>0.1.1</version>
+  <image>https://instead-games.ru/games/screenshots/20131129004816653.png</image>
+  <url>https://instead-games.ru//download/instead-lourence-demo-0.1.1.zip</url>
+  <size>20977</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=129</descurl>
+  <accessible>1</accessible>
+  <accessibleComment>В принципе если бы не было таймера,игру,на мой взгляд,можно было бы пройти.</accessibleComment>
+ </game>
+ <game>
+  <name>nk-demo</name>
+  <date>2013-11-29</date>
+  <title>Н.К.</title>
+  <author>Илья Гусев aka abadello</author>
+  <description>Три измерения, не боле.&#13;
+Шесть граней, граней бытия.&#13;
+На четырёх из них обои&#13;
+И больше ничего нельзя.&#13;
+Автор.&#13;
+&#13;
+Анонс:&#13;
+Наши дни. Чередой случайных встреч и находок вы попадаете в странный научный городок. Зачем вы собрались в путешествие туда? Каких загадок не хватало в вашей жизни? Что вы хотите понять?&#13;
+Всё это и предстоит вам выяснить распутывая хитросплетения советского научного наследия и современных реалий, ответив в итоге на вопрос: что есть Н.К.?&#13;
+Квест старательно выполнялся в классическом стиле.&#13;
+Продолжения скорее всего не будет. Если кто ни будь надумает нарисовать картинки по новелле, я буду просто счастлив.</description>
+  <version>0.0.3</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-nk-demo-0.0.3.zip</url>
+  <size>434450</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=141</descurl>
+  <accessible>1</accessible>
+  <accessibleComment>Игру невозможно пройти из-за клика по координатам.</accessibleComment>
+ </game>
+ <game>
+  <name>psycho-demo</name>
+  <date>2013-11-29</date>
+  <title>Психопат</title>
+  <author>Петр Косых</author>
+  <description>Демонстрация одной из первых версий модуля parser.</description>
+  <version>0.1</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-psycho-demo-0.1.zip</url>
+  <size>7420</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=142</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>island_of_octopus-demo</name>
+  <date>2013-11-28</date>
+  <title>Остров осминогов</title>
+  <author>hashev</author>
+  <description>Моя первая игра по одноименной Книге-игре Филипа Эбли.&#13;
+&#13;
+&#13;
+Впервые выгружено в сеть&#13;
+2011-09-07&#13;
+yuriy_dot_hashev_at_gmail_dot_com</description>
+  <version>0.1</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-island_of_octopus-demo-0.1.zip</url>
+  <size>192136</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=136</descurl>
+  <accessible>2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>wintown</name>
+  <date>2013-11-27</date>
+  <title>Win-таун</title>
+  <author>Siorinex</author>
+  <description>Краткий сюжет:&#13;
+Вы - некое лицо, которое ехало по дороге через пустыню. Куда и зачем - не суть важно, но вот примерно посреди пустыни машина заглохла... Стандартное действие любого компьютерщика, т.е. &amp;quot;Закрыть все окна, выйти и снова зайти&amp;quot; - не помогли, дорога РЕАЛЬНО пустынная и помощи ждать неоткуда, но по карте - вроде как неподалёку имеется населённый пункт...&#13;
+Из последних сил, пешком, вы доползаете таки до небольшого городка, над входом в который значится: &amp;quot;Win-таун&amp;quot;...&#13;
+&#13;
+Впервые выложено в сеть&#13;
+2010-10-04&#13;
+pawel@pervinkin.pp.ru</description>
+  <version>0.1.2</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-wintown-0.1.2.zip</url>
+  <size>587656</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=131</descurl>
+  <accessible>2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>darkwing-nomusic</name>
+  <date>2013-11-27</date>
+  <title>Чёрный Плащ: Герой в маске</title>
+  <author>Oreolek</author>
+  <description>Выкладываю готовую игру.&#13;
+&#13;
+Заранее: об авторских правах я не беспокоюсь, потому что никаких прав на использование персонажей и вообще отсылок к сериалу не имею. Игра является подарком на день рождения одному хорошему человеку.&#13;
+В игре 7 концовок и 3 уровня сложности. По меркам жестокости ifwiki.org я даю ранг жестокой (можно попасть в тупик, и об этом никто не предупреждает).&#13;
+Игра предназначена для детей от 16 до 16^2 лет.</description>
+  <version>0.1</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-darkwing-nomusic-0.1.zip</url>
+  <size>104112</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=133</descurl>
+  <accessible>2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>rebel_planet-demo</name>
+  <date>2013-11-26</date>
+  <title>Повстанческая планета</title>
+  <author>Вадим Балашов aka v.v.b.</author>
+  <description>Всем поклонникам игры &amp;quot;Кайлет&amp;quot; посвящается....&#13;
+Начинаю новый проект - ремейк игры с ZX - &amp;quot;Rebel Planet&amp;quot;.&#13;
+Чем примечательна данная игра? Её автор - Стефан Уфновски, автор &amp;quot;Кайлет&amp;quot;. &amp;quot;Планета&amp;quot; была перед &amp;quot;Кайлетом&amp;quot;, в связи с этим есть два аспекта.&#13;
+1. Игра сделана на основе книги-игры авторов Стива Джексона и Яна Ливингстона. Но переделана под полноценный квест (без хождения по цифрам).&#13;
+2. Графика чуть проще чем в Кайлет.&#13;
+Почему именно Rebel Planet? Просто откопал у себя в закромах оригинал книги-игры Джексона и Ливингстона. Благодаря этому я попробую соединить две составляющие и восстановить игру в том виде, в котором она задумывалась Стефаном Уфновски.</description>
+  <version>0.1.1</version>
+  <image>https://instead-games.ru/games/screenshots/20130205104433132.png</image>
+  <url>https://instead-games.ru//download/instead-rebel_planet-demo-0.1.1.zip</url>
+  <size>6888666</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=75</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>world_of_edge</name>
+  <date>2013-11-26</date>
+  <title>Мир Края</title>
+  <author>Юрий Начитов aka yn_common</author>
+  <description>Мир края - фантастическая вселенная, в которой разворачивается действие детективной игры &amp;quot;Расследование&amp;quot;.</description>
+  <version>0.1</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-world_of_edge-0.1.zip</url>
+  <size>14781</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=115</descurl>
+  <accessible>2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>fail</name>
+  <date>2013-11-25</date>
+  <title>Провал</title>
+  <author>Николай Коновалов, a.k.a major kolz</author>
+  <description>Все мы знаем истории о героях. О крепких и суровых &amp;quot;рыцарях&amp;quot; или о тех, что вот-вот дорастет до этого звания. И все они заканчиваются легко и приятно: демоны повержены, героя ждет заслуженная награда и отдых. Это история не о том! После небывалых подвигов первого дня враг не отступает, а приходит снова. Стоит перебороть супостата - а, вон, гляди, еще парочка. И с каждым днем враг все более силён и смекалист... Итак, утро №223е</description>
+  <version>0.3.1</version>
+  <image>https://instead-games.ru/games/screenshots/20130707162127465.png</image>
+  <url>https://instead-games.ru//download/instead-fail-0.3.1.zip</url>
+  <size>28820468</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=92</descurl>
+  <accessible>1</accessible>
+  <accessibleComment>Из-за таймера нельзя использовать ружьё.</accessibleComment>
+ </game>
+ <game>
+  <name>chip_and_dale_2-demo</name>
+  <date>2013-11-24</date>
+  <title>Чип и Дейл 2</title>
+  <author>Дударь Дмитрий aka tturgor</author>
+  <description>Dendy. Chip &amp;amp; Dale 2.&#13;
+- Почему? - спросите Вы.&#13;
+Ответ прост:&#13;
+1) идеальный геймплей&#13;
+2) идеальная графика&#13;
+3) идеальная музыка&#13;
+И вот задумался я дальше, а можно ли адаптировать АРКАДУ под Instead? Вот, что у меня получилось.</description>
+  <version>0.0.3</version>
+  <image>https://instead-games.ru/games/screenshots/20130205094430360.png</image>
+  <url>https://instead-games.ru//download/instead-chip_and_dale_2-demo-0.0.3.zip</url>
+  <size>28424662</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=32</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>podlog</name>
+  <date>2013-11-19</date>
+  <title>Подлог</title>
+  <author>z-Hunter@tut.by</author>
+  <description>Я стою посреди улицы. Ярко светит солнце. Очертания окружающего мира тонут в белом мареве. Напротив виднеется грузовик, один из этих старых огромных “Рамтеков”. Я здесь затем, чтобы починить его. В передней части грузовика есть дверца...</description>
+  <version>0.0.1</version>
+  <image>https://instead-games.ru/games/screenshots/20130206064911555.png</image>
+  <url>https://instead-games.ru//download/instead-podlog-0.0.1.zip</url>
+  <size>6317182</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=78</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>ether_city-demo</name>
+  <date>2013-11-16</date>
+  <title>Эфир Города</title>
+  <author>Константин Крячко</author>
+  <description>Короткометражки своего рода. Проба пера: 1 полная часть, вторая не дописана, но может заинтриговать. Очень маленькие истории - на 3 минуты.</description>
+  <version>0.1.2</version>
+  <image>https://instead-games.ru/games/screenshots/20130314125022595.png</image>
+  <url>https://instead-games.ru//download/instead-ether_city-demo-0.1.2.zip</url>
+  <size>6900700</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=37</descurl>
+  <accessible>2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>weapon_of_li_guan</name>
+  <date>2013-10-04</date>
+  <title>Оружие Ли Гуана</title>
+  <author>v.v.b.</author>
+  <description>Вашему вниманию предлагается ремейк культовой игры Евгения Туголукова (Korwin).&#13;
+Огромное спасибо Евгению за предоставленные RTADS-исходники и разрешение портировать игру на метапарсер INSTEAD.&#13;
+Ключевые особенности, отличные от оригинальной RTADS-версии:&#13;
+- добавлена музыка (трек Оливера Шанти &amp;quot;Инь и Янь в гармонии&amp;quot;);&#13;
+- добавлена графическая тема, заставка (использована картина «Зима» художника Сэссю (雪舟, 1420-1506);&#13;
+- доработаны некоторые загадки, которые Korwin не успел доделать в оригинале;&#13;
+- добавлена возможность выводить карту по команде &amp;quot;карта&amp;quot;;&#13;
+- исправлены баги оригинала, добавлены собственные баги.</description>
+  <version>0.0.1</version>
+  <image>https://instead-games.ru/games/screenshots/20131004125136852.jpg</image>
+  <url>https://instead-games.ru//download/instead-weapon_of_li_guan-0.0.1.zip</url>
+  <size>3525169</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=96</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>project_1</name>
+  <date>2013-02-04</date>
+  <title>Проект 1</title>
+  <author>v.v.b.</author>
+  <description>Предлагается очередной ремейк. На сей раз книга-игра &amp;quot;Проект 1&amp;quot;.&#13;
+Авторы оригинальной книги-игры – Гавриченко Дмитрий (Dyuss) и Александров Пётр (Ёж) при поддержке форума «Книги-игры и текстовые игры».&#13;
+Конвертировал скриптами, руками, чем угодно. поэтому возможны глюки. не проходил до конца. обработка предметов и денег начата, но не завершена в полном объёме. Не дооформлены правила игры.&#13;
+Я связывался с автором игры в сентябре месяце с просьбой разрешить ремейк под инстедом. автор взял тайм-аут и хотел посмотреть что за инстед. я писал ему ещё несколько раз, но никакой реакции не поступало. поэтому выкладываю в том виде, в каком игра была в сентябре месяце. С тех пор работа заморожена и я просто не знаю что дальше делать.&#13;
+Переделал только goto и пр. чтобы сделать совместимой с инстедом 1.6.0.&#13;
+Что дальше будет с проектом проект 1 (извините за тавтологию) -- я не знаю. по словам автора он продолжает работу над второй частью книги-игры. но она больше по коду в разы и он работает над ней один. поэтому продолжения в ближайшем будущем ждать не стоит.</description>
+  <version>0.1.1</version>
+  <image>https://instead-games.ru/games/screenshots/20130204220204672.png</image>
+  <url>https://instead-games.ru//download/instead-project_1-0.1.1.zip</url>
+  <size>803958</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=70</descurl>
+  <accessible>-2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+ <game>
+  <name>undeath</name>
+  <date>2013-02-03</date>
+  <title>Нежизнь</title>
+  <author>Андрей Malcolm Арчаков</author>
+  <description>Главный герой - простой деревенский парень, решивший с друзьями посетить ежегодную ярмарку в столице королевства. Но когда до города оставалось рукой подать, на нашу веселую кампанию нападают жудкие твари, порождения черной магии!&#13;
+&#13;
+Игра сделана в рамках конкурса №90 сайта igdc.ru.&#13;
+&#13;
+Обсудить на форуме &#13;
+http://instead.syscall.ru/forum/viewtopic.php?id=708</description>
+  <version>0.1.1</version>
+  <image>https://instead-games.ru/games/screenshots/</image>
+  <url>https://instead-games.ru//download/instead-undeath-0.1.1a.zip</url>
+  <size>32851</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=64</descurl>
+  <accessible>2</accessible>
+  <accessibleComment></accessibleComment>
+ </game>
+</game_list>

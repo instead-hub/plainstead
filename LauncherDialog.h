@@ -33,12 +33,12 @@ protected:
 	void AddInstalledGame(CString name, CString version, std::pair<CString, CString> path);
 	void AddNewGame(CString name, CString version, CString sz, CString page, std::pair<CString, CString> downloadPageAndInstallName);
 	void SetCell(CListCtrl& ctrl, CString value, int nRow, int nCol);
-	void UpdateNewGamesFromUrl(CString url, CString temp_xmlfile, bool is_sander = false);
-	void ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool is_sander);
+	void UpdateNewGamesFromUrl(CString url, CString temp_xmlfile);
+	void ReadNewGamesFromXMLAndAdd(CString temp_xmlfile);
 	void UpdateNewGamesRssAdditionalInfoFromUrl(CString url, CString temp_xmlfile);
 	void ReadAdditionalInfoFromXMLRss(CString temp_xmlfile);
-	bool UpdateApprovedGamesFromUrl(CString url, CString res_path);
-	void UpdateApprovedFromFile();
+	//bool UpdateApprovedGamesFromUrl(CString url, CString res_path);
+	//void UpdateApprovedFromFile();
 	void ClearNewList();
 	void SortColumn(CListCtrl* ctrl, int columnIndex, bool ascending);
 
@@ -47,7 +47,9 @@ protected:
 
 	//std::vector<std::pair<CString/*name*/, CString/*page*/> > networkGameDWPageAndName;
 	//std::set<CString> networkGameName;
-
+	//CString approvedFile;
+	std::vector<CString> repoList;
+	std::vector<CString> rssList;
 	std::map<CString/*game name*/, std::pair<CString /*approve*/, CString /*info*/> > approveInfo;
 	std::map<CString/*game title*/, std::pair<CString /*pubDate*/, CString /*Desc*/> > rssInfo;
 

@@ -23,7 +23,7 @@ IMPLEMENT_DYNAMIC(LauncherDialog, CDialog)
 //Выбранный фильт
 #define SEL_FILTER_ALL           0 //все игры
 #define SEL_FILTER_VALID         1 //доступные
-#define SEL_FILTER_VALID_AND_UNK 2 //доступные и непроверенные
+#define SEL_FILTER_UNK           2 //непроверенные
 
 #define N_SUBITEM_LIST_INSTALLED_CAPTION 0 //название
 #define N_SUBITEM_LIST_INSTALLED_ACCESSABLE 1 //доступна
@@ -214,12 +214,13 @@ BOOL LauncherDialog::OnInitDialog()
 	m_tab.InsertItem(1, &TabItem);
 	m_comboFiler.AddString(L"Все игры");
 	m_comboFiler.AddString(L"Только доступные");
-	m_comboFiler.AddString(L"Только доступные и непроверенные");
+	m_comboFiler.AddString(L"Только непроверенные");
 
 	CIniFile mainSettings;
 	m_lastSelFilter = mainSettings.GetInt(L"main", L"mRepoFilter", SEL_FILTER_VALID);
 	if (m_lastSelFilter > (m_comboFiler.GetCount() - 1)) m_lastSelFilter = SEL_FILTER_VALID;
 	m_comboFiler.SetCurSel(m_lastSelFilter);
+	//mainSettings.GetString(L"main", L"approvedXml", approvedFile, L"http://dialas.ru/instead_games_approved.xml");
 
 	showInstalledTabControls();
 
@@ -228,13 +229,42 @@ BOOL LauncherDialog::OnInitDialog()
 	ListView_SetExtendedListViewStyle(::GetDlgItem(m_hWnd, IDC_LIST_NEW), LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 	CreateColumns();
 
-	//Обновляем список доступных игр
-	UpdateApprovedFromFile();
-	//Обновляем доп инфу, если есть xml
-	if (PathFileExists(L"rss1.xml")) ReadAdditionalInfoFromXMLRss(L"rss1.xml");
-	if (PathFileExists(L"rss2.xml")) ReadAdditionalInfoFromXMLRss(L"rss2.xml");
 
 	RescanInstalled();
+
+	//получаем данные о репозиториях
+
+	const int TOTAL_AVAIL_RSS = 10;
+	for (int i = 0; i < TOTAL_AVAIL_RSS; i++)
+	{
+		CString currRepo;
+		CString keyName;
+		keyName.Format(L"rss%d", i + 1);
+		mainSettings.GetString(L"Rss", keyName, currRepo, L"");
+		if (!currRepo.IsEmpty()) {
+			rssList.push_back(currRepo);
+			CString localName;
+			localName.Format(L"rss%d.xml", i + 1);
+			if (PathFileExists(localName))  ReadAdditionalInfoFromXMLRss(localName);
+		}
+	}
+
+	const int TOTAL_AVAIL_REPOS = 10;
+	for (int i = 0; i < TOTAL_AVAIL_REPOS; i++)
+	{
+		CString currRepo;
+		CString keyName;
+		keyName.Format(L"repo%d", i + 1);
+		mainSettings.GetString(L"Repos", keyName, currRepo, L"");
+		if (!currRepo.IsEmpty()) {
+			repoList.push_back(currRepo);
+			CString localName;
+			localName.Format(L"repo%d.xml", i + 1);
+			if (PathFileExists(localName))  ReadNewGamesFromXMLAndAdd(localName);
+		}
+	}
+
+	
 
 	//m_tab.SetFocus();
 
@@ -359,7 +389,7 @@ void LauncherDialog::showNewTabControls()
 	m_btnInstall.ShowWindow(SW_SHOW);
 	m_btnOpenLink.ShowWindow(SW_SHOW);
 	m_comboFiler.ShowWindow(SW_SHOW);
-	m_CheckSander.ShowWindow(SW_SHOW);
+	m_CheckSander.ShowWindow(SW_HIDE); //всегда прячем
 
 	m_listNew.SetFocus();
 }
@@ -768,29 +798,86 @@ void LauncherDialog::ClearNewList()
 	m_listNew.DeleteAllItems();
 }
 
-void LauncherDialog::OnBnClickedBtnUpdate()
+static bool isLocalXml(CString path)
 {
-	ClearNewList();
-
-	bool ok_appr = UpdateApprovedGamesFromUrl(L"http://dialas.ru/instead_games_approved.xml",
-							   L"games\\instead_games_approved.xml");
-	if (ok_appr) UpdateApprovedFromFile();
-
-	//Обновляем доп. информацию из rss для списка из репозитория
-	rssInfo.clear();
-	CString strURL_RSS1 = L"http://dialas.ru/rss_game_list.xml";
-	UpdateNewGamesRssAdditionalInfoFromUrl(strURL_RSS1, L"rss1.xml");
-	CString strURL_RSS2 = L"http://dialas.ru/rss_game_list_sander.xml";
-	UpdateNewGamesRssAdditionalInfoFromUrl(strURL_RSS2, L"rss2.xml");
-
-	CString strURL = L"http://instead.sf.net/pool/game_list.xml";
-	UpdateNewGamesFromUrl(strURL, L"temp.xml");
-	CString strURL2 = L"http://dialas.ru/instead_game_list.xml";
-	UpdateNewGamesFromUrl(strURL2, L"temp2.xml");
-	CString strURL3 = L"http://dialas.ru/instead_game_list_sander.xml";
-	UpdateNewGamesFromUrl(strURL3, L"temp3.xml",true);
+	const CString filePattern(_T("file://"));
+	return (path.Left(filePattern.GetLength()) == filePattern);
 }
 
+static CString toLocalFile(CString path)
+{
+	const CString filePattern(_T("file://"));
+	return path.Mid(filePattern.GetLength());
+}
+
+void LauncherDialog::OnBnClickedBtnUpdate()
+{
+	approveInfo.clear(); //Очищаем данные по Approve
+	ClearNewList();
+	//bool ok_appr = false;
+	//if (isLocalXml(approvedFile))
+	//{
+	//	CString xmlFilePath = toLocalFile(approvedFile);
+	//	CString canonInput;
+	//	PathCanonicalize(xmlFilePath.GetBuffer(), canonInput);
+	//	CString canonFinal;
+	//	PathCanonicalize(L"games\\instead_games_approved.xml", canonFinal);
+	//	if (canonInput == canonFinal)
+	//	{
+	//		//ok, мы в указали одно место, ничего не делаем
+	//	}
+	//	else
+	//	{
+	//		BOOL res = CopyFile(xmlFilePath, L"games\\instead_games_approved.xml", FALSE);
+	//		if (!res)
+	//		{
+	//			AfxMessageBox(L"Не могу скопировать локальный путь для проверенных игр!");
+	//			return;
+	//		}
+	//	}
+	//}
+	//else
+	//{
+	//	//ok_appr = UpdateApprovedGamesFromUrl(L"http://dialas.ru/instead_games_approved.xml",
+	//	//	L"games\\instead_games_approved.xml");
+	//}
+
+	//if (ok_appr) UpdateApprovedFromFile();
+	//else {
+	//	AfxMessageBox(L"Ошибка обновления подтвержденных игр.");
+	//	return;
+	//}
+
+	rssInfo.clear();
+
+	//обновление rss
+	for (int i = 0; i < rssList.size(); i++)
+	{
+		if (isLocalXml(rssList[i])) {
+			ReadAdditionalInfoFromXMLRss(toLocalFile(rssList[i]));
+		}
+		else {
+			CString localName;
+			localName.Format(L"rss%d.xml", i+1);
+			UpdateNewGamesRssAdditionalInfoFromUrl(rssList[i], localName);
+		}
+	}
+
+	//обновление репозитория
+	for (int i = 0; i < repoList.size(); i++)
+	{
+		if (isLocalXml(repoList[i])) {
+			ReadNewGamesFromXMLAndAdd(toLocalFile(repoList[i]));
+		}
+		else {
+			CString localName;
+			localName.Format(L"repo%d.xml", i+1);
+			UpdateNewGamesFromUrl(repoList[i], localName);
+		}
+	}
+}
+
+/*
 void LauncherDialog::UpdateApprovedFromFile()
 {
 	//Читаем xml и разбираем
@@ -845,17 +932,33 @@ bool LauncherDialog::UpdateApprovedGamesFromUrl(CString url, CString res_path)
 	}
 	return false;
 }
+*/
 
-void LauncherDialog::UpdateNewGamesFromUrl(CString url, CString temp_xmlfile, bool is_sander)
+void LauncherDialog::UpdateNewGamesFromUrl(CString url, CString temp_xmlfile)
 {
 	// TODO: добавьте свой код обработчика уведомлений
 	CInternetSession session;
-	CHttpFile *pFile = (CHttpFile *)session.OpenURL(url, 1, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD);
+	CHttpFile *pFile = (CHttpFile *)session.OpenURL(url, 1, 
+		INTERNET_FLAG_SECURE | INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD);
+
+	if (pFile)
+	{
+		DWORD dwStatusCode;
+		pFile->QueryInfoStatusCode(dwStatusCode);
+		if (dwStatusCode != 200)
+		{
+			AfxThrowFileException(CFileException::fileNotFound);
+		}
+	}
+	else
+	{
+		AfxThrowFileException(CFileException::badPath);
+	}
 
 	// Determine file size:
-	DWORD dwBytesInFile = (DWORD)pFile->Seek(0, FILE_END);
-	pFile->Seek(0, FILE_BEGIN);	// reposition file pointer at the start
-	if (dwBytesInFile > 0)
+	//DWORD dwBytesInFile = (DWORD)pFile->Seek(0, FILE_END);
+	//pFile->Seek(0, FILE_BEGIN);	// reposition file pointer at the start
+	//if (dwBytesInFile > 0)
 	{
 		CString stLine;
 		char buf[2000];
@@ -871,7 +974,7 @@ void LauncherDialog::UpdateNewGamesFromUrl(CString url, CString temp_xmlfile, bo
 		}
 		xmlWithGames.Close();
 
-		ReadNewGamesFromXMLAndAdd(temp_xmlfile, is_sander);
+		ReadNewGamesFromXMLAndAdd(temp_xmlfile);
 	}
 }
 
@@ -879,12 +982,26 @@ void LauncherDialog::UpdateNewGamesRssAdditionalInfoFromUrl(CString url, CString
 {
 	// TODO: добавьте свой код обработчика уведомлений
 	CInternetSession session;
-	CHttpFile *pFile = (CHttpFile *)session.OpenURL(url, 1, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD);
+	CHttpFile *pFile = (CHttpFile *)session.OpenURL(url, 1, 
+		INTERNET_FLAG_SECURE | INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD);
 
+	if (pFile)
+	{
+		DWORD dwStatusCode;
+		pFile->QueryInfoStatusCode(dwStatusCode);
+		if (dwStatusCode != 200)
+		{
+			AfxThrowFileException(CFileException::fileNotFound);
+		}
+	}
+	else
+	{
+		AfxThrowFileException(CFileException::badPath);
+	}
 	// Determine file size:
-	DWORD dwBytesInFile = (DWORD)pFile->Seek(0, FILE_END);
-	pFile->Seek(0, FILE_BEGIN);	// reposition file pointer at the start
-	if (dwBytesInFile > 0)
+	//DWORD dwBytesInFile = (DWORD)pFile->Seek(0, FILE_END);
+	//pFile->Seek(0, FILE_BEGIN);	// reposition file pointer at the start
+	//if (dwBytesInFile > 0)
 	{
 		CString stLine;
 		char buf[2000];
@@ -903,10 +1020,10 @@ void LauncherDialog::UpdateNewGamesRssAdditionalInfoFromUrl(CString url, CString
 	}
 }
 
-void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool is_sander)
+void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile)
 {
 	//не выбрана галочка песочница, ничего не добавляем
-	if (is_sander && m_CheckSander.GetCheck() == BST_UNCHECKED) return;
+	//if (is_sander && m_CheckSander.GetCheck() == BST_UNCHECKED) return;
 	//Читаем xml и разбираем
 	CStdioFileEx gameFile(temp_xmlfile, CFile::modeRead);
 	gameFile.SetCodePage(CP_UTF8);
@@ -934,13 +1051,53 @@ void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool is_san
 		CString csLang = xml.GetChildData();
 		xml.FindChildElem(L"descurl");
 		CString csDescUrl = xml.GetChildData();
+		//Определяем признак доступности, если закодирован в XML
+		if (xml.FindChildElem(L"accessible"))
+		{
+			CString csAccesible = xml.GetChildData();
+			enum AccessibleLevel {
+				NotApproved = -2, //не проверенные игры.
+				Impossible = -1,  //Непроходимые игры, к примеру из - за разных версий lua в игре и	интерпретаторе.
+				NoAccesible = 0, //Недоступные игры.
+				PartAccesible = 1, //Частично доступные игры, т.е игры, для доступности которых нужно мало
+									//сделать, или игры, которые можно пройти с танцами с бубнам.
+				FullAccesible = 2 //Полностью доступные игры.
+			};
+			int accesibleLevel = _wtoi(csAccesible);
+			if ( (accesibleLevel == PartAccesible) || (accesibleLevel == FullAccesible) )
+			{
+				CString csAccessComment;
+				if (xml.FindChildElem(L"accessibleComment"))
+				{
+					csAccessComment = xml.GetChildData();
+				}
+				if (!approveInfo.count(csSN))
+				{
+					approveInfo[csSN] = std::make_pair(L"Да", csAccessComment);
+				}
+			}
+			else if ((accesibleLevel == NoAccesible) || (accesibleLevel == Impossible))
+			{
+				if (!approveInfo.count(csSN))
+				{
+					approveInfo[csSN] = std::make_pair(L"Нет",L"");
+				}
+			}
+			else if (accesibleLevel == NotApproved)
+			{
+				if (!approveInfo.count(csSN))
+				{
+					approveInfo[csSN] = std::make_pair(L"Непроверен", L"");
+				}
+			}
+		}
 
-		//Начинаем фильтровать
+		//Начинаем фильтровать, если она не доступная явно
 		CString approved_mark;
 		if (approveInfo.count(csSN)) approved_mark = approveInfo[csSN].first;
 		bool ok_filter = ((m_lastSelFilter == SEL_FILTER_ALL) ||
-			( (m_lastSelFilter == SEL_FILTER_VALID) && approved_mark==L"Да" ) ||
-			((m_lastSelFilter == SEL_FILTER_VALID_AND_UNK) && approved_mark != L"Нет")
+			((m_lastSelFilter == SEL_FILTER_VALID) && approved_mark == L"Да") ||
+			((m_lastSelFilter == SEL_FILTER_UNK) && approved_mark == L"Непроверен")
 			);
 
 		//Добавляем русскоязычную игру в новые, если её нет в существующих
@@ -1034,7 +1191,7 @@ void LauncherDialog::OnBnClickedBtnInstall()
 	bool foundInInstalled = false;
 	for (int i = 0; i < m_listInstalled.GetItemCount(); i++)
 	{
-		CString installedGameName = m_listInstalled.GetItemText(sel, N_SUBITEM_LIST_INSTALLED_GNAME);
+		CString installedGameName = m_listInstalled.GetItemText(i, N_SUBITEM_LIST_INSTALLED_GNAME);
 		if (gameName == installedGameName)
 		{
 			foundInInstalled = true;
@@ -1121,14 +1278,18 @@ void LauncherDialog::OnCbnSelchangeComboFilter()
 		CIniFile mainSettings;
 		m_lastSelFilter = m_comboFiler.GetCurSel();
 		mainSettings.WriteNumber(L"main", L"mRepoFilter", m_lastSelFilter);
-		if (PathFileExists(L"temp.xml") && PathFileExists(L"temp2.xml") && PathFileExists(L"temp3.xml") )
+		ClearNewList();
+		for (int i = 0; i < repoList.size(); i++)
 		{
-			//Очищаем список новых игр
-			ClearNewList();
-			//Обновляем список новых игр
-			ReadNewGamesFromXMLAndAdd(L"temp.xml",false);
-			ReadNewGamesFromXMLAndAdd(L"temp2.xml",false);
-			ReadNewGamesFromXMLAndAdd(L"temp3.xml", true);
+			CString localName;
+			localName.Format(L"repo%d.xml", i + 1);
+			ReadNewGamesFromXMLAndAdd(localName);
+		}
+		for (int i = 0; i < rssList.size(); i++)
+		{
+			CString localName;
+			localName.Format(L"rss%d.xml", i + 1);
+			ReadAdditionalInfoFromXMLRss(localName);
 		}
 	}
 }

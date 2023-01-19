@@ -463,6 +463,14 @@ void CPlainInsteadApp::StartNewGameFile(CString file, CString name)
 	CString gameName = file.Right(file.GetLength() - file.ReverseFind(_T('\\')) - 1);
 	saveGameNameDir = L"../../saves/" + gameName;
 	saveDir = baseDir + L"saves\\" + gameName;
+	CString logsDir = baseDir + L"logs\\";
+	//Создаём каталог логов, если еще не было
+	if (GetFileAttributes(logsDir) == INVALID_FILE_ATTRIBUTES) {
+		SHCreateDirectoryEx(NULL, logsDir, NULL);
+		if (GetFileAttributes(logsDir) == INVALID_FILE_ATTRIBUTES) {
+			AfxMessageBox(L"Не могу создать директорию для логов!");
+		}
+	}
 
 	//closeAllChannels();
 	InterpreterController::startGameFile(file,name,needAutoLog);

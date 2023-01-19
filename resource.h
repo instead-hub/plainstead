@@ -165,13 +165,16 @@
 #define ID_LISTSND_UP                   32904
 #define ID_32909                        32909
 #define ID_MENU_LOG                     32910
+#define ID_32911                        32911
+#define ID_MENU_ADD_COMMENT             32912
+#define ID_ACCELERATOR32914             32914
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        151
-#define _APS_NEXT_COMMAND_VALUE         32911
+#define _APS_NEXT_COMMAND_VALUE         32915
 #define _APS_NEXT_CONTROL_VALUE         1039
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
