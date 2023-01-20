@@ -3,34 +3,35 @@
 #include <WinUser.h>
 #include <string.h>
 
-	static int timer_id = 1;
+	static UINT_PTR timer_id = 0;
 	static int volatile unsigned instead_timer_nr = 0;
 	static void CALLBACK instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword);
 	extern void onNewInsteadCommand(char* cmd, char* p);
 	extern uint64_t getTicks();
 	extern void updateText(char* text);
-	static int luaB_set_timer(lua_State* L) {
-		const char* delay = luaL_optstring(L, 1, NULL);
-		int d;
+	static void killTimer() {
 		if (timer_id > 0) {
 			KillTimer(NULL, timer_id);
 			timer_id = 0;
 		}
-		if (!delay)
-			d = 0;
-		else
-			d = atoi(delay);
-		if (!d)
+}
+	static int luaB_set_timer(lua_State* L) {
+int delay = luaL_optnumber(L, 1, 0);
+killTimer();
+/*TCHAR buf[8];
+snprintf(buf, 7 , "%d", delay);
+MessageBoxA(0, buf, "", 0);*/
+if (!delay)
 			return 0;
 		instead_timer_nr = 0;
-		timer_id = SetTimer(NULL, 1, d, instead_fn);
+		timer_id = SetTimer(NULL, 1, delay, instead_fn);
 		return 0;
 	}
 	static void onTimer() {
 char* cmd;
-		instead_timer_nr = 0;
+instead_timer_nr = 0;
 		instead_lock();
-		if (instead_busy() || timer_id == 0) {
+		if (instead_busy() || !timer_id) {
 			instead_unlock();
 			return;
 		}
@@ -45,7 +46,11 @@ instead_clear();
 		if (!cmd) return;
 int rc;
 char* p=instead_cmd(cmd,&rc);
-		if(!rc)onNewInsteadCommand(cmd,p);
+if(!rc)onNewInsteadCommand(cmd,p);
+else {
+	if (cmd) free(cmd);
+	if (p) free(p);
+}
 }
 static void CALLBACK instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword)
 {
@@ -86,8 +91,7 @@ instead_api_register(timer_funcs);
 return 0;
 }
 static int timer_done(void) {
-		KillTimer(NULL, timer_id);
-		timer_id = 0;
+killTimer();
 		return 0;
 	}
 

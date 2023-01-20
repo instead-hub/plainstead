@@ -51,7 +51,9 @@ extern "C" {
 		Wave::Play(sound, isLooping);
 	}
 	void onNewInsteadCommand(char* cmd, char* p) {
-		CPlainInsteadView::GetCurrentView()->onNewInsteadCommand(cmd, p, L"Таймер остановлен");
+		//AfxMessageBox(L"Тест");
+		CPlainInsteadView::GetCurrentView()->onNewInsteadCommand(cmd, p, L"Таймер сработал");
+		free(cmd);
 	}
 	uint64_t getTicks() {
 		return millis - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();;
