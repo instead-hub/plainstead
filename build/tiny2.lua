@@ -435,7 +435,6 @@ end
 --function instead_sprite_text() return "" end
 function instead_sprite_text_size() return 0,0 end
 function instead_sprite_fill() end
-function instead_theme_name() return "." end
 function instead_theme_var(a,b) return 1,"" end
 function stead.mouse_filter() return 0 end
 	function stead.mouse_pos() return 0,0 end
