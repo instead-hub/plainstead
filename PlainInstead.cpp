@@ -34,6 +34,7 @@ extern "C" {
 	extern int instead_paths_init(void);
 	extern int instead_sound_init(void);
 	extern int instead_timer_init(void);
+	extern int instead_bits_init(void);
 	extern void setGlobalSoundLevel(int volume);
 	extern int getGlobalSoundLevel();
 	extern void stopAllSound();
@@ -263,6 +264,7 @@ BOOL CPlainInsteadApp::InitInstance()
 	instead_sound_init();
 	instead_metaparser_init();
 	instead_timer_init();
+	instead_bits_init();
 		currFilePath=L"";
 	currFileName=L"";
 	bool useAutosave = false;
