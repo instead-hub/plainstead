@@ -229,8 +229,6 @@ instead_sound_channel =function() end
 --Для космический рейнджеров
 unpack = stead.unpack;
 
-instead_theme_name = function() return 'default' end
-
 stead.module_init(function(s) 
 	timer = obj {
 		nam = 'timer',
@@ -440,4 +438,3 @@ function stead.mouse_filter() return 0 end
 	function stead.mouse_pos() return 0,0 end
 function stead.screen_size() return 0,0 end
 function hideinv() end
-stead.ticks =instead_ticks
