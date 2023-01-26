@@ -333,6 +333,7 @@ local iface_cmd = iface.cmd -- save old
 
 function iface:cmd(inp)
 	local cmd, a = stead.getcmd(inp)
+	if cmd =='metaparser' then return false,false; end
 	if stead.tonum(cmd) then
 		stead.table.insert(a, 1, cmd)
 		cmd = 'act'
