@@ -106,9 +106,9 @@ void onNewInsteadCommand(char*cmd, char* p,CString cmdForLog = L"");
 	void TurnOffLogging();
 	CListBox mListScene;
 	std::map<int,int> pos_id_scene;
-	std::map<int/*list_pos*/, CString/*code*/> act_on_scene;
+//std::map<int/*list_pos*/, int/*code*/> act_on_scene;
+		std::map<int, int> pos_id_ways;
 	CListBox mListWays;
-	std::map<int, int> pos_id_ways;
 	CListBox mListInv;
 	std::map<int, int> pos_id_inv;
 	CString inv_save; //Сохраненный результат инвентаря

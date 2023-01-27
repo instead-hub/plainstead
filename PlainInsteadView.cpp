@@ -279,7 +279,9 @@ static CString getError() {
 //Обработка инстеад-текста и превращение в меню
 static std::wstring process_instead_text(std::wstring inp, //входной текст
 	CListBox& resBox, //Поле для добавления элементов
-	std::map<int/*list_pos*/, int/*id_obj*/>& map_action, //Карта соответсвий поля со id-объекта
+	std::map<int, int>& prev_map, //Предыдущий мап
+	std::map<int/*list_pos*/, int/*id_obj*/>& map_action, //Карта соответствий поля с id-объекта
+	bool& shouldRedraw, //Поменялся ли список.
 	bool append_num = false, //добавлять номер в список (для отладки)
 	bool clear =false //Очищать ли элементы массива,перед добавлением туда текста
 ) {
@@ -288,9 +290,10 @@ static std::wstring process_instead_text(std::wstring inp, //входной текст
 	//const std::wregex regex(L"(\\w+)\\s*\\((\\d+)\\)"); //Для круглых после
 	const std::wregex regex(L"\\[a\\]([^]*?)\\#(\\d+)\\[/a\\]"); //для тэгов [a]
 	std::wsmatch match;
-	;
 	std::wsregex_iterator next(inp.begin(), inp.end(), regex);
 	std::wsregex_iterator end;
+	int pos = 0;
+	resBox.SetRedraw(false);
 	while (next != end) {
 		match = *next;
 		if (match.size() == 3)
@@ -298,45 +301,29 @@ static std::wstring process_instead_text(std::wstring inp, //входной текст
 			CString addStr(match[1].str().data()); //Имя строки, меню
 			addStr = addStr.Trim(); //триммируем
 			CString numStr(match[2].str().data()); //id-объекта для реакции
-			int obj_id = _wtoi(numStr); //id-объекта
+int obj_id = _wtoi(numStr); //id-объекта
 			if (append_num) addStr = addStr + L"(" + numStr + L")";
-			int str_pos = resBox.GetCount(); //добавление строки в список
-			resBox.InsertString(str_pos, addStr);
-			map_action.insert(std::make_pair(str_pos, obj_id));
-		}
+			map_action.insert(std::make_pair(pos, obj_id));
+			CString oldText;
+if(pos<=resBox.GetCount()-1)resBox.GetText(pos, oldText);
+			if (!prev_map.count(pos) ||map_action[pos] != prev_map[pos] || oldText != addStr) {
+				shouldRedraw = true;
+				/*CString test;
+				test.Format(L"%s %d %d", addStr,pos,resBox.GetCount());
+					AfxMessageBox(test);*/
+					resBox.DeleteString(pos);
+					resBox.InsertString(pos, addStr);
+							}
+			pos++;
+					}
 		next++;
 	}
-	std::wstring result;
+	while (pos  < resBox.GetCount())resBox.DeleteString(resBox.GetCount() - 1);
+	resBox.SetRedraw(true);
+	if (pos == 0) resBox.ResetContent();
+else if (resBox.GetCurSel() < 0 || resBox.GetCurSel() > pos-1) resBox.SetCurSel(0);
+		std::wstring result;
 	std::regex_replace(std::back_inserter(result), inp.begin(), inp.end(), regex, L"$1");
-	return result;
-}
-
-static std::wstring process_instead_text_act(std::wstring inp, //входной текст
-	CListBox& resBox, //Поле для добавления элементов
-	std::map<int/*list_pos*/, CString/*code*/>& map_action //Карта соответсвий поля со действием lua
-)
-{
-	//Обработка отображения объектов сцены
-	//const std::wregex regex(L"\\{\\s*(\\w+)\\s*\\#(\\d+)\\}"); //Для фигурных скобочек
-	//const std::wregex regex(L"(\\w+)\\s*\\((\\d+)\\)"); //Для круглых после
-	const std::wregex regex(L"\\[a\\:([^\\]]*)\\]([^\\[]*)\\[/a\\]");//для тэгов [a: code]text[\a]
-	std::wsregex_iterator next(inp.begin(), inp.end(), regex);
-	std::wsregex_iterator end;
-	while (next != end) {
-		std::wsmatch match = *next;
-		if (match.size() == 3)
-		{
-			CString codeStr(match[1].str().data()); //Имя строки, меню
-			codeStr = codeStr.Trim(); //триммируем
-			CString textStr(match[2].str().data()); //id-обхекта для реакции
-			int str_pos = resBox.GetCount(); //добавление строки в список
-			resBox.InsertString(str_pos, textStr);
-			map_action.insert(std::make_pair(str_pos, codeStr));
-		}
-		next++;
-	}
-	std::wstring result;
-	std::regex_replace(std::back_inserter(result), inp.begin(), inp.end(), regex, L"$2");
 	return result;
 }
 static CString getLogsDir() {
@@ -349,37 +336,36 @@ static CString getLogsDir() {
 	return baseDir + L"logs\\";
 }
 void CPlainInsteadView::onNewInsteadCommand(char* cmd,char* p,CString cmdForLog) {
-	std::map<int, int> prev_map;
 	CString er;
-	mListScene.ResetContent();
-	prev_map = pos_id_scene;
-	pos_id_scene.clear();
-	act_on_scene.clear();
+std::map<int, int> prev_map = pos_id_scene;
+pos_id_scene.clear();
+	//act_on_scene.clear();
 	text[0] = L"";
 	text[1] = L"";
 	inv_save = L"";
+	bool shouldRedraw = false;
 		CString tmp;
 		Utf8ToCString(tmp, cmd);
 		//free(cmd);
 		er = getError(tmp);
 		text[0].Append(er);
 		text[1].Append(er);
-			if (p && *p) {
-Utf8ToCString(tmp, p);
-		free(p);
-		std::wstring buf = tmp.GetBuffer();
-		text[1].Append(tmp);
-		std::wstring result = process_instead_text(buf, mListScene, pos_id_scene);
-		tmp.ReleaseBuffer();
-		std::wstring result2 = process_instead_text_act(result, mListScene, act_on_scene);
-		Utf8ToCString(tmp, cmd);
-		text[0].Append(result2.data());
-		//text[0].Append(tmp);
-	}
-	if (/*m_BeepList && */prev_map.size() != pos_id_scene.size()) {
-		wave_scene->play();
-	}
-	mListWays.ResetContent();
+		if (p && *p) {
+			Utf8ToCString(tmp, p);
+			free(p);
+			std::wstring buf = tmp.GetBuffer();
+			text[1].Append(tmp);
+			std::wstring result = process_instead_text(buf, mListScene, prev_map, pos_id_scene, shouldRedraw);
+			tmp.ReleaseBuffer();
+			Utf8ToCString(tmp, cmd);
+			text[0].Append(result.data());
+			//text[0].Append(tmp);
+			if (/*m_BeepList && */shouldRedraw) {
+				shouldRedraw = false;
+				wave_scene->play();
+			}
+		}
+		else mListScene.ResetContent();
 	prev_map = pos_id_ways;
 	pos_id_ways.clear();
 	p = instead_cmd("way", NULL);
@@ -388,19 +374,23 @@ Utf8ToCString(tmp, p);
 	text[1].Append(er);
 	if (p && *p) {
 		Utf8ToCString(tmp, p);
-				free(p);
+		free(p);
 		//Добавление путей к окну вывода
 		//text[0].Append(L">> ");
 		//text[0].Append(tmp);
 		//text[0].Append(L"\n");
+				//Добавляем пути для отладочной переменной.
+		text[1].Append(tmp);
 		std::wstring buf = tmp.GetBuffer();
-		std::wstring result = process_instead_text(buf, mListWays, pos_id_ways);
+		std::wstring result = process_instead_text(buf, mListWays, prev_map, pos_id_ways, shouldRedraw);
+		tmp.ReleaseBuffer();
+		if (/*m_BeepList && */shouldRedraw) {
+			shouldRedraw = false;
+			wave_ways->play();
+		}
 	}
-	if (/*m_BeepList && */prev_map.size() != pos_id_ways.size()) {
-		wave_ways->play();
-	}
+	else mListWays.ResetContent();
 	p = instead_cmd("inv", NULL);
-	mListInv.ResetContent();
 	prev_map = pos_id_inv;
 	pos_id_inv.clear();
 	er = getError(L"inv");
@@ -413,14 +403,18 @@ Utf8ToCString(tmp, p);
 		//text[0].Append(L"** ");
 		//text[0].Append(tmp);
 		//text[0].Append(L"\n");
+		//Добавляем инвентарь для отладочной переменной.
+		text[1].Append(tmp);
 		std::wstring buf = tmp.GetBuffer();
-		std::wstring result = process_instead_text(buf, mListInv, pos_id_inv);
+		std::wstring result = process_instead_text(buf, mListInv, prev_map, pos_id_inv, shouldRedraw);
 		tmp.ReleaseBuffer();
+		if (/*m_BeepList && */shouldRedraw) {
+			//PlaySound(baseSoundDir+_T("inventory.wav"), NULL, SND_MEMORY | SND_FILENAME | SND_ASYNC | SND_NOSTOP);
+			shouldRedraw = false;
+			wave_inv->play();
+		}
 	}
-	if (/*m_BeepList && */prev_map.size() != pos_id_inv.size()) {
-		//PlaySound(baseSoundDir+_T("inventory.wav"), NULL, SND_MEMORY | SND_FILENAME | SND_ASYNC | SND_NOSTOP);
-		wave_inv->play();
-	}
+	else mListInv.ResetContent();
 	text[0].Replace(L"\n", L"\r\n");
 	updateText();
 	if (isLogOn)
@@ -492,12 +486,41 @@ tmp.ReleaseBuffer(tmp.GetLength());
 	if (m_jump_to_out) m_OutEdit.SetFocus();
 	if (m_auto_say) MultiSpeech::getInstance().Say(text[debug]);
 }
+
+static std::string utf8_encode(const CStringW srcW)
+{
+	std::string utf8;
+
+	if (!srcW.IsEmpty())
+	{
+		auto size = ::WideCharToMultiByte(CP_UTF8, 0, srcW.GetString(), srcW.GetLength(), 0, 0, 0, 0);
+		utf8.resize((size_t)size, {});
+		::WideCharToMultiByte(CP_UTF8, 0, srcW.GetString(), srcW.GetLength(), utf8.data(), utf8.size(), 0, 0);
+	}
+	return utf8;
+}
+
+static CStringW utf8_to_utf16(const std::string_view utf8)
+{
+	CStringW utf16;
+	if (!utf8.empty() && utf8.size() <= (size_t)(std::numeric_limits<int>::max)())
+	{
+		if (const auto size = ::MultiByteToWideChar(CP_UTF8, 0, utf8.data(), (int)utf8.size(), 0, 0); size > 0)
+		{
+			utf16 = CStringW{ L'\0',size };
+			::MultiByteToWideChar(CP_UTF8, 0, utf8.data(), (int)utf8.size(), utf16.GetBuffer(), utf16.GetLength());
+			utf16.ReleaseBuffer();
+		}
+	}
+	return utf16;
+}
 int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool needSearchVariants, bool isFromEdit)
 {
 	CString resout;
 	int rc;
 	char cmd[256];
 	char* p;
+	std::string newCmd= utf8_encode(textIn);
 	bool is_saving = false;
 	if (textIn.Find(L"save ") == 0)
 	{
@@ -506,36 +529,32 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 	}
 	if (!is_saving && !textIn.IsEmpty()) GlobalManager::getInstance().userNewCommand();
 	//Обработка строки в Instead
-	char command[sizeof(cmd)];
-	strcpy(command, utf8_encode(textIn.GetBuffer()).c_str());
 	if (needSearchVariants) {
-				textIn.ReleaseBuffer();
-		snprintf(cmd, sizeof(cmd), "use %s", command);
+		snprintf(cmd, sizeof(cmd), "use %s", newCmd.data());
 		p = instead_cmd(cmd, &rc);
 		if (rc) { /* try go */
 			free(p);
-			snprintf(cmd, sizeof(cmd), "go %s", command);
+			snprintf(cmd, sizeof(cmd), "go %s", newCmd.data());
 			p = instead_cmd(cmd, &rc);
 		}
 		if (rc) free(p);
-		//free(command); //Почему мы не можем освободить ресурсы,т.е при попытке освобождения command,в программе возникает ошибка.
 	}
 	if (!needSearchVariants || rc) {
 		if (isFromEdit) /*Метапарсер?*/
 		{
-						if(needSearchVariants) free(p);
-			snprintf(cmd, sizeof(cmd), "@metaparser \"%s\"", command);
-			//m_InputEdit.SetWindowTextW((LPCTSTR) cmd); //(Для отладки,чтобы убедиться,что комманда приобразуется правильно)
+			snprintf(cmd, sizeof(cmd), "@metaparser \"%s\"", newCmd.data());
+//m_InputEdit.SetWindowTextW(utf8_to_utf16(cmd)); //(Для отладки,чтобы убедиться,что комманда приобразуется правильно)
 			p = instead_cmd(cmd, &rc);
-			textIn.ReleaseBuffer(textIn.GetLength());
+			if (rc) free(p);
 		}
 		if (!isFromEdit ||rc) {
 			/* try act */
-			strcpy(cmd, utf8_encode(textIn.GetBuffer()).c_str());
-			textIn.ReleaseBuffer(textIn.GetLength());
+			snprintf(cmd, sizeof(cmd), "%s", newCmd.data());
 			p = instead_cmd(cmd, &rc);
+			//m_InputEdit.SetWindowTextW(utf8_to_utf16(cmd)); //(Для отладки,чтобы убедиться,что комманда приобразуется правильно)
 			if ((textIn.Find(L"save ") == 0 || textIn.Find(L"load ") == 0) && !isFromEdit)
 			{
+				free(p);
 				return rc;
 			}
 		}
@@ -590,8 +609,9 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 				}
 			}
 		}
-		else if (act_on_scene.count(sel_pos)) { //Обработка прямого кода на сцене
-			CString code = act_on_scene[sel_pos];
+		/*else if (act_on_scene.count(sel_pos)) { //Обработка прямого кода на сцене
+			CString code;
+code.Format(L"%s",act_on_scene[sel_pos]);
 			int total_list_sz = mListScene.GetCount();
 			if (!inv_save.IsEmpty()) inv_save.Empty();
 			CString selText;
@@ -604,9 +624,8 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 			{
 				mListScene.SetCurSel(0);
 			}
-		}
-
-	}
+		}*/
+			}
 	else if (pMsg->message == WM_KEYDOWN && ::GetKeyState(VK_CONTROL) < 0 && (GetFocus() == &m_OutEdit ||GetFocus() ==&m_InputEdit))
 	{
 		CEdit* currEdit = (CEdit*)GetFocus();
