@@ -8,7 +8,6 @@
 	static void CALLBACK instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword);
 	extern void onNewInsteadCommand(char* cmd, char* p);
 	extern uint64_t getTicks();
-	extern void updateText(char* text);
 	static void killTimer() {
 		if (timer_id > 0) {
 			KillTimer(NULL, timer_id);
@@ -64,23 +63,9 @@ static int luaB_get_ticks(lua_State* L) {
 	lua_pushinteger(L, getTicks());
 	return 1;
 }
-static int luaB_text_sprite(lua_State* L) {
-	const char* font = luaL_optstring(L, 1, NULL);
-	char* text = luaL_optstring(L, 2, NULL);
-	const char* color = luaL_optstring(L, 3, NULL);
-	int style = luaL_optnumber(L, 4, 0);
-	const char* desc = luaL_optstring(L, 5, NULL);
-	if (text) {
-		updateText(text);
-		//free(text);
-	}
-	lua_pushstring(L, "");
-	return 1;
-}
 static const luaL_Reg timer_funcs[] = {
 {"instead_timer", luaB_set_timer},
 {"instead_ticks", luaB_get_ticks},
-	{"instead_sprite_text", luaB_text_sprite},
 {NULL, NULL}                                                                                                                                                                                                                                                                                                                  
 };
 static int timer_init(void) {

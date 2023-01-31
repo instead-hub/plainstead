@@ -32,7 +32,8 @@ extern "C" {
 	static uint64_t millis;
 	extern int instead_metaparser_init(void);
 	extern int instead_paths_init(void);
-	extern int instead_sound_init(void);
+extern int instead_sound_init(void);
+extern int instead_sprites_init(void);
 	extern int instead_timer_init(void);
 	extern int instead_bits_init(void);
 	extern void setGlobalSoundLevel(int volume);
@@ -260,11 +261,12 @@ BOOL CPlainInsteadApp::InitInstance()
 		return false;
 	}
 	instead_paths_init();
+	instead_metaparser_init();
 	//звуковая подсистема LUA
 	instead_sound_init();
-	instead_metaparser_init();
 	instead_timer_init();
 	instead_bits_init();
+	instead_sprites_init();
 		currFilePath=L"";
 	currFileName=L"";
 	bool useAutosave = false;
