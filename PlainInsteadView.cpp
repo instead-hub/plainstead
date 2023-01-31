@@ -293,6 +293,7 @@ static std::wstring process_instead_text(std::wstring inp, //входной текст
 	std::wsregex_iterator next(inp.begin(), inp.end(), regex);
 	std::wsregex_iterator end;
 	int pos = 0;
+	int sel = resBox.GetCurSel();
 	resBox.SetRedraw(false);
 	while (next != end) {
 		match = *next;
@@ -312,16 +313,25 @@ static std::wstring process_instead_text(std::wstring inp, //входной текст
 				test.Format(L"%s %d %d", addStr,pos,resBox.GetCount());
 					AfxMessageBox(test);*/
 				resBox.DeleteString(pos);
-				resBox.InsertString(pos, addStr);
-			}
+								resBox.InsertString(pos, addStr);
+								if (sel == pos) sel = 0;
+}
 			pos++;
 		}
 		next++;
 	}
-	while (pos < resBox.GetCount())resBox.DeleteString(resBox.GetCount() - 1);
-	resBox.SetRedraw(true);
+	while (pos < resBox.GetCount()) {
+		if (!shouldRedraw) shouldRedraw = true;
+		resBox.DeleteString(resBox.GetCount() - 1);
+	}
+		resBox.SetRedraw(true);
 	if (pos == 0) resBox.ResetContent();
-	else if (resBox.GetCurSel() < 0 || resBox.GetCurSel() > pos - 1) resBox.SetCurSel(0);
+	else if (resBox.GetCurSel() < 0 || resBox.GetCurSel() > pos - 1) {
+		/*CString a;
+		a.Format(L"%d %d",resBox.GetCurSel(),pos-1);
+		AfxMessageBox(a);*/
+		resBox.SetCurSel(sel<0 ? 0 : sel>pos - 1 ? pos - 1 : sel);
+}
 	std::wstring result;
 	std::regex_replace(std::back_inserter(result), inp.begin(), inp.end(), regex, L"$1");
 	return result;
@@ -344,12 +354,13 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLo
 	text[1] = L"";
 	if (inv_save_index >= 0) //Снимаем выбор и восстанавливаем item
 	{
-		mListInv.SetDlgItemTextW(inv_save_index, savedSelInvM);
+		int pos = mListInv.GetCurSel();
+				mListInv.SetDlgItemTextW(inv_save_index, savedSelInvM);
 		mListInv.DeleteString(inv_save_index);
 		mListInv.InsertString(inv_save_index, savedSelInvM);
-		mListInv.SetCurSel(inv_save_index);
+		mListInv.SetCurSel(pos);
 		inv_save_index = -1;
-	}
+			}
 	bool shouldRedraw = false;
 	CString tmp;
 	Utf8ToCString(tmp, cmd);
@@ -609,13 +620,13 @@ BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 				CString selText;
 				mListScene.GetText(sel_pos, selText);
 				TryInsteadCommand(res, L"выбор сцена \'" + selText + L"\' " + res);
-				if (mListScene.GetCount() == total_list_sz) {
+				/*if (mListScene.GetCount() == total_list_sz) {
 					mListScene.SetCurSel(sel_pos);
 				}
 				if (mListScene.GetCurSel() == LB_ERR && mListScene.GetCount() > 0)
 				{
 					mListScene.SetCurSel(0);
-				}
+				}*/
 			}
 		}
 		/*else if (act_on_scene.count(sel_pos)) { //Обработка прямого кода на сцене
@@ -751,13 +762,13 @@ code.Format(L"%s",act_on_scene[sel_pos]);
 				CString selText;
 				mListWays.GetText(sel_pos, selText);
 				TryInsteadCommand(res, L"выбрать путь \'" + selText + L"\' " + res);
-				if (mListWays.GetCount() == total_list_sz) {
+				/*if (mListWays.GetCount() == total_list_sz) {
 					mListWays.SetCurSel(sel_pos);
 				}
 				if (mListWays.GetCurSel() == LB_ERR && mListWays.GetCount() > 0)
 				{
 					mListWays.SetCurSel(0);
-				}
+				}*/
 			}
 		}
 	}
@@ -793,7 +804,7 @@ code.Format(L"%s",act_on_scene[sel_pos]);
 					CString selText;
 					mListInv.GetText(sel_pos, selText);
 					TryInsteadCommand(res, L"действие \'" + selText + L"\' на '" + savedSelInvM + L"\' " + res);
-					if (mListInv.GetCount() == total_list_sz) {
+					/*if (mListInv.GetCount() == total_list_sz) {
 						mListInv.SetCurSel(sel_pos);
 					}
 					else if (isMenuItem && (mListInv.GetCount() > sel_pos)) {
@@ -802,7 +813,7 @@ code.Format(L"%s",act_on_scene[sel_pos]);
 					if (mListInv.GetCurSel() == LB_ERR && mListInv.GetCount() > 0)
 					{
 						mListInv.SetCurSel(0);
-					}
+					}*/
 				}
 			}
 		}
@@ -1340,12 +1351,12 @@ void CPlainInsteadView::OnUpdateOutView()
 			curr_box = &mListWays;
 		}
 		TryInsteadCommand(L"", L"обновить", false);
-		if (!m_jump_to_out && curr_box)
+		/*if (!m_jump_to_out && curr_box)
 		{
 			if (curr_box->GetCount() > sel_pos) {
 				curr_box->SetCurSel(sel_pos);
 			}
-		}
+		}*/
 	}
 }
 
@@ -1360,29 +1371,29 @@ void CPlainInsteadView::OnLbnSetfocusListScene()
 {
 	if (GetFocus() == &mListScene)
 	{
-		mListInv.SetCurSel(-1);
-		mListWays.SetCurSel(-1);
+		/*mListInv.SetCurSel(-1);
+		mListWays.SetCurSel(-1);*/
 		MultiSpeech::getInstance().Say(L"объекты");
 	}
-	if (mListScene.GetCurSel() == LB_ERR && mListScene.GetCount() > 0)
+	/*if (mListScene.GetCurSel() == LB_ERR && mListScene.GetCount() > 0)
 	{
 		mListScene.SetCurSel(0);
-	}
+	}*/
 }
 
 
 void CPlainInsteadView::OnLbnSetfocusListInv()
 {
 	if (GetFocus() == &mListInv) {
-		mListWays.SetCurSel(-1);
-		mListScene.SetCurSel(-1);
+		/*mListWays.SetCurSel(-1);
+		mListScene.SetCurSel(-1);*/
 		MultiSpeech::getInstance().Say(L"инвентарь");
 	}
 	// TODO: добавьте свой код обработчика уведомлений
-	if (mListInv.GetCurSel() == LB_ERR && mListInv.GetCount() > 0)
+	/*if (mListInv.GetCurSel() == LB_ERR && mListInv.GetCount() > 0)
 	{
 		mListInv.SetCurSel(0);
-	}
+	}*/
 }
 
 
@@ -1390,15 +1401,14 @@ void CPlainInsteadView::OnLbnSetfocusListWays()
 {
 	if (GetFocus() == &mListWays)
 	{
-		mListInv.SetCurSel(-1);
-		mListScene.SetCurSel(-1);
+		//mListScene.SetCurSel(-1);
 		MultiSpeech::getInstance().Say(L"пути");
 	}
 	// TODO: добавьте свой код обработчика уведомлений
-	if (mListWays.GetCurSel() == LB_ERR && mListWays.GetCount() > 0)
+	/*if (mListWays.GetCurSel() == LB_ERR && mListWays.GetCount() > 0)
 	{
 		mListWays.SetCurSel(0);
-	}
+	}*/
 }
 
 
