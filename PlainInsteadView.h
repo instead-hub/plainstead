@@ -111,7 +111,7 @@ void onNewInsteadCommand(char*cmd, char* p,CString cmdForLog = L"");
 	CListBox mListWays;
 	CListBox mListInv;
 	std::map<int, int> pos_id_inv;
-	CString inv_save; //Сохраненный результат инвентаря
+	int inv_save_index=-1; //Индекс в map Сохраненного результата инвентаря
 	afx_msg void OnUpdateOutView();
 	afx_msg void OnStnClickedStaticScene();
 	CStatic mStaticScene;
@@ -131,7 +131,7 @@ void onNewInsteadCommand(char*cmd, char* p,CString cmdForLog = L"");
 	afx_msg void OnMenuDebug();
 	bool isLogOn;
 	CString logFileName;
-	CString savedSelInv;
+	CString savedSelInvM;
 };
 bool Utf8ToCString(CString& cstr, const char* utf8Str);
 #ifndef _DEBUG  // отладочная версия в PlainInsteadView.cpp
