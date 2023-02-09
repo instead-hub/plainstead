@@ -1,6 +1,6 @@
 #include "externals.h"
 #include "internals.h"
-#include <WinUser.h>
+//#include <WinUser.h> ¬ключаетс€ по умолчанию.
 #include <string.h>
 
 	static UINT_PTR timer_id = 0;
