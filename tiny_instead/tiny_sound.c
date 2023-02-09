@@ -2,7 +2,30 @@
 #include "internals.h"
 
 #include "bass.h"
+static int callback_ref =0;
+#define SND_FMT_STEREO	1
+#define SND_FMT_44	2
+#define SND_FMT_22	4
+#define SND_FMT_11	8
+
+#define SND_CHANNELS 8
+#define MAX_WAVS SND_CHANNELS * 2
+#define SND_F2S(v) ((short)((float)(v) * 16383.0) * 2)
+#define SOUND_MAGIC 0x2004
+struct lua_sound {
+	int type;
+	short* buf;
+	int len;
+};
 extern void playSound(int isLooping);
+int snd_vol_from_pcn(int v)
+{
+	return (v * 127) / 100;
+}
+static int snd_vol_to_pcn(int v)
+{
+	return (v * 100) / 127;
+}
 int game_change_vol(int d, int val)
 {
 
@@ -10,21 +33,29 @@ int game_change_vol(int d, int val)
 
 int gBassInit = 0;
 
-static char play_mus[1024];
+static char* play_mus =NULL;
 static HSAMPLE back_music;
 static HCHANNEL back_channel;
-static HMUSIC back_mod;
 static float global_snd_lvl = 1.0f;
-static void musFree(char* mus) {
-	BASS_ChannelStop(back_channel);
-	if (back_music) BASS_SampleFree(back_music);
-	if (mus &&*mus &&strlen(mus)>0) {
-		free(mus);
-		mus = NULL;
+static void musFree() {
+	if (back_channel) {
+		BASS_ChannelFree(back_channel);
+		back_channel = 0;
+	}
+	if (back_music) {
+		BASS_SampleFree(back_music);
+		back_music = 0;
+}
+	if (play_mus) {
+		free(play_mus);
+		play_mus = NULL;
 	}
 }
 static void sounds_free() {
 	}
+static int luaB_is_sound(lua_State* L) {
+	return 0;
+}
 static int luaB_volume_sound(lua_State* L) {
 	int vol = luaL_optnumber(L, 1, -1);
 	//vol = snd_volume_mus(vol);
@@ -60,18 +91,80 @@ static int luaB_load_sound(lua_State *L) {
 	const char* fname = luaL_optstring(L, 1, NULL);
 return 0;
 }
+
 static int luaB_load_sound_mem(lua_State* L) {
 	int hz = luaL_optinteger(L, 1, -1);
 	int channels = luaL_optinteger(L, 2, -1);
-	return 0;
+	int len; int i;
+	short* buf = NULL;
+	const char* name;
+	int fmt = 0;
+	luaL_checktype(L, 3, LUA_TTABLE);
+		if (hz < 0 || channels < 0)
+		return 0;
+#if LUA_VERSION_NUM >= 502
+	len = lua_rawlen(L, 3);
+#else
+	len = lua_objlen(L, 3);
+#endif
+	if (len <= 0)
+		return 0;
+	buf = malloc(sizeof(short) * len);
+	if (!buf)
+		return 0;
+
+	lua_pushvalue(L, 3);
+
+	for (i = 0; i < len; i++) {
+		float v;
+		lua_pushinteger(L, i + 1);
+		lua_gettable(L, -2);
+
+		if (!lua_isnumber(L, -1)) {
+			v = 0;
+		}
+		else {
+			v = (float)lua_tonumber(L, -1);
+		}
+		buf[i] = SND_F2S(v);
+		lua_pop(L, 1);
+	}
+	lua_pop(L, 1);
+	/* here we got the sample */
+	if (channels == 2)
+		fmt |= SND_FMT_STEREO;
+
+	if (hz == 11025)
+		fmt |= SND_FMT_11;
+	else if (hz == 22050)
+		fmt |= SND_FMT_22;
+	else
+		fmt |= SND_FMT_44;
+	//name = sound_load_mem(fmt, buf, len);
+	name = "";
+	/*	free(buf); */
+	if (!name)
+		return 0;
+	lua_pushstring(L, name);
 }
 static int luaB_music_callback(lua_State* L) {
 	if (!gBassInit)
 		return 0;
-
+	//snd_mus_callback(NULL, NULL);
+	if (callback_ref) {
+		luaL_unref(L, LUA_REGISTRYINDEX, callback_ref);
+		callback_ref = 0;
+	}
+		if (lua_isfunction(L, 1)) {
+			musFree(play_mus);
+		callback_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+		//snd_mus_callback(mus_callback, L);
+	}
 	return 0;
 }
 static const luaL_Reg sound_funcs[] = {
+	{
+		"instead_sound", luaB_is_sound},
 		{"instead_sound_volume", luaB_volume_sound},
 			{"instead_sound_free",luaB_free_sound},
 			{"instead_sounds_free",luaB_free_sounds},
@@ -82,17 +175,58 @@ static const luaL_Reg sound_funcs[] = {
 	{"instead_music_callback", luaB_music_callback},
 	{NULL, NULL}
 };
+static int sound_value(lua_State* L) {
+	struct lua_sound* hdr = (struct lua_sound*)lua_touserdata(L, 1);
+	int pos = luaL_optinteger(L, 2, -1);
+	float v = luaL_optnumber(L, 3, 0.0f);
+	if (pos <= 0)
+		return 0;
+	if (pos > hdr->len)
+		return 0;
+	pos--;
+	if (lua_isnoneornil(L, 3)) {
+		lua_pushinteger(L, hdr->buf[pos]);
+		return 1;
+	}
+	hdr->buf[pos] = SND_F2S(v);
+	return 0;
+}
+
+static int chunk_create_meta(lua_State* L) {
+	luaL_newmetatable(L, "soundbuffer metatable");
+	lua_pushstring(L, "__index");
+	lua_pushcfunction(L, sound_value);
+	lua_settable(L, -3);
+
+	lua_pushstring(L, "__newindex");
+	lua_pushcfunction(L, sound_value);
+	lua_settable(L, -3);
+	/*
+		lua_pushstring (L, "size");
+		lua_pushcfunction (L, sound_size);
+		lua_settable(L, -3);
+	*/
+	return 0;
+}
 static int sound_done(void)
 {
-	strcpy(play_mus, "");
-	musFree(play_mus);
+	if (!gBassInit) return 0;
+	if (callback_ref) {
+		//snd_mus_callback(NULL, NULL);
+		luaL_unref(instead_lua(), LUA_REGISTRYINDEX, callback_ref);
+		callback_ref = 0;
+	}
+	musFree();
 	sounds_free();
 	return 0;
 }
+
 static int sound_init(void)
 {
 	int rc;
+
 	instead_api_register(sound_funcs);
+	chunk_create_meta(instead_lua());
 	/*		char path[PATH_MAX];
 	snprintf(path, sizeof(path), "%s/%s", instead_stead_path(), "/ext/sound.lua");
 	rc = instead_loadfile(dirpath(path));
@@ -126,28 +260,34 @@ static void game_music_player(void)
 	loop = instead_iretval(1);
 	unix_path(mus);
 	instead_clear();
-	/* это не надо пока - настройка усиления/уменьшения
-	instead_function("instead.get_music_fading", NULL);
-	cf_out = instead_iretval(0);
-	cf_in = instead_iretval(1);
+instead_function("instead.get_music_fading", NULL);
+	int cf_out = instead_iretval(0);
+	int cf_in = instead_iretval(1);
 	instead_clear();
 	instead_unlock();
-	*/
-
-	if (mus && loop == -1) { /* -1 - disabled, 0 - forever, 1-n - loops */
-		strcpy(play_mus, "");
-		musFree(mus);
+		if (mus && loop == -1) { /* -1 - disabled, 0 - forever, 1-n - loops */
+			free(mus);
+			mus = NULL;
 	}
 
 	if (loop == 0)
 		loop = -1;
+	if (cf_out == 0)
+		cf_out = 500;
+	else if (cf_out < 0)
+		cf_out = 0;
 
-	//Играем музыку, надо учитывать останов предыдущей
-	if (mus) {
-		if (strcmp(play_mus, mus) != 0)
+	if (cf_in < 0)
+		cf_in = 0;
+	//Играем или останавливаем музыку, надо учитывать останов предыдущей
+if(!mus &&play_mus) {
+			//Останавливаем музыку
+		musFree();
+}
+else if (!play_mus ||strcmp(play_mus, mus))
 		{
-			musFree(NULL);
-			strcpy(play_mus, mus);
+musFree();
+			play_mus = mus;
 						DWORD loop_flag = 0;
 			if (loop <= 0) loop_flag |= BASS_SAMPLE_LOOP;
 			if ((strcmp(get_filename_ext(mus),"xm")==0) ||
@@ -168,17 +308,14 @@ static void game_music_player(void)
 					back_channel = BASS_SampleGetChannel(back_music, FALSE);
 				}
 			}
-			
 			if (back_channel) {
-				BASS_ChannelSetAttribute(back_channel, BASS_ATTRIB_VOL, global_snd_lvl);
+								BASS_ChannelSetAttribute(back_channel, BASS_ATTRIB_VOL, global_snd_lvl);
 				BASS_ChannelPlay(back_channel, FALSE);
 			}
 		}
-		
 		//Выдача ошибки, если что не так
 		//game_res_err_msg(mus, debug_sw);
-		//musFree(mus);
-	}
+		//musFree();
 }
 
 //Проигрывание звуков
