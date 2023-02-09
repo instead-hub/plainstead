@@ -39,7 +39,7 @@ static HCHANNEL back_channel;
 static float global_snd_lvl = 1.0f;
 static void musFree() {
 	if (back_channel) {
-		BASS_ChannelFree(back_channel);
+		if (BASS_ChannelFree(back_channel)) BASS_MusicFree(back_channel);
 		back_channel = 0;
 	}
 	if (back_music) {
@@ -60,7 +60,7 @@ static int luaB_volume_sound(lua_State* L) {
 	int vol = luaL_optnumber(L, 1, -1);
 	//vol = snd_volume_mus(vol);
 	lua_pushinteger(L, vol);
-	return 1;
+	return 0;
 }
 static int luaB_channel_sound(lua_State* L) {
 	const char* s;
@@ -245,7 +245,6 @@ static const char *get_filename_ext(const char *filename) {
 static void game_music_player(void)
 {
 	int	loop;
-	char *mus;
 	//Не инициализирован BASS
 	if (!gBassInit) return;
 	//Если отключено или нет звуков
@@ -253,7 +252,8 @@ static void game_music_player(void)
 	//	return;
 	//if (!opt_music || !curgame_dir)
 	//	return;
-	//Получаем музыку
+		//Получаем музыку
+	char* mus;
 	instead_lock();
 	instead_function("instead.get_music", NULL);
 	mus = instead_retval(0);
@@ -266,10 +266,9 @@ instead_function("instead.get_music_fading", NULL);
 	instead_clear();
 	instead_unlock();
 		if (mus && loop == -1) { /* -1 - disabled, 0 - forever, 1-n - loops */
-			free(mus);
+						free(mus);
 			mus = NULL;
 	}
-
 	if (loop == 0)
 		loop = -1;
 	if (cf_out == 0)
@@ -284,7 +283,7 @@ if(!mus &&play_mus) {
 			//Останавливаем музыку
 		musFree();
 }
-else if (!play_mus ||strcmp(play_mus, mus))
+else if (mus &&(!play_mus || strcmp(play_mus, mus)))
 		{
 musFree();
 			play_mus = mus;
@@ -315,7 +314,6 @@ musFree();
 		}
 		//Выдача ошибки, если что не так
 		//game_res_err_msg(mus, debug_sw);
-		//musFree();
 }
 
 //Проигрывание звуков
