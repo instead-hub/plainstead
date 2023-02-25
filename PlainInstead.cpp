@@ -30,6 +30,7 @@ CString saveGameNameDir;
 extern "C" {
 #include "instead\instead.h"
 	static uint64_t millis;
+	extern int instead_gui_init(void);
 	extern int instead_metaparser_init(void);
 	extern int instead_paths_init(void);
 extern int instead_sound_init(void);
@@ -267,6 +268,7 @@ BOOL CPlainInsteadApp::InitInstance()
 	instead_timer_init();
 	instead_bits_init();
 	instead_sprites_init();
+	instead_gui_init();
 		currFilePath=L"";
 	currFileName=L"";
 	bool useAutosave = false;
