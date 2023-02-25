@@ -39,7 +39,7 @@ static HCHANNEL back_channel;
 static float global_snd_lvl = 1.0f;
 static void musFree() {
 	if (back_channel) {
-		if (BASS_ChannelFree(back_channel)) BASS_MusicFree(back_channel);
+		BASS_ChannelFree(back_channel) ||BASS_MusicFree(back_channel) || BASS_StreamFree(back_channel);
 		back_channel = 0;
 	}
 	if (back_music) {
@@ -53,6 +53,16 @@ static void musFree() {
 }
 static void sounds_free() {
 	}
+static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, void* user)
+{
+	instead_lock();
+	instead_function("instead.finish_music", NULL);
+	//int rc = instead_bretval(0);
+	instead_clear();
+	instead_unlock();
+	musFree();
+}
+
 static int luaB_is_sound(lua_State* L) {
 	return 0;
 }
@@ -304,12 +314,14 @@ musFree();
 			{
 				back_music = BASS_SampleLoad(FALSE, mus, 0, 0, 1, loop_flag);
 				if (back_music) {
-					back_channel = BASS_SampleGetChannel(back_music, FALSE);
+					back_channel = BASS_SampleGetChannel(back_music, BASS_SAMCHAN_STREAM);
 				}
 			}
 			if (back_channel) {
 								BASS_ChannelSetAttribute(back_channel, BASS_ATTRIB_VOL, global_snd_lvl);
-				BASS_ChannelPlay(back_channel, FALSE);
+								//Отслеживаем завершение воспроизведения.
+								if (!loop_flag) BASS_ChannelSetSync(back_channel, BASS_SYNC_ONETIME| BASS_SYNC_END, 0, finishCallback, 0);
+BASS_ChannelPlay(back_channel, FALSE);
 			}
 		}
 		//Выдача ошибки, если что не так
