@@ -34,8 +34,7 @@ IMPLEMENT_DYNAMIC(LauncherDialog, CDialog)
 #define N_SUBITEM_LIST_GNAME      8 //игровое имя
 #define N_SUBITEM_LIST_URL        9 //ссылка URL
 #define N_SUBITEM_LIST_DWN_URL    10 //ссылка для прямой загрузки
-#define N_SUBITEM_LIST_IS_SANDER  11 //является ли игра                                   из песочницы
-#define columnCount N_SUBITEM_LIST_IS_SANDER
+#define columnCount N_SUBITEM_LIST_DWN_URL
 LauncherDialog::LauncherDialog(CWnd* pParent /*=NULL*/)
 	: CDialog(IDD_LAUNCHERDIALOG, pParent),
 	m_sortInstalledUp(true),
@@ -62,7 +61,6 @@ void LauncherDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_PLAY_GAMEM, m_btnPlayGame);
 	DDX_Control(pDX, IDC_BTN_RESUMEOLD_GAME2, m_btnResumeGame);
 	DDX_Control(pDX, IDC_COMBO_FILTER, m_comboFiler);
-	DDX_Control(pDX, IDC_CHECK_SANDER, m_CheckSander);
 }
 
 
@@ -142,10 +140,9 @@ static CString get_game_property(std::wstring property, std::wstring inp) //вход
 	return CString();
 }
 void LauncherDialog::updateAllGames(bool updateInstalledGames) {
-	if (PathFileExists(L"temp.xml")) ReadNewGamesFromXMLAndAdd(L"temp.xml", false,updateInstalledGames);
-	//if (mainSettings.GetInt(L"main", L"beta", 0) == 1 && PathFileExists(L"temp2.xml")) ReadNewGamesFromXMLAndAdd(L"temp2.xml", true);
-	if (PathFileExists(L"temp2.xml"))ReadNewGamesFromXMLAndAdd(L"temp2.xml", true,false);
-	if(updateInstalledGames)RescanInstalled();
+	if (PathFileExists(L"temp.xml")) ReadNewGamesFromXMLAndAdd(L"temp.xml", updateInstalledGames);
+//if (PathFileExists(L"temp2.xml"))ReadNewGamesFromXMLAndAdd(L"temp2.xml", false);
+if(updateInstalledGames)RescanInstalled();
 }
 // обработчики сообщений LauncherDialog
 
@@ -306,8 +303,6 @@ void LauncherDialog::showInstalledTabControls()
 	m_btnInstall.ShowWindow(SW_HIDE);
 	m_btnOpenLink.ShowWindow(SW_HIDE);
 	m_comboFiler.ShowWindow(SW_HIDE);
-	m_CheckSander.ShowWindow(SW_HIDE);
-
 	m_listInstalled.SetFocus();
 }
 
@@ -323,8 +318,6 @@ void LauncherDialog::showNewTabControls()
 	m_btnInstall.ShowWindow(SW_SHOW);
 	m_btnOpenLink.ShowWindow(SW_SHOW);
 	m_comboFiler.ShowWindow(SW_SHOW);
-	m_CheckSander.ShowWindow(SW_SHOW);
-
 	m_listNew.SetFocus();
 }
 
@@ -433,14 +426,9 @@ void LauncherDialog::CreateColumns()
 	list.iSubItem = N_SUBITEM_LIST_DWN_URL;
 	m_listNew.InsertColumn(N_SUBITEM_LIST_DWN_URL, &list);
 	m_listInstalled.InsertColumn(N_SUBITEM_LIST_DWN_URL, &list);
-	list.cx = 0;
-	list.pszText = L"Скачена ли игра из песочницы";
-	list.iSubItem = N_SUBITEM_LIST_IS_SANDER;
-	m_listNew.InsertColumn(N_SUBITEM_LIST_IS_SANDER, &list);
-	m_listInstalled.InsertColumn(N_SUBITEM_LIST_IS_SANDER, &list);
 }
 
-void LauncherDialog::AddNewGame(CString date, CString name, CString author, CString description, CString version, CString language, std::pair<CString, CString> downloadPageAndInstallName, CListCtrl& games, CString sz, CString page, bool is_sander)
+void LauncherDialog::AddNewGame(CString date, CString name, CString author, CString description, CString version, CString language, std::pair<CString, CString> downloadPageAndInstallName, CListCtrl& games, CString sz, CString page)
 {
 	CString mark = L"Неизвестно";
 	CString accComment = L"";
@@ -448,7 +436,7 @@ void LauncherDialog::AddNewGame(CString date, CString name, CString author, CStr
 		mark = approveInfo[downloadPageAndInstallName.second].first;
 		accComment = approveInfo[downloadPageAndInstallName.second].second;
 		//Приобразуем доступность игр.
-		mark = mark == L"-2" ? L"Неизвестно" : mark == L"-1" ? L"Нет (не проходимо)" : mark == L"0" ? L"Нет" : mark == L"1" ? L"Частично" : L"Да";
+		mark = mark == L"1" ? L"Неизвестно" : mark == L"2" ? L"Нет (не проходимо)" : mark == L"4" ? L"Нет" : mark == L"8" ? L"Частично" : L"Да";
 	}
 	int cnt = games.GetItemCount();
 	int col = 0;
@@ -463,7 +451,6 @@ void LauncherDialog::AddNewGame(CString date, CString name, CString author, CStr
 	SetCell(games, downloadPageAndInstallName.second, cnt, col++);
 	SetCell(games, page, cnt, col++);
 	SetCell(games, downloadPageAndInstallName.first, cnt, col++);
-	SetCell(games, is_sander ? L"0" : L"1", cnt, col++);
 	//installedGameNameCache.insert(downloadPageAndInstallName.second);
 	//networkGameDWPageAndName.push_back(downloadPageAndInstallName);
 	//networkGameName.insert(downloadPageAndInstallName.second);
@@ -699,15 +686,17 @@ void LauncherDialog::OnBnClickedBtnUpdate()
 	else {
 	//ClearNewList();
 
-	CString strURL = L"http://instead-games.ru/xml.php";
+	/*CString strURL = L"http://instead-games.ru/xml.php";
 	UpdateGamesFromUrl(strURL, L"temp.xml");
 	CString strURL2 = L"http://instead-games.ru/xml2.php";
-	UpdateGamesFromUrl(strURL2, L"temp2.xml", true);
+	UpdateGamesFromUrl(strURL2, L"temp2.xml", false);*/
+		CString strURL = L"http://instead-games.ru/xml3.php";
+		UpdateGamesFromUrl(strURL, L"temp.xml");
 	RescanInstalled();
 	}
 }
 
-bool LauncherDialog::UpdateGamesFromUrl(CString url, CString res_path, bool is_sander)
+bool LauncherDialog::UpdateGamesFromUrl(CString url, CString res_path,bool updateInstalledGames)
 {
 	CInternetSession session;
 	CHttpFile* pFile = (CHttpFile*)session.OpenURL(url, 1, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_RELOAD);
@@ -723,11 +712,11 @@ bool LauncherDialog::UpdateGamesFromUrl(CString url, CString res_path, bool is_s
 		counter += numread;
 	}
 	xmlWithGames.Close();
-	ReadNewGamesFromXMLAndAdd(res_path, is_sander,!is_sander);
+	ReadNewGamesFromXMLAndAdd(res_path, updateInstalledGames);
 	return counter > 0;
 }
 
-void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool is_sander, bool updateInstalledGames /*Если true,очищаем список установленных игр. */)
+void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool updateInstalledGames /*Если true,очищаем список установленных игр. */)
 {
 	FILE* fStream;
 	_tfopen_s(&fStream, temp_xmlfile, L"rt,ccs=UTF-8");
@@ -738,8 +727,6 @@ void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool is_san
 	if (updateInstalledGames) {
 		installedGameNameCache.clear();
 		m_listInstalled.DeleteAllItems();
-	}
-	if (!is_sander) {
 		approveInfo.clear();
 		m_listNew.DeleteAllItems();
 	}
@@ -781,9 +768,9 @@ void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool is_san
 		//Начинаем фильтровать
 		if (GetFileAttributes(getGamesDir() + csSN) != INVALID_FILE_ATTRIBUTES && installedGameNameCache.count(csSN) == 0) {
 			installedGameNameCache.insert(csSN);
-						AddNewGame(csDate, csTitle, csAuthor, csDescription, csVersion, csLang, std::make_pair(csDownloadUrl, csSN), m_listInstalled, megabytes_num, csDescUrl, is_sander);
-					}
-		if ((is_sander && m_CheckSander.GetCheck() == BST_CHECKED) || !is_sander)AddNewGame(csDate, csTitle, csAuthor, csDescription, csVersion, csLang, std::make_pair(csDownloadUrl, csSN), m_listNew, megabytes_num, csDescUrl, is_sander);
+						AddNewGame(csDate, csTitle, csAuthor, csDescription, csVersion, csLang, std::make_pair(csDownloadUrl, csSN), m_listInstalled, megabytes_num, csDescUrl);
+}
+		AddNewGame(csDate, csTitle, csAuthor, csDescription, csVersion, csLang, std::make_pair(csDownloadUrl, csSN), m_listNew, megabytes_num, csDescUrl);
 		xml.OutOfElem();
 	}
 	gameFile.Close();
@@ -907,7 +894,7 @@ void LauncherDialog::OnCbnSelchangeComboFilter()
 		CIniFile mainSettings;
 		m_lastSelFilter = m_comboFiler.GetCurSel();
 		mainSettings.WriteNumber(L"main", L"mRepoFilter", m_lastSelFilter);
-		if (PathFileExists(L"temp.xml") && PathFileExists(L"temp2.xml"))
+		if (PathFileExists(L"temp.xml")/* && PathFileExists(L"temp2.xml")*/)
 		{
 			//Очищаем список новых игр
 			ClearNewList();

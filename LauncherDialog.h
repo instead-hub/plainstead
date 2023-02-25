@@ -31,10 +31,10 @@ protected:
 	void CreateColumns();
 	void RescanInstalled();
 	void updateDataAfterInstalationOfGame(CString gameName, int sel, bool gameWasRemoved = false);
-	void AddNewGame(CString date,CString name,CString author,CString description, CString version, CString language, std::pair<CString, CString> downloadPageAndInstallName, CListCtrl& games, CString sz = L"", CString page = L"",bool is_sander=false);
+	void AddNewGame(CString date,CString name,CString author,CString description, CString version, CString language, std::pair<CString, CString> downloadPageAndInstallName, CListCtrl& games, CString sz = L"", CString page = L"");
 	void SetCell(CListCtrl& ctrl, CString value, int nRow, int nCol);
-	bool UpdateGamesFromUrl(CString url, CString res_path,bool is_sander=false);
-	void ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool is_sander,bool updateInstalledGames=true);
+	bool UpdateGamesFromUrl(CString url, CString res_path, bool updateInstalledGames = true);
+	void ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool updateInstalledGames=true);
 	void updateAllGames(bool updateInstalledGames=true);
 	void ClearNewList();
 	void SortColumn(CListCtrl* ctrl, int columnIndex, bool ascending);
@@ -83,5 +83,4 @@ public:
 	afx_msg void OnCbnSelchangeComboFilter();
 	afx_msg void OnHdnItemclickListInstalled(NMHDR *pNMHDR, LRESULT *pResult);
 private:
-	CButton m_CheckSander;
 };

@@ -70,7 +70,6 @@
 #define IDC_COMBO_FILTER                1034
 #define IDC_COMBO_STYLE_ANNOUNCE        1036
 #define IDC_BUTTON_CHECK_ANNOUNCE       1037
-#define IDC_CHECK_SANDER                1038
 #define ID_FILE_NEW_GAME                32771
 #define ID_FILE_SAVE_GAME               32772
 #define ID_32773                        32773
