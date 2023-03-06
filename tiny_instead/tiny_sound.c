@@ -1,6 +1,5 @@
 ﻿#include "externals.h"
 #include "internals.h"
-
 #include "bass.h"
 static int callback_ref =0;
 #define SND_FMT_STEREO	1
@@ -17,7 +16,56 @@ struct lua_sound {
 	short* buf;
 	int len;
 };
-extern void playSound(int isLooping);
+static LIST_HEAD(sounds);
+static int sounds_nr = 0;
+
+typedef struct {
+	struct list_node list;
+	char* fname;
+	HSAMPLE sam;
+	HCHANNEL chan; //Канал для hsample
+	int	loaded;
+	int	system;
+	int	fmt;
+	short* buf;
+	size_t	len;
+} _snd_t;
+typedef struct {
+	_snd_t* snd;
+	int	loop;
+	int	channel;
+} _snd_req_t;
+static _snd_t* channels[SND_CHANNELS];
+static _snd_req_t sound_reqs[SND_CHANNELS];
+static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, void* user);
+static void mus_callback(void* udata, unsigned char* stream, int len)
+{
+	lua_State* L = (lua_State*)udata;
+	struct lua_sound* hdr;
+	if (!callback_ref)
+		return;
+	instead_lock();
+	lua_rawgeti(L, LUA_REGISTRYINDEX, callback_ref);
+	lua_pushinteger(L, snd_hz());
+	lua_pushinteger(L, len >> 1);
+	hdr = lua_newuserdata(L, sizeof(*hdr));
+	if (!hdr)
+		goto err;
+	hdr->type = SOUND_MAGIC;
+	hdr->len = len >> 1; /* 16bits */
+	hdr->buf = (short*)stream;
+	luaL_getmetatable(L, "soundbuffer metatable");
+	lua_setmetatable(L, -2);
+	if (instead_pcall(L, 3)) { /* on any error */
+	err:
+		//snd_mus_callback(NULL, NULL);
+		luaL_unref(L, LUA_REGISTRYINDEX, callback_ref);
+		callback_ref = 0;
+	}
+	instead_clear();
+	instead_unlock();
+	return;
+}
 int snd_vol_from_pcn(int v)
 {
 	return (v * 127) / 100;
@@ -33,38 +81,427 @@ int game_change_vol(int d, int val)
 
 int gBassInit = 0;
 
+static int  sound_playing(_snd_t* snd)
+{
+	int i;
+	for (i = 0; i < SND_CHANNELS; i++) {
+		if (channels[i] == snd)
+			return i;
+		if (sound_reqs[i].snd == snd)
+			return i;
+	}
+	return -1;
+}
+static const char* sound_channel(int i)
+{
+	_snd_t* sn;
+	if (i >= SND_CHANNELS)
+		i = i % SND_CHANNELS;
+	if (i == -1) {
+		for (i = 0; i < SND_CHANNELS; i++) {
+			sn = channels[i];
+			if (sn && !sn->system)
+				return sn->fname;
+		}
+		return NULL;
+	}
+	sn = channels[i];
+	if (!sn ||sn->system)
+		return NULL; /* NULL or hidden system sound */
+	return sn->fname;
+}
+static void media_free(HSAMPLE* sam, HCHANNEL* chan) {
+	BOOL result =FALSE;
+	if (*chan) {
+		result =BASS_ChannelFree(*chan) || BASS_MusicFree(*chan) || BASS_StreamFree(*chan);
+		*chan = 0;
+	}
+	if (*sam) {
+		result |=BASS_SampleFree(*sam);
+		*sam = 0;
+}
+}
+static void sound_free(_snd_t* sn)
+{
+	if (!sn)
+		return;
+	list_del(&sn->list);
+	sounds_nr--;
+	if (sn->fname) {
+		free(sn->fname);
+				sn->fname = NULL;
+}
+	media_free(&sn->sam, &sn->chan);
+	if (sn->buf) {
+		free(sn->buf);
+		sn->buf = NULL;
+}
+	free(sn);
+}
+
+static void sounds_free(void)
+{
+	int i = 0;
+	_snd_t* pos, * pos2;
+	_snd_t* sn;
+	pos = list_top(&sounds, _snd_t, list);
+	while (pos) {
+		sn = (_snd_t*)pos;
+		pos2 = list_next(&sounds, pos, list);
+		if (sn->system)
+			sn->loaded = 1; /* ref by system only */
+		else
+			sound_free(sn);
+		pos = pos2;
+	}
+	for (i = 0; i < SND_CHANNELS; i++) {
+		channels[i] = NULL;
+		sound_reqs[i].snd = NULL;
+	}
+	/*	sounds_nr = 0;
+		fprintf(stderr, "%d\n", sounds_nr); */
+		//input_uevents(); /* all callbacks */
+}
+static _snd_t* sound_find(const char* fname)
+{
+	_snd_t* pos = NULL;
+	_snd_t* sn;
+	if (!fname)
+		return NULL;
+	list_for_each(&sounds, pos, list) {
+		sn = (_snd_t*)pos;
+		if (!strcmp(fname, sn->fname)) {
+			list_del(&sn->list);
+			list_add(&sounds, &sn->list); /* move it on head */
+			return sn;
+		}
+	}
+	return NULL;
+}
+
+static int sound_find_channel(void)
+{
+	int i;
+	for (i = 0; i < SND_CHANNELS; i++) {
+		if (!channels[i] && !sound_reqs[i].snd)
+			return i;
+	}
+	return -1;
+}
+static void sounds_shrink(void)
+{
+	_snd_t* pos, * pos2;
+	_snd_t* sn;
+	pos = list_top(&sounds, _snd_t, list);
+	/*	fprintf(stderr,"shrink try\n"); */
+	while (pos && sounds_nr > MAX_WAVS) {
+		sn = (_snd_t*)pos;
+		if (sound_playing(sn) != -1 || sn->loaded) {
+			pos = list_next(&sounds, pos, list);
+			continue;
+		}
+		pos2 = list_next(&sounds, pos, list);
+		sound_free(sn);
+		pos = pos2;
+		/*		fprintf(stderr,"shrink by 1\n"); */
+	}
+}
 static char* play_mus =NULL;
 static HSAMPLE back_music;
 static HCHANNEL back_channel;
 static float global_snd_lvl = 1.0f;
+
 static void musFree() {
-	if (back_channel) {
-		BASS_ChannelFree(back_channel) ||BASS_MusicFree(back_channel) || BASS_StreamFree(back_channel);
-		back_channel = 0;
-	}
-	if (back_music) {
-		BASS_SampleFree(back_music);
-		back_music = 0;
-}
+	media_free(&back_music, &back_channel);
 	if (play_mus) {
 		free(play_mus);
 		play_mus = NULL;
 	}
 }
-static void sounds_free() {
+static void snd_halt_chan(int chan, int ms)
+{
+	if (chan >= SND_CHANNELS)chan %= SND_CHANNELS;
+	if (chan == -1) {
+
+		return;
+}
+else if (!channels[chan]) return;
+	HCHANNEL channel = channels[chan]->chan;
+}
+static const char* get_filename_ext(const char* filename) {
+	const char* dot = strrchr(filename, '.');
+	if (!dot || dot == filename) return "";
+	return dot + 1;
+}
+//Получение канала и hsample
+static void getPlayableInfo(char* mus, HSAMPLE* sam, HCHANNEL* chan, DWORD loop_flag) {
+	if ((strcmp(get_filename_ext(mus), "xm") == 0) ||
+		(strcmp(get_filename_ext(mus), "s3m") == 0) ||
+		(strcmp(get_filename_ext(mus), "mod") == 0) ||
+		(strcmp(get_filename_ext(mus), "mo3") == 0) ||
+		(strcmp(get_filename_ext(mus), "it") == 0) ||
+		(strcmp(get_filename_ext(mus), "mtm") == 0) ||
+		(strcmp(get_filename_ext(mus), "umx") == 0)
+		)
+	{
+		*chan = BASS_MusicLoad(FALSE, mus, 0, 0, loop_flag, 0);
 	}
+	else
+	{
+		*sam = BASS_SampleLoad(FALSE, mus, 0, 0, 1, loop_flag);
+		if (*sam) {
+			*chan = BASS_SampleGetChannel(*sam, BASS_SAMCHAN_STREAM);
+		}
+	}
+	if (*chan) {
+		//Отслеживаем завершение воспроизведения.
+		if (!loop_flag) BASS_ChannelSetSync(*chan, BASS_SYNC_ONETIME | BASS_SYNC_END, 0, finishCallback, 0);
+	}
+}
+//Добавление звука к списку звуков.
+static _snd_t* sound_add(const char* fname, int fmt, short* buf, int len)
+{
+	HSAMPLE sam;
+	HCHANNEL chan;
+	_snd_t* sn;
+	if (!fname || !*fname || !gBassInit) return NULL;
+	sn = malloc(sizeof(_snd_t));
+	if (!sn)
+		return NULL;
+	memset(sn, 0, sizeof(*sn));
+	/*	LIST_HEAD_INIT(&sn->list); */
+	sn->fname = strdup(fname);
+	sn->loaded = 0;
+	sn->system = 0;
+	sn->buf = buf;
+	sn->len = len;
+	sn->fmt = fmt;
+	if (!sn->fname) {
+		free(sn);
+		return NULL;
+	}
+	if (buf) {
+		//w = snd_load_mem(fmt, buf, len);
+	}
+	else {
+		getPlayableInfo(sn->fname, &sn->sam, &sn->chan, 0);
+	}
+	if (!sn->chan) 		goto err;
+	sounds_shrink();
+	list_add(&sounds, &sn->list);
+	sounds_nr++;
+	return sn;
+err:
+	free(sn->fname);
+	free(sn);
+	return NULL;
+}
+static void sound_play(_snd_t* sn, int chan, int loop) {
+	int c;
+	if (!sn)
+		return;
+	if (chan == -1) {
+		c = sound_find_channel();
+		if (c == -1)
+			return; /* all channels are busy */
+	}
+	else
+		c = chan;
+	if (channels[c]) {
+		sound_reqs[c].snd = sn;
+		sound_reqs[c].loop = loop;
+		sound_reqs[c].channel = chan;
+		snd_halt_chan(chan, 0); /* work in callback */
+		//input_uevents(); /* all callbacks */
+		return;
+	}
+	//c = snd_play(sn->wav, c, loop - 1);
+	/*	fprintf(stderr, "added: %d\n", c); */
+	if (c == -1)
+		return;
+	channels[c] = sn;
+}
+static int _play_combined_snd(char* filename, int chan, int loop)
+{
+	char* str;
+	char* p, * ep;
+	_snd_t* sn;
+	p = str = strdup(filename);
+	if (!str)
+		return -1;
+	p = strip(p);
+	while (*p) {
+		int c = chan, l = loop;
+		int at = 0;
+		ep = p + strcspn(p, ";@");
+
+		if (*ep == '@') {
+			at = 1;
+			*ep = 0; ep++;
+			if (sscanf(ep, "%d,%d", &c, &l) > 1)
+				at++;
+			ep += strcspn(ep, ";");
+			if (*ep)
+				ep++;
+		}
+		else if (*ep == ';') {
+			*ep = 0; ep++;
+		}
+		else if (*ep) {
+			goto err;
+		}
+		p = strip(p);
+		sn = sound_find(p);
+		if (!sn)
+			sn = sound_add(p, 0, NULL, 0);
+		if (sn)
+			sound_play(sn, c, l);
+		else if (at || c != -1) { /* if @ or specific channel */ 
+				snd_halt_chan(c, (at == 2) ? l : 500);
+		}
+		p = ep;
+	}
+	free(str);
+	return 0;
+err:
+	free(str);
+	return -1;
+}
 static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, void* user)
 {
-	instead_lock();
-	instead_function("instead.finish_music", NULL);
-	//int rc = instead_bretval(0);
-	instead_clear();
-	instead_unlock();
-	musFree();
+	if (channel == back_channel) {
+		instead_lock();
+		instead_function("instead.finish_music", NULL);
+		//int rc = instead_bretval(0);
+		instead_clear();
+		instead_unlock();
+		musFree();
+	}
+	else {
+		_snd_req_t* r;
+		for (int a = 0; a < SND_CHANNELS; a++) {
+			if (channels[a]->chan == channel) {
+				channels[a] = NULL;
+				r = &sound_reqs[a];
+				if (r->snd) {
+					_snd_t* s = r->snd;
+					r->snd = NULL;
+					sound_play(s, channel, r->loop);
+				}
+				else {
+					//snd_halt_chan(channel, 0); /* to avoid races */
+				}
+			}
+			break;
+		}
+	}
 }
 
-static int luaB_is_sound(lua_State* L) {
+static void sounds_reload(void)
+{
+	_snd_t* pos = NULL;
+	_snd_t* sn;
+	int i;
+	snd_halt_chan(-1, 0); /* stop all sound */
+	list_for_each(&sounds, pos, list) {
+		sn = (_snd_t*)pos;
+		media_free(&sn->sam, &sn->chan);
+		if (sn->buf)
+			/*sn->wav =*/ snd_load_mem(sn->fmt, sn->buf, sn->len);
+		else
+			getPlayableInfo(sn->fname, &sn->sam, &sn->chan, 0);
+	}
+	for (i = 0; i < SND_CHANNELS; i++) {
+		channels[i] = NULL;
+		sound_reqs[i].snd = NULL;
+	}
+	//input_uevents(); /* all callbacks */
+}
+static void* _sound_get(const char* fname, int fmt, short* buff, size_t len)
+{
+	_snd_t* sn = NULL;
+	if (fname) {
+		sn = sound_find(fname);
+		if (sn) {
+			sn->loaded++; /* to pin */
+			return sn;
+		}
+		sn = sound_add(fname, fmt, buff, len);
+	}
+	else if (buff) {
+		char* name = malloc(64);
+		if (!name)
+			return NULL;
+		snprintf(name, 64, "snd:%p", buff); name[64 - 1] = 0;
+		sn = sound_add(name, fmt, buff, len);
+		if (!sn)
+			free(name);
+		else {
+			snprintf(name, 64, "snd:%p", sn); name[64 - 1] = 0;
+			free(sn->fname);
+			sn->fname = name;
+		}
+	}
+	if (!sn)
+		return NULL;
+	sn->loaded = 1;
+	return sn;
+}
+
+static void _sound_put(void* s)
+{
+	_snd_t* sn = (_snd_t*)s;
+	if (!sn || !sn->loaded)
+		return;
+	if (!sn->system || sn->loaded > 1)
+		sn->loaded--;
+	if (!sn->loaded && sound_playing(sn) == -1)
+		sound_free(sn);
+	return;
+}
+
+void* sound_get(const char* fname)
+{
+	_snd_t* sn = _sound_get(fname, 0, NULL, 0);
+	if (!sn)
+		return NULL;
+	//sn->system = 1;
+	return sn;
+}
+
+void sound_put(void* s)
+{
+	_snd_t* sn = (_snd_t*)s;
+	if (!sn)
+		return;
+	sn->system = 0;
+	_sound_put(sn);
+}
+static int sound_load(const char* fname)
+{
+	_snd_t* sn = _sound_get(fname, 0, NULL, 0);
+	if (!sn)
+		return -1;
 	return 0;
+}
+static char* sound_load_mem(int fmt, short* buff, size_t len)
+{
+	_snd_t* sn = _sound_get(NULL, fmt, buff, len);
+	if (!sn)
+		return NULL;
+	return sn->fname;
+}
+static void sound_unload(const char* fname)
+{
+	_snd_t* sn;
+	sn = sound_find(fname);
+	_sound_put(sn);
+	return;
+}
+static int luaB_is_sound(lua_State* L) {
+	int chan = luaL_optinteger(L, 1, -1);
+	lua_pushboolean(L, (sound_channel(chan) != NULL));
+	return 1;
 }
 static int luaB_volume_sound(lua_State* L) {
 	int vol = luaL_optnumber(L, 1, -1);
@@ -72,45 +509,26 @@ static int luaB_volume_sound(lua_State* L) {
 	lua_pushinteger(L, vol);
 	return 0;
 }
-static int luaB_channel_sound(lua_State* L) {
-	const char* s;
-	int ch = luaL_optinteger(L, 1, 0);
-	return 0;
-}
-static int luaB_panning_sound(lua_State* L) {
-	int chan = luaL_optinteger(L, 1, -1);
-	int left = luaL_optnumber(L, 2, 255);
-	int right = luaL_optnumber(L, 3, 255);
-	return 0;
-}
-
-static int luaB_free_sound(lua_State *L) {
+static int luaB_load_sound(lua_State* L) {
+	int rc;
 	const char* fname = luaL_optstring(L, 1, NULL);
 	if (!fname)
 		return 0;
-	//sound_unload(fname);
-	return 0;
-	}
-
-static int luaB_free_sounds(lua_State *L) {
-	sounds_free();
-	return 0;
+	rc = sound_load(fname);
+	if (rc)
+		return 0;
+	lua_pushstring(L, fname);
+	return 1;
 }
-
-static int luaB_load_sound(lua_State *L) {
-	const char* fname = luaL_optstring(L, 1, NULL);
-return 0;
-}
-
 static int luaB_load_sound_mem(lua_State* L) {
 	int hz = luaL_optinteger(L, 1, -1);
 	int channels = luaL_optinteger(L, 2, -1);
-	int len; int i;
+	int len, i;
 	short* buf = NULL;
 	const char* name;
 	int fmt = 0;
 	luaL_checktype(L, 3, LUA_TTABLE);
-		if (hz < 0 || channels < 0)
+	if (hz < 0 || channels < 0)
 		return 0;
 #if LUA_VERSION_NUM >= 502
 	len = lua_rawlen(L, 3);
@@ -150,13 +568,44 @@ static int luaB_load_sound_mem(lua_State* L) {
 		fmt |= SND_FMT_22;
 	else
 		fmt |= SND_FMT_44;
-	//name = sound_load_mem(fmt, buf, len);
-	name = "";
+	name = sound_load_mem(fmt, buf, len);
 	/*	free(buf); */
 	if (!name)
 		return 0;
 	lua_pushstring(L, name);
 }
+static int luaB_channel_sound(lua_State* L) {
+	const char* s;
+	int ch = luaL_optinteger(L, 1, 0);
+	ch = ch % SND_CHANNELS;
+	s = sound_channel(ch);
+	if (s) {
+		lua_pushstring(L, s);
+		return 1;
+	}
+	return 0;
+}
+static int luaB_panning_sound(lua_State* L) {
+	int chan = luaL_optinteger(L, 1, -1);
+	int left = luaL_optnumber(L, 2, 255);
+	int right = luaL_optnumber(L, 3, 255);
+
+	return 0;
+}
+
+static int luaB_free_sound(lua_State *L) {
+	const char* fname = luaL_optstring(L, 1, NULL);
+	if (!fname)
+		return 0;
+	sound_unload(fname);
+	return 0;
+	}
+
+static int luaB_free_sounds(lua_State *L) {
+	sounds_free();
+	return 0;
+}
+
 static int luaB_music_callback(lua_State* L) {
 	if (!gBassInit)
 		return 0;
@@ -244,13 +693,6 @@ static int sound_init(void)
 		return rc;*/
 return 0;
 }
-
-static const char *get_filename_ext(const char *filename) {
-	const char *dot = strrchr(filename, '.');
-	if (!dot || dot == filename) return "";
-	return dot + 1;
-}
-
 //Проигрывание музыки
 static void game_music_player(void)
 {
@@ -299,28 +741,9 @@ musFree();
 			play_mus = mus;
 						DWORD loop_flag = 0;
 			if (loop <= 0) loop_flag |= BASS_SAMPLE_LOOP;
-			if ((strcmp(get_filename_ext(mus),"xm")==0) ||
-				(strcmp(get_filename_ext(mus),"s3m")==0) ||
-				(strcmp(get_filename_ext(mus),"mod")==0) ||
-				(strcmp(get_filename_ext(mus), "mo3") == 0) ||
-				(strcmp(get_filename_ext(mus), "it") == 0) ||
-				(strcmp(get_filename_ext(mus), "mtm") == 0) ||
-				(strcmp(get_filename_ext(mus), "umx") == 0)
-				)
-			{
-				back_channel = BASS_MusicLoad(FALSE, mus, 0, 0, loop_flag, 0);
-			}
-			else
-			{
-				back_music = BASS_SampleLoad(FALSE, mus, 0, 0, 1, loop_flag);
-				if (back_music) {
-					back_channel = BASS_SampleGetChannel(back_music, BASS_SAMCHAN_STREAM);
-				}
-			}
+			getPlayableInfo(mus, &back_music, &back_channel, loop_flag);
 			if (back_channel) {
 								BASS_ChannelSetAttribute(back_channel, BASS_ATTRIB_VOL, global_snd_lvl);
-								//Отслеживаем завершение воспроизведения.
-								if (!loop_flag) BASS_ChannelSetSync(back_channel, BASS_SYNC_ONETIME| BASS_SYNC_END, 0, finishCallback, 0);
 BASS_ChannelPlay(back_channel, FALSE);
 			}
 		}
@@ -364,12 +787,11 @@ static void game_sound_player(void)
 		instead_unlock();
 		return;
 	}
-	instead_function("instead.set_sound", args); instead_clear();
+	instead_function("instead.set_sound", args);
+instead_clear();
 	instead_unlock();
 	unix_path(snd);
-	//Проигрывание звука - пока недоступно
-	//_play_combined_snd(snd, chan, loop);
-	playSound(snd,loop);
+	_play_combined_snd(snd, chan, loop);
 	free(snd);
 }
 
