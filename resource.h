@@ -96,7 +96,10 @@
 #define ID_32807                        32807
 #define ID_VOLUME_DOWN                  32809
 #define ID_VOLUME_UP                    32810
-#define ID_VOLUME_OFF                   32811
+#define ID_VOLUME_ON                   32811
+#define ID_SOUNDS_VOLUME_DOWN                  32812
+#define ID_SOUNDS_VOLUME_UP                    32813
+#define ID_SOUNDS_VOLUME_ON                   32814
 #define ID_32815                        32815
 #define ID_UPDATE_FORM                  32816
 #define ID_ACCELERATOR32818             32818

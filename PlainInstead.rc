@@ -140,6 +140,9 @@ BEGIN
         MENUITEM "Музыка &громче\tCTRL+=",      ID_VOLUME_UP
         MENUITEM "Музыка &тише\tCTRL+-",        ID_VOLUME_DOWN
         MENUITEM "&Музыка включена\tCTRL+0",    ID_VOLUME_ON, CHECKED
+        MENUITEM "Звуки &громче\tCTRL+Shift+=",      ID_SOUNDS_VOLUME_UP
+        MENUITEM "Звуки &тише\tCTRL+Shift+-",        ID_SOUNDS_VOLUME_DOWN
+        MENUITEM "&Звуки включены\tCTRL+Shift+0",    ID_SOUNDS_VOLUME_ON, CHECKED
         MENUITEM "Уведомления г&ромче\t\tCTRL+7", ID_LISTSND_UP
         MENUITEM "Уведомления т&ише\t\tCTRL+6", ID_LISTSND_DOWN
         MENUITEM "Уведомления в&ключены\t\tCTRL+5", ID_LISTSND_ON, CHECKED
@@ -189,6 +192,9 @@ BEGIN
     VK_OEM_MINUS,   ID_VOLUME_DOWN,         VIRTKEY, CONTROL, NOINVERT
     "0",            ID_VOLUME_ON,           VIRTKEY, CONTROL, NOINVERT
     VK_OEM_PLUS,    ID_VOLUME_UP,           VIRTKEY, CONTROL, NOINVERT
+    VK_OEM_MINUS,   ID_SOUNDS_VOLUME_DOWN,         VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "0", ID_SOUNDS_VOLUME_ON,           VIRTKEY, SHIFT, CONTROL, NOINVERT
+    VK_OEM_PLUS,    ID_SOUNDS_VOLUME_UP,           VIRTKEY, SHIFT, CONTROL,NOINVERT
 END
 
 

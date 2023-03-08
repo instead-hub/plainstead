@@ -22,9 +22,10 @@ private:
 	BOOL m_openGame;
 	CString currFilePath;
 	CString currFileName;
-	int soundBeforeMute;
-	bool isMute;
-
+	bool isMusicMute;
+	BOOL isSoundsMute;
+int musicVolumeBeforeMute;
+int soundsVolumeBeforeMute;
 	int effectsBeforeMute;
 	bool isMuteEffects;
 
@@ -57,12 +58,17 @@ public:
 	afx_msg void OnAppExit();
 	afx_msg void OnVolumeDown();
 	afx_msg void OnVolumeUp();
-	afx_msg void OnVolumeOff();
 	afx_msg void OnVolumeOn();
-	afx_msg void OnUpdateVolumeUp(CCmdUI *pCmdUI);
+		afx_msg void OnUpdateVolumeUp(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateVolumeDown(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateVolumeOn(CCmdUI *pCmdUI);
-	afx_msg void OnUpdateVolumeOff(CCmdUI *pCmdUI);
+	afx_msg void OnSoundsVolumeDown();
+	afx_msg void OnSoundsVolumeUp();
+	afx_msg void OnSoundsVolumeOn();
+	afx_msg void OnUpdateSoundsVolumeUp(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateSoundsVolumeDown(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateSoundsVolumeOn(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateSoundsVolumeOff(CCmdUI* pCmdUI);
 	afx_msg void OnAddGameToLib();
 	afx_msg void OnOpenManager();
 	afx_msg void OnListsndOn();

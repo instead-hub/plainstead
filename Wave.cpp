@@ -15,15 +15,7 @@ int Wave::GetVolume()
 {
 	return currVol;
 }
-void Wave::Play(char* sound,int isLooping) {
-	//Как правильно освободить память?
-	/*HSAMPLE streamHandle = BASS_SampleLoad(FALSE, sound, 0, 0, 1, 0);
-	HCHANNEL channel = BASS_SampleGetChannel(streamHandle, FALSE);
-	BASS_ChannelSetAttribute(channel, BASS_ATTRIB_VOL, 0.8f);
-	BASS_ChannelPlay(streamHandle, true);
-	//BASS_SampleFree(streamHandle);
-	*/
-}
+
 Wave::Wave(char *filename)
 {
 	sample = BASS_SampleLoad(FALSE, filename, 0, 0, 1, 0);

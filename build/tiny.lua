@@ -6,7 +6,6 @@
 --if not prefs then prefs ={} end
 if API == 'stead3' then
 	require 'tiny3'
-	require "ext/sound"
 	local instead = std '@instead'
 	local iface = std '@iface'
 	instead.music_callback = function() end
@@ -43,4 +42,5 @@ instead_theme_name = function() return '.' end
 stead.ticks =instead_ticks
 get_ticks =instead_ticks
 require "ext/paths"
+require "ext/sound"
 require "ext/timer"

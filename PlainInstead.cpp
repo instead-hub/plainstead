@@ -37,22 +37,19 @@ extern int instead_sound_init(void);
 extern int instead_sprites_init(void);
 	extern int instead_timer_init(void);
 	extern int instead_bits_init(void);
-	extern void setGlobalSoundLevel(int volume);
-	extern int getGlobalSoundLevel();
-	extern void stopAllSound();
+	extern void setGlobalMusicLevel(int volume);
+	extern int getGlobalMusicLevel();
+	extern void setGlobalSoundsLevel(int volume);
+	extern int getGlobalSoundsLevel();
 	extern int gBassInit;
 	void restart() {
 		AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_RESTART_MENU, 0L);
 	};
 	void save() {
 		AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_FILE_SAVE_GAME, 0L);
-	};
-	void load() {
+	};void load() {
 		AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_FILE_OPEN, 0L);
 	};
-	void playSound(char* sound, int isLooping) {
-		Wave::Play(sound, isLooping);
-	}
 	void onNewInsteadCommand(char* cmd, char* p) {
 		//AfxMessageBox(L"Тест");
 		CPlainInsteadView::GetCurrentView()->onNewInsteadCommand(cmd, p, L"Таймер сработал");
@@ -119,12 +116,16 @@ BEGIN_MESSAGE_MAP(CPlainInsteadApp, CWinApp)
 	ON_COMMAND(ID_APP_EXIT, &CPlainInsteadApp::OnAppExit)
 	ON_COMMAND(ID_VOLUME_DOWN, &CPlainInsteadApp::OnVolumeDown)
 	ON_COMMAND(ID_VOLUME_UP, &CPlainInsteadApp::OnVolumeUp)
-	ON_COMMAND(ID_VOLUME_OFF, &CPlainInsteadApp::OnVolumeOff)
 	ON_COMMAND(ID_VOLUME_ON, &CPlainInsteadApp::OnVolumeOn)
 	ON_UPDATE_COMMAND_UI(ID_VOLUME_UP, &CPlainInsteadApp::OnUpdateVolumeUp)
 	ON_UPDATE_COMMAND_UI(ID_VOLUME_DOWN, &CPlainInsteadApp::OnUpdateVolumeDown)
 	ON_UPDATE_COMMAND_UI(ID_VOLUME_ON, &CPlainInsteadApp::OnUpdateVolumeOn)
-	ON_UPDATE_COMMAND_UI(ID_VOLUME_OFF, &CPlainInsteadApp::OnUpdateVolumeOff)
+	ON_COMMAND(ID_SOUNDS_VOLUME_DOWN, &CPlainInsteadApp::OnSoundsVolumeDown)
+	ON_COMMAND(ID_SOUNDS_VOLUME_UP, &CPlainInsteadApp::OnSoundsVolumeUp)
+	ON_COMMAND(ID_SOUNDS_VOLUME_ON, &CPlainInsteadApp::OnSoundsVolumeOn)
+	ON_UPDATE_COMMAND_UI(ID_SOUNDS_VOLUME_UP, &CPlainInsteadApp::OnUpdateSoundsVolumeUp)
+	ON_UPDATE_COMMAND_UI(ID_SOUNDS_VOLUME_DOWN, &CPlainInsteadApp::OnUpdateSoundsVolumeDown)
+	ON_UPDATE_COMMAND_UI(ID_SOUNDS_VOLUME_ON, &CPlainInsteadApp::OnUpdateSoundsVolumeOn)
 	ON_COMMAND(ID_ADD_GAME_TO_LIB, &CPlainInsteadApp::OnAddGameToLib)
 	ON_COMMAND(ID_OPEN_MANAGER, &CPlainInsteadApp::OnOpenManager)
 	ON_COMMAND(ID_LISTSND_ON, &CPlainInsteadApp::OnListsndOn)
@@ -140,7 +141,8 @@ END_MESSAGE_MAP()
 
 CPlainInsteadApp::CPlainInsteadApp()
 {
-	isMute = false;
+	isMusicMute = false;
+	isSoundsMute = false;
 	//m_openGame = FALSE;
 	// TODO: добавьте код создания,
 	// Размещает весь важный код инициализации в InitInstance
@@ -470,19 +472,19 @@ void CPlainInsteadApp::StartNewGameFile(CString file, CString name)
 	millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 	CIniFile mainSettings;
 	int needAutoLog = mainSettings.GetInt(L"main", L"mCheckAutoLog", 0 );
-	int savedVol = mainSettings.GetInt(L"main", L"mSavedVol", 80 );
-	soundBeforeMute = savedVol;
-	isMute = (bool)mainSettings.GetInt(L"main", L"mMuteMusic", 0);
-	
-	int savedEffectsVol = mainSettings.GetInt(L"main", L"mEffectsVol", 80);
+	isMusicMute = (bool)mainSettings.GetInt(L"main", L"mMuteMusic", 0);
+	isSoundsMute = (bool)mainSettings.GetInt(L"main", L"mMuteSounds", 0);
+	int savedVol = mainSettings.GetInt(L"main", L"mSavedVol", 100);
+	int savedSoundsVol = mainSettings.GetInt(L"main", L"mSavedSoundsVol", 100);
+	int savedEffectsVol = mainSettings.GetInt(L"main", L"mEffectsVol", 100);
 	effectsBeforeMute = savedEffectsVol;
 	isMuteEffects = (bool)mainSettings.GetInt(L"main", L"mMuteEffects", 0);
 	if (!isMuteEffects) Wave::SetVolume(savedEffectsVol);
 	else Wave::SetVolume(0);
-
-	stopAllSound();
-	if (!isMute) setGlobalSoundLevel(savedVol);
-	else setGlobalSoundLevel(0);
+musicVolumeBeforeMute = savedVol;
+soundsVolumeBeforeMute = savedSoundsVol;
+	if (!isMusicMute)setGlobalMusicLevel(savedVol); else setGlobalMusicLevel(0);
+	if (!isSoundsMute)setGlobalSoundsLevel(savedSoundsVol); else setGlobalSoundsLevel(0);
 	//Сохраняем параметры для автосохранения
 	mainSettings.WriteString(L"main", L"lastGameFile", file);
 	mainSettings.WriteString(L"main", L"lastGameName", name);
@@ -755,8 +757,7 @@ void CPlainInsteadApp::OnAppExit()
 	{
 		instead_done();
 		if (gBassInit) BASS_Free();
-		
-		CWinApp::CloseAllDocuments(FALSE);
+				CWinApp::CloseAllDocuments(FALSE);
 		ASSERT(AfxGetApp()->m_pMainWnd != NULL);
 		AfxGetApp()->m_pMainWnd->SendMessage(WM_CLOSE);
 	}
@@ -781,30 +782,24 @@ void CPlainInsteadApp::OnSysCommand(UINT nID, LPARAM lParam)
 
 void CPlainInsteadApp::OnVolumeDown()
 {
-	if (getGlobalSoundLevel()>0){
-		int newLevel = getGlobalSoundLevel()-10;
-		soundBeforeMute = newLevel;
+	if (getGlobalMusicLevel() > 0) {
+		int newLevel = getGlobalMusicLevel() -5;
 		CIniFile mainSettings;
-		mainSettings.WriteNumber(L"main", L"mSavedVol", newLevel );
-		setGlobalSoundLevel(newLevel);
+		mainSettings.WriteNumber(L"main", L"mSavedVol", newLevel);
+		musicVolumeBeforeMute = newLevel;
+		setGlobalMusicLevel(newLevel);
 	}
 }
 
 void CPlainInsteadApp::OnVolumeUp()
 {
-	if (getGlobalSoundLevel()<100){
-		int newLevel = getGlobalSoundLevel()+10;
-		soundBeforeMute = newLevel;
-		CIniFile mainSettings;
-		mainSettings.WriteNumber(L"main", L"mSavedVol", newLevel );
-		setGlobalSoundLevel(newLevel);
+	if (getGlobalMusicLevel() < 100) {
+		int newLevel = getGlobalMusicLevel() +5;
+				CIniFile mainSettings;
+		mainSettings.WriteNumber(L"main", L"mSavedVol", newLevel);
+		musicVolumeBeforeMute = newLevel;
+		setGlobalMusicLevel(newLevel);
 	}
-}
-
-void CPlainInsteadApp::OnVolumeOff()
-{
-	//setGlobalSoundLevel(0);
-	//isMute = true;
 }
 
 void CPlainInsteadApp::OnVolumeOn()
@@ -813,17 +808,17 @@ void CPlainInsteadApp::OnVolumeOn()
 	if (pMenu != NULL)
 	{
 		CIniFile mainSettings;
-		if (isMute) {
-			setGlobalSoundLevel(soundBeforeMute);
-			isMute = false;
+		if (isMusicMute) {
 			mainSettings.WriteNumber(L"main", L"mMuteMusic", 0);
-			pMenu->CheckMenuItem(ID_VOLUME_ON, MF_CHECKED | MF_BYCOMMAND);
+			isMusicMute = FALSE;
+			setGlobalMusicLevel(musicVolumeBeforeMute);
+						pMenu->CheckMenuItem(ID_VOLUME_ON, MF_CHECKED | MF_BYCOMMAND);
 		}
 		else
 		{
-			setGlobalSoundLevel(0);
-			isMute = true;
 			mainSettings.WriteNumber(L"main", L"mMuteMusic", 1);
+			isMusicMute = TRUE;
+			setGlobalMusicLevel(0);
 			pMenu->CheckMenuItem(ID_VOLUME_ON, MF_UNCHECKED | MF_BYCOMMAND);
 		}
 	}
@@ -831,12 +826,12 @@ void CPlainInsteadApp::OnVolumeOn()
 
 void CPlainInsteadApp::OnUpdateVolumeUp(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && !isMute && (getGlobalSoundLevel()<100));
+	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && !isMusicMute && (getGlobalMusicLevel()<100));
 }
 
 void CPlainInsteadApp::OnUpdateVolumeDown(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && !isMute && (getGlobalSoundLevel()>0));
+	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && !isMusicMute && (getGlobalMusicLevel()>0));
 }
 
 void CPlainInsteadApp::OnUpdateVolumeOn(CCmdUI *pCmdUI)
@@ -845,12 +840,66 @@ void CPlainInsteadApp::OnUpdateVolumeOn(CCmdUI *pCmdUI)
 	CIniFile mainSettings;
 	pCmdUI->SetCheck(!mainSettings.GetInt(L"main", L"mMuteMusic", 0));
 }
-
-void CPlainInsteadApp::OnUpdateVolumeOff(CCmdUI *pCmdUI)
+void CPlainInsteadApp::OnSoundsVolumeDown()
 {
-	//pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && !isMute);
+	if (getGlobalSoundsLevel() > 0) {
+		int newLevel = getGlobalSoundsLevel() -5;
+		CIniFile mainSettings;
+		mainSettings.WriteNumber(L"main", L"mSavedSoundsVol", newLevel);
+		setGlobalSoundsLevel(newLevel);
+soundsVolumeBeforeMute = newLevel;
+	}
 }
 
+void CPlainInsteadApp::OnSoundsVolumeUp()
+{
+	if (getGlobalSoundsLevel() < 100) {
+		int newLevel = getGlobalSoundsLevel() +5;
+		CIniFile mainSettings;
+		mainSettings.WriteNumber(L"main", L"mSavedSoundsVol", newLevel);
+		soundsVolumeBeforeMute = newLevel;
+		setGlobalSoundsLevel(newLevel);
+	}
+}
+
+void CPlainInsteadApp::OnSoundsVolumeOn()
+{
+	CMenu* pMenu = m_pMainWnd->GetMenu();
+	if (pMenu != NULL)
+	{
+		CIniFile mainSettings;
+		if (isSoundsMute) {
+						mainSettings.WriteNumber(L"main", L"mMuteSounds", 0);
+						isSoundsMute = false;
+			pMenu->CheckMenuItem(ID_SOUNDS_VOLUME_ON, MF_CHECKED | MF_BYCOMMAND);
+			setGlobalSoundsLevel(soundsVolumeBeforeMute);
+		}
+		else
+		{
+			mainSettings.WriteNumber(L"main", L"mMuteSounds", 1);
+			isSoundsMute = true;
+			setGlobalSoundsLevel(0);
+						pMenu->CheckMenuItem(ID_SOUNDS_VOLUME_ON, MF_UNCHECKED | MF_BYCOMMAND);
+		}
+	}
+}
+
+void CPlainInsteadApp::OnUpdateSoundsVolumeUp(CCmdUI* pCmdUI)
+{
+	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && !isSoundsMute && (getGlobalSoundsLevel() < 100));
+}
+
+void CPlainInsteadApp::OnUpdateSoundsVolumeDown(CCmdUI* pCmdUI)
+{
+	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && !isSoundsMute && (getGlobalSoundsLevel() > 0));
+}
+
+void CPlainInsteadApp::OnUpdateSoundsVolumeOn(CCmdUI* pCmdUI)
+{
+	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame());
+	CIniFile mainSettings;
+	pCmdUI->SetCheck(!mainSettings.GetInt(L"main", L"mMuteSounds", 0));
+}
 //////////////////////////// Уровень эффектов обновлений списков
 
 void CPlainInsteadApp::OnListsndOn()

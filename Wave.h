@@ -8,7 +8,6 @@ class Wave {
 public:
 	static void SetVolume(int vol);
 	static int GetVolume();
-	static void Play(char* sound,int isLooping);
 	Wave(char *filename);
 	~Wave();
 	void play(bool ignore_settings = false);
