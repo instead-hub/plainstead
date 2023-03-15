@@ -621,7 +621,7 @@ static int luaB_panning_sound(lua_State* L) {
 	int left = luaL_optnumber(L, 2, 255);
 	int right = luaL_optnumber(L, 3, 255);
 	float vol, pan;
-	if (left = right) {
+	if (left == right) {
 		vol = left / 255.0f;
 		pan = 0;
 	}
