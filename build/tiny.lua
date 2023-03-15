@@ -1,4 +1,5 @@
--- some stubs for tiny-instead
+
+ -- some stubs for tiny-instead
 -- fake game.gui
 -- stat, menu
 -- fake audio
@@ -38,9 +39,11 @@ if API == 'stead3' then
 else
 	require 'tiny2'
 end
-instead_theme_name = function() return '.' end
+instead_theme_name = function() return '' end
+instead_font_load =function() return {} end
 stead.ticks =instead_ticks
 get_ticks =instead_ticks
+mouse_pos =function() return 0,0 end
 require "ext/paths"
 require "ext/sound"
 require "ext/timer"

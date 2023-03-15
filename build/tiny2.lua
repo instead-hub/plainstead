@@ -413,7 +413,7 @@ function instead_sprite_free() end
 function instead_sprites_free() end
 function instead_font_free() end
 function instead_fonts_free() end
-function instead_font_load() end
+function instead_font_load() return {} end
 function instead_font_scaled_size()
 return 0
 end
