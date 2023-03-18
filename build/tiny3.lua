@@ -142,7 +142,7 @@ function iface:xref(str, o, ...)
 	if std.cmd[1] == 'way' then
 		return "[a]"..str..std.string.format("#%s", xref).."[/a]"
 	elseif o:type 'menu' or std.is_system(o) then
-		return "[a]"..str..std.string.format("#%s", xref).."[/a]"
+		return "[a]"..str..std.string.format("#%s", xref+1000).."[/a]"
 	elseif std.cmd[1] == 'inv' then
 		return "[a]"..str..std.string.format("#%s", xref).."[/a]"
 	end
