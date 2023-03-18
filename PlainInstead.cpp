@@ -53,7 +53,7 @@ extern int instead_sprites_init(void);
 	void onNewInsteadCommand(char* cmd, char* p) {
 		//AfxMessageBox(L"Тест");
 		CPlainInsteadView::GetCurrentView()->onNewInsteadCommand(cmd, p, L"Таймер сработал");
-		free(cmd);
+		if(cmd) free(cmd);
 	}
 	uint64_t getTicks() {
 		return millis - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();;
@@ -204,7 +204,7 @@ BOOL CPlainInsteadApp::InitInstance()
 		gBassInit = 0;
 	}
 
-	if (BASS_Init(-1, 44100, BASS_DEVICE_DEFAULT | BASS_DEVICE_FREQ, 0, NULL) == 0) {
+	if (BASS_Init(-1, 48000, BASS_DEVICE_DEFAULT | BASS_DEVICE_FREQ, 0, NULL) == 0) {
 		gBassInit = 0;
 	}
 
@@ -490,7 +490,7 @@ soundsVolumeBeforeMute = savedSoundsVol;
 	mainSettings.WriteString(L"main", L"lastGameName", name);
 	//Определяем путь для сохранения
 TCHAR buff[MAX_PATH];
-	memset(buff, 0, MAX_PATH);
+	//memset(buff, 0, MAX_PATH);
 	::GetModuleFileName(NULL, buff, sizeof(buff));
 	CString baseDir = buff;
 	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
@@ -779,11 +779,11 @@ void CPlainInsteadApp::OnSysCommand(UINT nID, LPARAM lParam)
     }
 }
 */
-
+#define step_vol 5
 void CPlainInsteadApp::OnVolumeDown()
 {
 	if (getGlobalMusicLevel() > 0) {
-		int newLevel = getGlobalMusicLevel() -5;
+		int newLevel = getGlobalMusicLevel() -step_vol;
 		CIniFile mainSettings;
 		mainSettings.WriteNumber(L"main", L"mSavedVol", newLevel);
 		musicVolumeBeforeMute = newLevel;
@@ -794,7 +794,7 @@ void CPlainInsteadApp::OnVolumeDown()
 void CPlainInsteadApp::OnVolumeUp()
 {
 	if (getGlobalMusicLevel() < 100) {
-		int newLevel = getGlobalMusicLevel() +5;
+		int newLevel = getGlobalMusicLevel() +step_vol;
 				CIniFile mainSettings;
 		mainSettings.WriteNumber(L"main", L"mSavedVol", newLevel);
 		musicVolumeBeforeMute = newLevel;
@@ -843,7 +843,7 @@ void CPlainInsteadApp::OnUpdateVolumeOn(CCmdUI *pCmdUI)
 void CPlainInsteadApp::OnSoundsVolumeDown()
 {
 	if (getGlobalSoundsLevel() > 0) {
-		int newLevel = getGlobalSoundsLevel() -5;
+		int newLevel = getGlobalSoundsLevel() -step_vol;
 		CIniFile mainSettings;
 		mainSettings.WriteNumber(L"main", L"mSavedSoundsVol", newLevel);
 		setGlobalSoundsLevel(newLevel);
@@ -854,7 +854,7 @@ soundsVolumeBeforeMute = newLevel;
 void CPlainInsteadApp::OnSoundsVolumeUp()
 {
 	if (getGlobalSoundsLevel() < 100) {
-		int newLevel = getGlobalSoundsLevel() +5;
+		int newLevel = getGlobalSoundsLevel() +step_vol;
 		CIniFile mainSettings;
 		mainSettings.WriteNumber(L"main", L"mSavedSoundsVol", newLevel);
 		soundsVolumeBeforeMute = newLevel;

@@ -43,6 +43,8 @@ CPlainInsteadView* CPlainInsteadView::GetCurrentView()
 
 static UINT WM_FINDREPLACE = ::RegisterWindowMessage(FINDMSGSTRING);
 static CString text[2];
+static CString first_er,inv_er, inv;
+static int first_er_pos=-1,inv_pos=-1; //С какой позиции добавляется текст после ошибки и инвентарь //инвентарь и пути для отладки.
 static bool debug;
 IMPLEMENT_DYNCREATE(CPlainInsteadView, CFormView)
 
@@ -308,6 +310,7 @@ static std::wstring process_instead_text(std::wstring inp, //входной текст
 			CString oldText;
 			if (pos <= resBox.GetCount() - 1)resBox.GetText(pos, oldText);
 			if (!prev_map.count(pos) || map_action[pos] != prev_map[pos] || oldText != addStr) {
+//if(prev_map.count(pos) &&map_action[pos] != prev_map[pos])AfxMessageBox(L"Тест");
 				shouldRedraw = true;
 				/*CString test;
 				test.Format(L"%s %d %d", addStr,pos,resBox.GetCount());
@@ -346,12 +349,6 @@ static CString getLogsDir() {
 	return baseDir + L"logs\\";
 }
 void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLog) {
-	CString er;
-	std::map<int, int> prev_map = pos_id_scene;
-	pos_id_scene.clear();
-	//act_on_scene.clear();
-	text[0] = L"";
-	text[1] = L"";
 	if (inv_save_index >= 0) //Снимаем выбор и восстанавливаем item
 	{
 		int pos = mListInv.GetCurSel();
@@ -362,13 +359,18 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLo
 		inv_save_index = -1;
 			}
 	bool shouldRedraw = false;
-	CString tmp;
+	CString er,tmp;
 	Utf8ToCString(tmp, cmd);
 	//free(cmd);
-	er = getError(tmp);
-	text[0].Append(er);
-	text[1].Append(er);
+	std::map<int, int> prev_map = pos_id_scene;
+bool onlyInvRedraw = true;
+first_er = getError(tmp);
 	if (p && *p) {
+		onlyInvRedraw = false;
+		pos_id_scene.clear();
+		//act_on_scene.clear();
+		text[0] = L"";
+		text[1] = L"";
 		Utf8ToCString(tmp, p);
 		free(p);
 		std::wstring buf = tmp.GetBuffer();
@@ -382,38 +384,37 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLo
 			shouldRedraw = false;
 			wave_scene->play();
 		}
-	}
-	else mListScene.ResetContent();
-	prev_map = pos_id_ways;
-	pos_id_ways.clear();
-	p = instead_cmd("way", NULL);
-	er = getError(L"way");
-	text[0].Append(er);
-	text[1].Append(er);
-	if (p && *p) {
-		Utf8ToCString(tmp, p);
-		free(p);
-		//Добавление путей к окну вывода
-		//text[0].Append(L">> ");
-		//text[0].Append(tmp);
-		//text[0].Append(L"\n");
-				//Добавляем пути для отладочной переменной.
-		text[1].Append(tmp);
-		std::wstring buf = tmp.GetBuffer();
-		std::wstring result = process_instead_text(buf, mListWays, prev_map, pos_id_ways, shouldRedraw);
-		tmp.ReleaseBuffer();
-		if (/*m_BeepList && */shouldRedraw) {
-			shouldRedraw = false;
-			wave_ways->play();
+		prev_map = pos_id_ways;
+		pos_id_ways.clear();
+		p = instead_cmd("way", NULL);
+		er = getError(L"way");
+		text[0].Append(er);
+		text[1].Append(er);
+		if (p && *p) {
+			Utf8ToCString(tmp, p);
+			free(p);
+			//Добавление путей к окну вывода
+			//text[0].Append(L">> ");
+			//text[0].Append(tmp);
+			//text[0].Append(L"\n");
+					//Добавляем пути для отладочной переменной.
+			text[1].Append(tmp);
+			std::wstring buf = tmp.GetBuffer();
+			std::wstring result = process_instead_text(buf, mListWays, prev_map, pos_id_ways, shouldRedraw);
+			tmp.ReleaseBuffer();
+			if (/*m_BeepList && */shouldRedraw) {
+				shouldRedraw = false;
+				wave_ways->play();
+			}
 		}
+		else mListWays.ResetContent();
 	}
-	else mListWays.ResetContent();
+	//Если результат команды NULL,перерисовываем только инвентарь.
 	p = instead_cmd("inv", NULL);
 	prev_map = pos_id_inv;
 	pos_id_inv.clear();
-	er = getError(L"inv");
-	text[0].Append(er);
-	text[1].Append(er);
+	inv_er = getError(L"inv");
+	if (inv_er &&inv_er.GetLength()>0) onlyInvRedraw = false; //Раз у нас возникла ошибка,обновляем текст.
 	if (p && *p) {
 		Utf8ToCString(tmp, p);
 		free(p);
@@ -422,10 +423,10 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLo
 		//text[0].Append(tmp);
 		//text[0].Append(L"\n");
 		//Добавляем инвентарь для отладочной переменной.
-		text[1].Append(tmp);
 		std::wstring buf = tmp.GetBuffer();
 		std::wstring result = process_instead_text(buf, mListInv, prev_map, pos_id_inv, shouldRedraw);
 		tmp.ReleaseBuffer();
+inv=tmp;
 		if (/*m_BeepList && */shouldRedraw) {
 			//PlaySound(baseSoundDir+_T("inventory.wav"), NULL, SND_MEMORY | SND_FILENAME | SND_ASYNC | SND_NOSTOP);
 			shouldRedraw = false;
@@ -433,8 +434,10 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLo
 		}
 	}
 	else mListInv.ResetContent();
-	text[0].Replace(L"\n", L"\r\n");
-	updateText();
+	if (!onlyInvRedraw) {
+		text[0].Replace(L"\n", L"\r\n");
+		updateText();
+}
 	if (isLogOn)
 	{
 		CString logsDir = getLogsDir();
@@ -491,18 +494,17 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLo
 	}
 }
 void CPlainInsteadView::updateText(char* txt) {
+	CString result;
 	if (txt) {
-		CString tmp;
-		Utf8ToCString(tmp, txt);
-		text[0] = tmp;
-		text[1] = tmp;
+		Utf8ToCString(result, txt);
 		//free(txt);
-		tmp.ReleaseBuffer(tmp.GetLength());
+		result.ReleaseBuffer(result.GetLength());
 	}
-	m_OutEdit.SetWindowTextW(text[debug]);
+	else result = first_er + text[debug] + inv_er + (debug ? inv : L"");
+	m_OutEdit.SetWindowTextW(result);
 	if (!m_jump_to_out) UpdateFocusLogic();
 	if (m_jump_to_out) m_OutEdit.SetFocus();
-	if (m_auto_say) MultiSpeech::getInstance().Say(text[debug]);
+	if (m_auto_say) MultiSpeech::getInstance().Say(result);
 }
 
 static std::string utf8_encode(const CStringW srcW)
@@ -648,6 +650,27 @@ code.Format(L"%s",act_on_scene[sel_pos]);
 	}
 	else if (pMsg->message == WM_KEYDOWN && ::GetKeyState(VK_CONTROL) < 0 && (GetFocus() == &m_OutEdit || GetFocus() == &m_InputEdit))
 	{
+		/*if (pMsg->wParam == VK_RETURN && GetFocus() == &m_InputEdit) {
+			struct instead_args args[8];
+			args[0].val = "text";
+			args[0].type = INSTEAD_STR;
+			args[1].val = "e";
+			args[1].type = INSTEAD_STR;
+			args[2].val = NULL;
+			instead_lock();
+			if (!instead_function("iface:input", args)) {
+				MessageBoxA(0, "Тест", "", 0);
+				char* cmd = instead_retval(0);
+					if (cmd) {
+						MessageBoxA(0, cmd, "", 0);
+							free(cmd);
+					}
+			}
+			instead_clear();
+				instead_unlock();
+				m_InputEdit.SetWindowTextW(L"");
+				return true;
+		}*/
 		CEdit* currEdit = (CEdit*)GetFocus();
 		switch (pMsg->wParam)
 		{

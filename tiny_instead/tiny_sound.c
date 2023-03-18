@@ -38,9 +38,14 @@ typedef struct {
 typedef struct {
 	_snd_t* snd;
 	int	loop;
+	float pan;
+} _snd_chan_t;
+typedef struct {
+	_snd_t* snd;
+	int	loop;
 	int	channel;
 } _snd_req_t;
-static _snd_t* channels[SND_CHANNELS];
+static _snd_chan_t channels[SND_CHANNELS];
 static _snd_req_t sound_reqs[SND_CHANNELS];
 static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, void* user);
 static void fun(int a);
@@ -91,9 +96,9 @@ static int  sound_playing(_snd_t* snd)
 {
 	int i;
 	for (i = 0; i < SND_CHANNELS; i++) {
-		if (channels[i] == snd)
+		if (&channels[i] &&channels[i].snd == snd)
 			return i;
-		if (sound_reqs[i].snd == snd)
+		if (&sound_reqs[i] &&sound_reqs[i].snd == snd)
 			return i;
 	}
 	return -1;
@@ -105,13 +110,13 @@ static const char* sound_channel(int i)
 		i = i % SND_CHANNELS;
 	if (i == -1) {
 		for (i = 0; i < SND_CHANNELS; i++) {
-			sn = channels[i];
+			sn = channels[i].snd;
 			if (sn && !sn->system)
 				return sn->fname;
 		}
 		return NULL;
 	}
-	sn = channels[i];
+	sn = channels[i].snd;
 	if (!sn || sn->system)
 		return NULL; /* NULL or hidden system sound */
 	return sn->fname;
@@ -162,7 +167,7 @@ static void sounds_free(void)
 		pos = pos2;
 	}
 	for (i = 0; i < SND_CHANNELS; i++) {
-		channels[i] = NULL;
+		channels[i].snd = NULL;
 		sound_reqs[i].snd = NULL;
 	}
 	/*	sounds_nr = 0;
@@ -190,7 +195,7 @@ static int sound_find_channel(void)
 {
 	int i;
 	for (i = 0; i < SND_CHANNELS; i++) {
-		if (!channels[i] && !sound_reqs[i].snd)
+		if (!channels[i].snd && !sound_reqs[i].snd)
 			return i;
 	}
 	return -1;
@@ -227,10 +232,12 @@ static void halt_chan(int chan, int ms)
 {
 	if (chan >= SND_CHANNELS)chan %= SND_CHANNELS;
 	if (chan == -1) {
+		for (int a = 0; a < SND_CHANNELS; a++) halt_chan(a, ms);
 		return;
 	}
-	else if (!channels[chan]) return;
-	BASS_ChannelStop(channels[chan]->chan);
+	else if (!channels[chan].snd) return;
+	if (BASS_ChannelFlags(channels[chan].snd->chan, 0, 0) & BASS_SAMPLE_LOOP) BASS_ChannelFlags(channels[chan].snd->chan, 0, BASS_SAMPLE_LOOP);
+	BASS_ChannelStop(channels[chan].snd->chan);
 	fun(chan);
 }
 static const char* get_filename_ext(const char* filename) {
@@ -259,9 +266,9 @@ static void setPlayableInfo(char* mus, HSAMPLE* sam, HCHANNEL* channel, DWORD lo
 		}
 	}
 	if (*channel) {
-		if (!loop_flag) BASS_ChannelSetSync(*channel, /*BASS_SYNC_ONETIME |*/ BASS_SYNC_END, 0, &finishCallback, 0);
+		if (!loop_flag) BASS_ChannelSetSync(*channel, /*BASS_SYNC_ONETIME |*/ BASS_SYNC_END, 0, finishCallback, 0);
 		BASS_ChannelSetAttribute(*channel, BASS_ATTRIB_VOL, cf_in ? 0.0f : *channel == back_channel ? global_mus_lvl : global_sounds_lvl);
-		if (cf_in) BASS_ChannelSlideAttribute(*channel, BASS_ATTRIB_VOL, *channel == back_channel ? global_mus_lvl : global_sounds_lvl, cf_in);
+		if (cf_in) BASS_ChannelSlideAttribute(*channel, BASS_ATTRIB_VOL, *channel == back_channel ? global_mus_lvl: global_sounds_lvl, cf_in);
 	}
 }
 //Добавление звука к списку звуков.
@@ -314,15 +321,19 @@ static void sound_play(_snd_t* sn, int chan, int loop) {
 	}
 	else
 		c = chan;
-	if (channels[c]) {
+	if (channels[c].snd) {
 		sound_reqs[c].snd = sn;
 		sound_reqs[c].loop = loop;
 		sound_reqs[c].channel = chan;
-		halt_chan(chan, 0); /* work in callback */
-		//input_uevents(); /* all callbacks */
-		return;
+		if (channels[c].snd) {
+			halt_chan(chan, 0); /* work in callback */
+					//input_uevents(); /* all callbacks */
+			return;
+		}
 	}
-	channels[c] = sn;
+	channels[c].snd = sn;
+	if (loop != 1 && !(BASS_ChannelFlags(sn->chan, 0, 0) & BASS_SAMPLE_LOOP))  BASS_ChannelFlags(sn->chan, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
+	BASS_ChannelSetAttribute(sn->chan, BASS_ATTRIB_PAN,channels[c].pan);
 	BASS_ChannelPlay(sn->chan, FALSE);
 	//MessageBox(0, L"", L"Тест", 0);
 		/*	fprintf(stderr, "added: %d\n", c); */
@@ -362,7 +373,8 @@ static int _play_combined_snd(char* filename, int chan, int loop)
 		if (sn)
 			sound_play(sn, c, l);
 		else if (at || c != -1) { /* if @ or specific channel */
-			halt_chan(c, (at == 2) ? l : 500);
+//halt_chan(c, (at == 2) ? l : 500);
+			halt_chan(c, 0);
 		}
 		p = ep;
 	}
@@ -373,8 +385,8 @@ err:
 	return -1;
 }
 static void fun(int a) {
-	_snd_req_t* r = &sound_reqs[a];
-	channels[a] = NULL;
+_snd_req_t* r = &sound_reqs[a];
+	channels[a].snd = NULL;
 	if (r->snd) {
 		_snd_t* s = r->snd;
 		r->snd = NULL;
@@ -384,35 +396,40 @@ static void fun(int a) {
 		halt_chan(a, 0); // to avoid races
 	}
 }
+static void finishMusicLua() {
+	instead_lock();
+	instead_function("instead.finish_music", NULL);
+	int rc = instead_bretval(0);
+	instead_clear();
+	instead_unlock();
+}
 static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, void* user)
 {
-	if (channel == old_channel) {
+	if (channel == old_channel &&back_channel) {
 		//Приглушение завершено.
 		media_free(&old_music, &old_channel);
-		if (back_channel) {
 			//BASS_ChannelSetAttribute(back_channel, BASS_ATTRIB_VOL, global_mus_lvl);
 			BASS_ChannelPlay(back_channel, FALSE);
-		}
 	}
-	else if (channel == back_channel) {
-		instead_lock();
-		instead_function("instead.finish_music", NULL);
-		int rc = instead_bretval(0);
-		instead_clear();
-		instead_unlock();
-		musFree(0);
+	else if (channel == back_channel ||channel ==old_channel) {
+		//Канал остановлен,или приглушение завершено и больше нечего играть.
+		finishMusicLua();
+		if (channel == old_channel) media_free(&old_music, &old_channel); else musFree(0);
 	}
 	else {
 		for (int a = 0; a < SND_CHANNELS; a++) {
-			if (channels[a] && channel == channels[a]->chan) {
-				fun(a);
+			if (channels[a].snd && channel == channels[a].snd->chan) {
+				if (&sound_reqs[a] && sound_reqs[a].snd && sound_reqs[a].loop !=1) {
+										if (sound_reqs[a].loop > 1) sound_reqs[a].loop--;
+									}
+				else fun(a);
 				break;
 			}
 		}
 		/*int chan = *((int*)user);
 				if (channel > SND_CHANNELS)channel %= SND_CHANNELS;
 				if (chan != -1) {
-					channels[chan] = NULL;
+					channels[chan].snd = NULL;
 					r = &sound_reqs[chan];
 					if (r->snd) {
 						_snd_t* s = r->snd;
@@ -441,7 +458,7 @@ static void sounds_reload(void)
 			setPlayableInfo(sn->fname, &sn->sam, &sn->chan, 0, 0);
 	}
 	for (i = 0; i < SND_CHANNELS; i++) {
-		channels[i] = NULL;
+		channels[i].snd = NULL;
 		sound_reqs[i].snd = NULL;
 	}
 	//input_uevents(); /* all callbacks */
@@ -617,7 +634,6 @@ static int luaB_channel_sound(lua_State* L) {
 }
 static int luaB_panning_sound(lua_State* L) {
 	int chan = luaL_optinteger(L, 1, -1);
-	if (chan == -1 || !channels[chan]);
 	int left = luaL_optnumber(L, 2, 255);
 	int right = luaL_optnumber(L, 3, 255);
 	float vol, pan;
@@ -633,7 +649,8 @@ static int luaB_panning_sound(lua_State* L) {
 		vol = right / 255.0f;
 		pan = 1 - (left / right);
 	}
-	BASS_ChannelSetAttribute(channels[chan]->chan, BASS_ATTRIB_PAN, pan);
+	channels[chan].pan = pan;
+	BASS_ChannelSetAttribute(channels[chan].snd->chan, BASS_ATTRIB_PAN, pan);
 	return 0;
 }
 static int luaB_free_sound(lua_State* L) {
@@ -783,8 +800,8 @@ old_music = back_music;\
 back_music =0;\
 back_channel =0;\
 }\
-BASS_ChannelSetSync(old_channel, BASS_SYNC_SLIDE, 0, &finishCallback, 0);\
-BASS_ChannelSlideAttribute(old_channel, BASS_ATTRIB_VOL, 0.0f, cf_out);\
+BASS_ChannelSetSync(old_channel, BASS_SYNC_SLIDE, 0, finishCallback, 0);\
+BASS_ChannelSlideAttribute(old_channel, BASS_ATTRIB_VOL, -1.0f, cf_out);\
 }
 #endif
 	//Играем или останавливаем музыку, надо учитывать останов предыдущей
@@ -890,7 +907,7 @@ void setGlobalMusicLevel(int volume)
 
 	global_mus_lvl = volume / 100.0f;
 	//  музыка
-	if (back_channel) BASS_ChannelSetAttribute(back_channel, BASS_ATTRIB_VOL, global_mus_lvl);
+	if (back_channel)BASS_ChannelSetAttribute(back_channel, BASS_ATTRIB_VOL, global_mus_lvl);
 }
 
 int getGlobalMusicLevel()
@@ -905,7 +922,7 @@ void setGlobalSoundsLevel(int volume)
 	//Для всех работающих каналов
 	global_sounds_lvl = volume / 100.0f;
 	for (int a = 0; a < SND_CHANNELS; a++) {
-		if (channels[a] && channels[a]->chan) BASS_ChannelSetAttribute(channels[a]->chan, BASS_ATTRIB_VOL, global_sounds_lvl);
+		if (channels[a].snd && channels[a].snd->chan) BASS_ChannelSetAttribute(channels[a].snd->chan, BASS_ATTRIB_VOL, global_sounds_lvl);
 	}
 }
 

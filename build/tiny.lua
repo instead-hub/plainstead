@@ -39,7 +39,7 @@ if API == 'stead3' then
 else
 	require 'tiny2'
 end
-instead_theme_name = function() return '' end
+instead_theme_name = function() return '.' end
 instead_font_load =function() return {} end
 stead.ticks =instead_ticks
 get_ticks =instead_ticks
