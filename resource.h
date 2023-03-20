@@ -146,7 +146,6 @@
 #define ID_32872                        32872
 #define ID_32873                        32873
 #define ID_ON_SOUND                     32874
-#define ID_VOLUME_ON                    32875
 #define ID_32879                        32879
 #define ID_UPDATE                       32880
 #define ID_32882                        32882
