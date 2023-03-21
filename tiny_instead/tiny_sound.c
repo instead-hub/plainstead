@@ -235,10 +235,10 @@ static void halt_chan(int chan, int ms)
 		for (int a = 0; a < SND_CHANNELS; a++) halt_chan(a, ms);
 		return;
 	}
-	else if (!channels[chan].snd) return;
-	if (BASS_ChannelFlags(channels[chan].snd->chan, 0, 0) & BASS_SAMPLE_LOOP) BASS_ChannelFlags(channels[chan].snd->chan, 0, BASS_SAMPLE_LOOP);
-	BASS_ChannelStop(channels[chan].snd->chan);
-	fun(chan);
+	if (!channels[chan].snd) return;
+		if (BASS_ChannelFlags(channels[chan].snd->chan, 0, 0) & BASS_SAMPLE_LOOP) BASS_ChannelFlags(channels[chan].snd->chan, 0, BASS_SAMPLE_LOOP);
+		BASS_ChannelStop(channels[chan].snd->chan);
+		fun(chan);
 }
 static const char* get_filename_ext(const char* filename) {
 	const char* dot = strrchr(filename, '.');
@@ -325,17 +325,15 @@ static void sound_play(_snd_t* sn, int chan, int loop) {
 		sound_reqs[c].snd = sn;
 		sound_reqs[c].loop = loop;
 		sound_reqs[c].channel = chan;
-		if (channels[c].snd) {
 			halt_chan(chan, 0); /* work in callback */
 					//input_uevents(); /* all callbacks */
 			return;
 		}
-	}
 	channels[c].snd = sn;
+	channels[c].loop = loop;
 	if (loop != 1 && !(BASS_ChannelFlags(sn->chan, 0, 0) & BASS_SAMPLE_LOOP))  BASS_ChannelFlags(sn->chan, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
 	BASS_ChannelSetAttribute(sn->chan, BASS_ATTRIB_PAN,channels[c].pan);
 	BASS_ChannelPlay(sn->chan, FALSE);
-	//MessageBox(0, L"", L"Тест", 0);
 		/*	fprintf(stderr, "added: %d\n", c); */
 }
 static int _play_combined_snd(char* filename, int chan, int loop)
@@ -374,6 +372,9 @@ static int _play_combined_snd(char* filename, int chan, int loop)
 			sound_play(sn, c, l);
 		else if (at || c != -1) { /* if @ or specific channel */
 //halt_chan(c, (at == 2) ? l : 500);
+			/*char buf[32];
+			sprintf(buf, "%d", c);
+			MessageBox(0, buf, "", 0);*/
 			halt_chan(c, 0);
 		}
 		p = ep;
@@ -405,25 +406,25 @@ static void finishMusicLua() {
 }
 static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, void* user)
 {
-	if (channel == old_channel &&back_channel) {
+	if (channel == old_channel ) {
 		//Приглушение завершено.
 		media_free(&old_music, &old_channel);
 			//BASS_ChannelSetAttribute(back_channel, BASS_ATTRIB_VOL, global_mus_lvl);
-			BASS_ChannelPlay(back_channel, FALSE);
+			if(back_channel)BASS_ChannelPlay(back_channel, FALSE);
 	}
-	else if (channel == back_channel ||channel ==old_channel) {
+	else if (channel == back_channel) {
 		//Канал остановлен,или приглушение завершено и больше нечего играть.
 		finishMusicLua();
-		if (channel == old_channel) media_free(&old_music, &old_channel); else musFree(0);
 	}
 	else {
 		for (int a = 0; a < SND_CHANNELS; a++) {
 			if (channels[a].snd && channel == channels[a].snd->chan) {
-				if (&sound_reqs[a] && sound_reqs[a].snd && sound_reqs[a].loop !=1) {
-										if (sound_reqs[a].loop > 1) sound_reqs[a].loop--;
-									}
-				else fun(a);
-				break;
+				if (channels[a].loop != 1) {
+					if (channels[a].loop > 1) channels[a].loop--;
+					return;
+				}
+					fun(a);
+									break;
 			}
 		}
 		/*int chan = *((int*)user);
@@ -857,6 +858,7 @@ static void game_sound_player(void)
 	chan = instead_iretval(1);
 	snd = instead_retval(0);
 	instead_clear();
+	//if (chan==-1) MessageBoxA(0, "", buf, 0);
 	if (!snd) {
 		if (chan != -1) {
 			/* halt channel */
