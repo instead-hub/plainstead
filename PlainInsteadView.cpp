@@ -242,8 +242,7 @@ bool Utf8ToCString(CString& cstr, const char* utf8Str)
 	// CString is UNICODE string so we decode
 	int newLen = MultiByteToWideChar(
 		CP_UTF8, 0,
-		utf8Str, utf8StrLen, ptr, utf8StrLen + 1
-	);
+		utf8Str, utf8StrLen, ptr, utf8StrLen + 1);
 	if (!newLen)
 	{
 		cstr.ReleaseBuffer(0);
@@ -325,9 +324,11 @@ static std::wstring process_instead_text(std::wstring inp, //входной текст
 	}
 	while (pos < resBox.GetCount()) {
 		if (!shouldRedraw) shouldRedraw = true;
+		map_action.erase(resBox.GetCount() - 1);
 		resBox.DeleteString(resBox.GetCount() - 1);
 	}
 		resBox.SetRedraw(true);
+		if (resBox.GetCount() == 0) pos = 0;
 	if (pos == 0) resBox.ResetContent();
 	else if (resBox.GetCurSel() < 0 || resBox.GetCurSel() > pos - 1) {
 		/*CString a;
@@ -365,16 +366,18 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLo
 	std::map<int, int> prev_map = pos_id_scene;
 bool onlyInvRedraw = true;
 first_er = getError(tmp);
-	if (p && *p) {
+	if ((p && *p) ||(first_er && first_er.GetLength() >0)) {
 		onlyInvRedraw = false;
 		pos_id_scene.clear();
 		//act_on_scene.clear();
 		text[0] = L"";
 		text[1] = L"";
-		Utf8ToCString(tmp, p);
-		free(p);
-		std::wstring buf = tmp.GetBuffer();
+		if (p && *p) {
+			Utf8ToCString(tmp, p);
+			free(p);
+}
 		text[1].Append(tmp);
+		std::wstring buf = tmp.GetBuffer();
 		std::wstring result = process_instead_text(buf, mListScene, prev_map, pos_id_scene, shouldRedraw);
 		tmp.ReleaseBuffer();
 		Utf8ToCString(tmp, cmd);
@@ -587,7 +590,7 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 
 BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 {
-	static bool was_enter = false;
+bool was_enter = false;
 	// TODO: добавьте специализированный код или вызов базового класса
 	if ((pMsg->message == WM_CHAR) && (GetFocus() == &m_OutEdit))
 	{
@@ -901,7 +904,7 @@ void CPlainInsteadView::SetOutputText(CString newText, BOOL useHistory)
 	m_InputEdit.SetWindowTextW(L"");
 	m_InputEdit.SetFocus();
 	//300 мс задержка для выдачи речи
-	SetTimer(ID_TIMER_1, 200, NULL);
+	SetTimer(ID_TIMER_1, 300, NULL);
 }
 void CPlainInsteadView::SendCommand(CString cmd)
 {
