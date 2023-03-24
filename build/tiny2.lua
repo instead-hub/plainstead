@@ -5,7 +5,7 @@
 -- fake input
 -- show hints (numbers)
 game.hinting = true
-
+stead.tiny =true
 -- fake gui
 game.gui = {
 	fading = 4;
@@ -82,7 +82,6 @@ function menu(v)
 	end
 	return obj(v);
 end
-
 -- Audio
 stead.get_music = function()
 	return game._music, game._music_loop;
@@ -130,19 +129,9 @@ stead.is_music = function()
 	return game._music ~= nil and game._music_loop ~= -1
 end
 
-function instead_sound()
-	return true
-end
-
---пока нет звуков
 stead.is_sound = function()
   return false
 end
-
-is_sound = function()
-  return false
-end
-
 stead.get_sound = function()
 	return game._sound, game._sound_channel, game._sound_loop; 
 end
@@ -224,12 +213,121 @@ save_music = stead.save_music
 restore_music = stead.restore_music
 
 is_music = stead.is_music
-instead_sound_channel =function() end
-
+function stead.mouse_filter() return 0 end
+	function stead.mouse_pos() return 0,0 end
+function stead.screen_size() return 0,0 end
 --Для космический рейнджеров
 unpack = stead.unpack;
 
-stead.module_init(function(s) 
+stead.module_init(function(s)
+local theme = obj {
+	nam = 'theme';
+			win = { gfx = {}};
+		inv = { gfx = {}};
+		menu = { gfx = {}};
+		gfx = {};
+		snd = {};
+	};
+
+function theme.restore()
+end
+
+function theme.set()
+end
+
+function theme.reset()
+end
+
+function theme.name()
+end
+
+function theme.get()
+end
+
+function theme.win.reset()
+end
+
+function theme.win.geom()
+end
+
+function theme.win.color(f)
+end
+
+function theme.win.font()
+end
+
+function theme.win.gfx.reset()
+end
+
+function theme.win.gfx.up()
+end
+
+function theme.win.gfx.down()
+end
+
+function theme.inv.reset()
+end
+
+function theme.inv.geom()
+end
+
+function theme.inv.color(f)
+end
+
+function theme.inv.font()
+end
+
+function theme.inv.mode()
+end
+
+function theme.inv.gfx.reset()
+end
+
+function theme.inv.gfx.up()
+end
+
+function theme.inv.gfx.down()
+end
+
+function theme.menu.reset()
+end
+
+function theme.menu.bw(w)
+end
+
+function theme.menu.color()
+end
+
+function theme.menu.font()
+end
+
+function theme.menu.gfx.reset()
+end
+
+function theme.menu.gfx.button()
+end;
+
+function theme.gfx.reset()
+end
+
+function theme.gfx.cursor()
+end
+
+function theme.gfx.mode()
+end
+
+function theme.gfx.pad()
+end
+
+function theme.gfx.bg()
+end
+
+function theme.snd.reset()
+end
+
+function theme.snd.click()
+end
+
 	timer = obj {
 		nam = 'timer',
 		get = function(s)
@@ -364,29 +462,6 @@ function iface:cmd(inp)
 	return iface_cmd(self, inp)
 end
 
---Форматирование текста
-stead.fmt = function(...)
-	local res
-	local a = {...}
-
-	for i = 1, stead.table.maxn(a) do
-		if stead.type(a[i]) == 'string' then
-			local s = stead.string.gsub(a[i],'\t', stead.space_delim):gsub('[\n]+', stead.space_delim);
-			s = stead.string.gsub(s, '\\?[\\^]', { ['^'] = '\n', ['\\^'] = '^',
-				['\\\\'] = '\\' });
-			res = stead.par('', res, s);
-			--Убирание информации из тегов
-			res = stead.string.gsub(res,"<u.->(.-)</u>","%1");
-			res = stead.string.gsub(res,"<b.->(.-)</b>","%1");
-			res = stead.string.gsub(res,"<l.->(.-)</l>","%1");
-			res = stead.string.gsub(res,"<i.->(.-)</i>","%1");
-			res = stead.string.gsub(res,"<w:(.-)>","%1");
-			res = stead.string.gsub(res,"<c.->(.-)</c>","%1");
-		end
-	end
-	return res
-end
-
 function iface:title(t)
 if type(t) ~= 'string' then return end
 	return t
@@ -408,142 +483,4 @@ end
 
 function iface:tab(str)
 	return stead.tostr(str)..' '
-end
-function instead_sprite_free() end
-function instead_sprites_free() end
-function instead_font_free() end
-function instead_fonts_free() end
-function instead_font_load() return {} end
-function instead_font_scaled_size()
-return 0
-end
-function instead_sprite_alpha() end
-function instead_sprite_colorkey() end
-function instead_sprite_copy(...) end
-function instead_sprite_compose() end
-function instead_sprite_draw() end
-function instead_sprite_dup() end
-
-function instead_sprite_load() return "" end
-
-function instead_sprite_pixel() end
-function instead_sprite_scale() return 0
-end
-function instead_sprite_size() return 0,0
-end
---function instead_sprite_text() return "" end
-function instead_sprite_text_size() return 0,0 end
-function instead_sprite_fill() end
-function instead_theme_var(a,b) return 1,"" end
-function stead.mouse_filter() return 0 end
-	function stead.mouse_pos() return 0,0 end
-function stead.screen_size() return 0,0 end
-function hideinv() end
--- fake themes
-local theme = {
-	nam = '@theme';
-			win = { gfx = {}};
-		inv = { gfx = {}};
-		menu = { gfx = {}};
-		gfx = {};
-		snd = {};
-	};
-
-function theme.restore()
-end
-
-function theme.set()
-end
-
-function theme.reset()
-end
-
-function theme.name()
-end
-
-function theme.get()
-end
-
-function theme.win.reset()
-end
-
-function theme.win.geom()
-end
-
-function theme.win.color(f)
-end
-
-function theme.win.font()
-end
-
-function theme.win.gfx.reset()
-end
-
-function theme.win.gfx.up()
-end
-
-function theme.win.gfx.down()
-end
-
-function theme.inv.reset()
-end
-
-function theme.inv.geom()
-end
-
-function theme.inv.color(f)
-end
-
-function theme.inv.font()
-end
-
-function theme.inv.mode()
-end
-
-function theme.inv.gfx.reset()
-end
-
-function theme.inv.gfx.up()
-end
-
-function theme.inv.gfx.down()
-end
-
-function theme.menu.reset()
-end
-
-function theme.menu.bw(w)
-end
-
-function theme.menu.color()
-end
-
-function theme.menu.font()
-end
-
-function theme.menu.gfx.reset()
-end
-
-function theme.menu.gfx.button()
-end;
-
-function theme.gfx.reset()
-end
-
-function theme.gfx.cursor()
-end
-
-function theme.gfx.mode()
-end
-
-function theme.gfx.pad()
-end
-
-function theme.gfx.bg()
-end
-
-function theme.snd.reset()
-end
-
-function theme.snd.click()
 end

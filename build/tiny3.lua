@@ -1,7 +1,7 @@
 local std = stead
 
 local instead = std.obj { nam = '@instead' }
-
+	std.savepath = instead.savepath
 instead.nosave = false
 instead.noautosave = false
 instead.tiny = true
@@ -51,12 +51,13 @@ end
 function instead.autosave(slot)
 end
 
-function instead.menu(n)
+--[[function instead.menu(n)
 end
 
 function instead.restart(v)
-end
-
+end]]
+instead.restart =instead_restart
+instead.menu =instead_menu
 function instead.atleast(...)
 	return true
 end
@@ -86,6 +87,17 @@ function iface:anchor() return '' end
 function iface:nb(t)
 	return t == '' and ' ' or t
 end
+
+	function iface:em(str)
+		if type(str) == 'string' then
+			return str
+		end
+	end
+	function iface:bold(str)
+		if type(str) == 'string' then
+			return str
+		end
+	end
 
 std.stat = std.class({
 	__stat_type = true;
@@ -178,6 +190,14 @@ std.obj { -- input object
 -- some aliases
 menu = std.menu
 stat = std.stat
+
+	instead.get_picture = function()
+		local s = stead.call(std.here(), 'pic')
+		if not s then
+			s = stead.call(std.ref 'game', 'pic')
+		end
+		return s and std.tostr(s)
+	end
 
 -- fake sound
 local function nop() end
@@ -398,17 +418,15 @@ std.obj {
 	fnt = function() end;
 	new = function() end;
 }
--- fake themes
+
 local theme = std.obj {
 	nam = '@theme';
-	{
-		win = { gfx = {}};
+			win = { gfx = {}};
 		inv = { gfx = {}};
 		menu = { gfx = {}};
 		gfx = {};
 		snd = {};
 	};
-}
 
 function theme.restore()
 end
@@ -509,27 +527,28 @@ end
 function theme.snd.click()
 end
 
-
-std.mod_init(function()
-	std.rawset(_G, 'instead', instead)
-end)
 local mp_hooked = false
 
 std.mod_start(function()
 	dict = {}
-	local mp = std.ref '@metaparser'
-	if mp then
+		local mp = std.ref '@metaparser'
+		if mp then
+			mp.msg.CUTSCENE_MORE = '^'..mp.msg.CUTSCENE_HELP
 		mp.winsize = 0
 		mp.prompt = false
 		if not mp_hooked then -- force truncate text for all commands
 			std.mod_cmd(function(cmd) mp:trim() end)
 			mp_hooked = true
 		end
-	end
+		end
+	end)
+		std.mod_init(function()
+			std.rawset(_G, 'instead', instead)
+require("ext/sandbox")
 end)
-
 std.mod_step(function(state)
 	if state then
 		dict = {}
 	end
 end)
+--require("ext/paths")

@@ -1,49 +1,59 @@
-
  -- some stubs for tiny-instead
--- fake game.gui
 -- stat, menu
 -- fake audio
 -- fake input
 --if not prefs then prefs ={} end
 if API == 'stead3' then
 	require 'tiny3'
-	local instead = std '@instead'
-	local iface = std '@iface'
-	instead.music_callback = function() end
-	instead.restart = instead_restart
-	instead.menu = instead_menu
-	std.savepath = instead.savepath
-	function iface:em(str)
-		if type(str) == 'string' then
-			return str
-		end
-	end
-	function iface:bold(str)
-		if type(str) == 'string' then
-			return str
-		end
-	end
-	instead.get_picture = function()
-		local s = stead.call(std.here(), 'pic')
-		if not s then
-			s = stead.call(std.ref 'game', 'pic')
-		end
-		return s and std.tostr(s)
-	end
-	std.mod_start(function()
-		std.mod_init(function()
-			std.rawset(_G, 'instead', instead)
-			--require "ext/sandbox"
-		end)
-	end)
 else
 	require 'tiny2'
 end
-instead_theme_name = function() return '.' end
+instead_theme_name = function() return '/default' end
 instead_font_load =function() return {} end
 stead.ticks =instead_ticks
 get_ticks =instead_ticks
 mouse_pos =function() return 0,0 end
+function instead_sprite_free() end
+function instead_sprites_free() end
+function instead_font_free() end
+function instead_fonts_free() end
+function instead_font_scaled_size()
+return 0
+end
+function instead_sprite_alpha() end
+function instead_sprite_colorkey() end
+function instead_sprite_copy(...) end
+function instead_sprite_compose() end
+function instead_sprite_draw() end
+function instead_sprite_dup() end
+function instead_sprite_load() return "" end
+function instead_sprite_pixel() end
+function instead_sprite_scale() return 0
+end
+function instead_sprite_size() return 0,0
+end
+--function instead_sprite_text() return "" end
+function instead_sprite_text_size() return 0,0 end
+function instead_sprite_fill() end
+function instead_sound()
+	return true
+end
+is_sound = function()
+  return false
+end
+instead_sound_channel =function() end
+function instead_theme_var(a,b) return 1,"" end
+function hideinv() end
+-- fake themes
+--Форматирование текста
+steadfmt=stead.fmt
+stead.fmt=function(...)
+local str =steadfmt(...)
+if(not str) then return end
+str =stead.string.gsub(str,"<([%w%d].-)>(.-)</%1>","%2")
+return str
+end
+tiny =true
 require "ext/paths"
 require "ext/sound"
 require "ext/timer"
