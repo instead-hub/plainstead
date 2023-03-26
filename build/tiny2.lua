@@ -124,7 +124,13 @@ end
 stead.stop_music = function()
 	stead.set_music(nil, -1);
 end
-
+function stead.finish_music()
+	if (game._music_loop or 0) == 0 then
+		return false
+	end
+	game._music_loop = -1
+	return true
+end
 stead.is_music = function()
 	return game._music ~= nil and game._music_loop ~= -1
 end
