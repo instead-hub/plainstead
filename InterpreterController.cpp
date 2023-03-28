@@ -69,8 +69,8 @@ void InterpreterController::loadFile(CString gameFile,CString gameName) {
         m_wasCommand = true;
         free(str);
     }
-
-}
+    GlobalManager::getInstance().setEmptyCmd(true);
+    }
 void InterpreterController::startGameFile(CString gameFile, CString gameName, CString saveFile, int autolog)
 {
     //Чтобы не появлялся диалог с предложением сохраниться,когда мы начинаем новую игру,или начинаем игру заново.

@@ -44,7 +44,6 @@ CPlainInsteadView* CPlainInsteadView::GetCurrentView()
 static UINT WM_FINDREPLACE = ::RegisterWindowMessage(FINDMSGSTRING);
 static CString text[2];
 static CString first_er,inv_er, inv;
-static int first_er_pos=-1,inv_pos=-1; //С какой позиции добавляется текст после ошибки и инвентарь //инвентарь и пути для отладки.
 static bool debug;
 IMPLEMENT_DYNCREATE(CPlainInsteadView, CFormView)
 
@@ -349,7 +348,7 @@ static CString getLogsDir() {
 	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
 	return baseDir + L"logs\\";
 }
-void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLog) {
+void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLog,CString err) {
 	if (inv_save_index >= 0) //Снимаем выбор и восстанавливаем item
 	{
 		int pos = mListInv.GetCurSel();
@@ -365,7 +364,7 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLo
 	//free(cmd);
 	std::map<int, int> prev_map = pos_id_scene;
 bool onlyInvRedraw = true;
-first_er = getError(tmp);
+first_er = err+getError(tmp);
 	if ((p && *p) ||(first_er && first_er.GetLength() >0)) {
 		onlyInvRedraw = false;
 		pos_id_scene.clear();
@@ -436,7 +435,11 @@ inv=tmp;
 			wave_inv->play();
 		}
 	}
-	else mListInv.ResetContent();
+	else {
+		mListInv.ResetContent();
+		inv = L"";
+		inv_er = L"";
+}
 	if (!onlyInvRedraw) {
 		text[0].Replace(L"\n", L"\r\n");
 		updateText();
@@ -544,13 +547,15 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 	char cmd[256];
 	char* p;
 	std::string newCmd = utf8_encode(textIn);
-	bool is_saving = false;
-	if (textIn.Find(L"save ") == 0)
+	CString er = L"";
+	bool is_saving_or_loading = false;
+	if (textIn.Find(L"save ") == 0 || textIn.Find(L"load ") == 0)
 	{
 		GlobalManager::getInstance().userSavedFile();
-		is_saving = true;
+		is_saving_or_loading = true;
 	}
-	if (!is_saving && !textIn.IsEmpty()) GlobalManager::getInstance().userNewCommand();
+	if(GlobalManager::getInstance().isEmptyCmd()) er = getError(GlobalManager::getInstance().isUserStartGame() ? L"start" : L"restart");
+	if (!is_saving_or_loading && !textIn.IsEmpty()) GlobalManager::getInstance().userNewCommand();
 	//Обработка строки в Instead
 	if (needSearchVariants) {
 		snprintf(cmd, sizeof(cmd), "use %s", newCmd.data());
@@ -582,7 +587,7 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 			}
 		}
 	}
-	onNewInsteadCommand(cmd, p, cmdForLog);
+	onNewInsteadCommand(cmd, p, cmdForLog,er);
 	return rc;
 }
 

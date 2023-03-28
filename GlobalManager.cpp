@@ -7,6 +7,7 @@ GlobalManager::GlobalManager():
 	m_haveFileSaved(true),
 	m_userStartGame(false),
 	m_useMenu(false),
+emptyCmd(true),
 	m_en_history(true)
 {
 }
@@ -34,11 +35,18 @@ void GlobalManager::userSavedFile()
 void GlobalManager::userNewCommand()
 {
 	m_haveFileSaved = false;
+	setEmptyCmd(false);
 }
 
 bool GlobalManager::isUserSaveLastFile()
 {
 	return m_haveFileSaved;
+}
+bool GlobalManager::isEmptyCmd() {
+	return emptyCmd;
+}
+void GlobalManager::setEmptyCmd(bool emptyCmd) {
+	this->emptyCmd = emptyCmd;
 }
 
 bool GlobalManager::isUserStartGame()

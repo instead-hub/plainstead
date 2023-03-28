@@ -44,16 +44,18 @@ extern int instead_sprites_init(void);
 	extern int gBassInit;
 	void restart() {
 		AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_RESTART_MENU, 0L);
-	};
+	}
 	void save() {
 		AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_FILE_SAVE_GAME, 0L);
-	};void load() {
+	}
+	void load() {
 		AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_FILE_OPEN, 0L);
-	};
-	void onNewInsteadCommand(char* cmd, char* p) {
+	}
+	void onNewInsteadCommand(char* cmd, char* p,int rc) {
 		//AfxMessageBox(L"Тест");
-		CPlainInsteadView::GetCurrentView()->onNewInsteadCommand(cmd, p, L"Таймер сработал");
-		if(cmd) free(cmd);
+		if (!rc)CPlainInsteadView::GetCurrentView()->onNewInsteadCommand(cmd, p, L"Таймер сработал"); else if (p &&*p) free(p);
+		if (cmd) free(cmd);
+		GlobalManager::getInstance().userNewCommand();
 	}
 	uint64_t getTicks() {
 		return millis - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();;
@@ -449,14 +451,15 @@ void CPlainInsteadApp::OnFileOpen()
 			{
 				CString userFileName = saveGameNameDir + L"/" + fileDialog.GetFileName();
 				InterpreterController::loadSave(userFileName);
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + userFileName,false);
+				int load =CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + userFileName,false);
 				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",L"загрузка",false);
-				AfxMessageBox(L"Восстановлено!");
+				AfxMessageBox(load? L"Не удалось восстановить сохранение":L"Восстановлено!");
 				return;
 			}
 			else
 			{
 				AfxMessageBox(L"Запрещено менять папку. Попробуйте сохранить еще раз.");
+				return;
 			}
 		}
 		else
@@ -836,7 +839,7 @@ void CPlainInsteadApp::OnUpdateVolumeDown(CCmdUI *pCmdUI)
 
 void CPlainInsteadApp::OnUpdateVolumeOn(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame());
+		pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame());
 	CIniFile mainSettings;
 	pCmdUI->SetCheck(!mainSettings.GetInt(L"main", L"mMuteMusic", 0));
 }

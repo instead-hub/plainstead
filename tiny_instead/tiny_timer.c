@@ -6,7 +6,7 @@
 	static UINT_PTR timer_id = 0;
 	static int volatile unsigned instead_timer_nr = 0;
 	static void CALLBACK instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword);
-	extern void onNewInsteadCommand(char* cmd, char* p);
+	extern void onNewInsteadCommand(char* cmd, char* p,int rc);
 	extern uint64_t getTicks();
 	static void killTimer() {
 		if (timer_id > 0) {
@@ -45,11 +45,7 @@ instead_clear();
 		if (!cmd) return;
 int rc;
 char* p=instead_cmd(cmd,&rc);
-if(!rc)onNewInsteadCommand(cmd,p);
-else {
-	if (cmd) free(cmd);
-	if (p) free(p);
-}
+onNewInsteadCommand(cmd,p,rc);
 }
 static void CALLBACK instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword)
 {
