@@ -1,10 +1,12 @@
- -- some stubs for tiny-instead
+--require "ext/gui"
+-- some stubs for tiny-instead
 -- stat, menu
 -- fake audio
 -- fake input
 --if not prefs then prefs ={} end
 if API == 'stead3' then
 	require 'tiny3'
+iface = std '@iface'
 else
 	require 'tiny2'
 end
@@ -45,12 +47,97 @@ instead_sound_channel =function() end
 function instead_theme_var(a,b) return 1,"" end
 function hideinv() end
 -- fake themes
+local function getstr(str)
+if stead.type(str) ~= 'string' then return '' end
+return str
+end
+function iface:esc(str)
+	--str = str:gsub("\\?[\\<>]", { ['\\\\'] = '\\\\\\\\\\', ['>'] = iface:nb('>'), ['<'] = iface:nb('<') })
+	return getstr(str)
+end
+function iface:title(str)
+if type(str) ~= 'string' then return end
+	return getstr(str)
+end
+function iface:img() return '' end
+function iface:imgl() return '' end
+function iface:imgr() return '' end
+function iface:anchor() return '' end
+function iface:enum(n,str)
+	if str == nil or n == nil then return nil; end;
+	return n..self:nb(' - ')..str;
+end
+function iface:nb(t)
+return getstr(t)
+end
+function iface:under(str)
+	return getstr(str)
+end
+function iface:em(str)
+	return getstr(str)
+end
+function iface:st(str)
+return getstr(str)
+end
+function iface:right(str)
+return getstr(str)
+end
+function iface:left(str)
+return getstr(str)
+end
+function iface:center(str)
+return getstr(str)
+end
+function iface:just(str)
+return getstr(str)
+end
+function iface:tab(str,al)
+if stead.tonum(str) then
+		str = stead.tostr(str)
+	end
+	if stead.type(str) ~= 'string' then
+		return nil;
+	end
+	--[[if al == 'right' then
+		str = str .. ",right"
+	elseif al == 'center' then
+		str = str .. ",center"
+	end]]
+	return str
+end;
+function iface:y(str,al)
+	if stead.tonum(str) then
+		str = stead.tostr(str)
+	end
+	if stead.type(str) ~= 'string' then
+		return nil;
+	end
+	--[[if al == 'middle' then
+		str = str .. ",middle"
+	elseif al == 'top' then
+		str = str .. ",top"
+	end]]
+	return str
+end
+function iface:bold(str)
+return getstr(str)
+end
+function iface:top(str)
+return getstr(str)
+end
+function iface:bottom(str)
+return getstr(str)
+end
+function iface:middle(str)
+return getstr(str)
+end
 --Форматирование текста
-steadfmt=stead.fmt
-stead.fmt=function(...)
+steadfmt =stead.fmt
+function stead.fmt(...)
 local str =steadfmt(...)
-if(not str) then return end
-str =stead.string.gsub(str,"<([%w%d].-)>(.-)</%1>","%2")
+if (not str) then return "" end
+str =stead.string.gsub(str,"<w:(.-)>","%1")
+str =stead.string.gsub(str,"<.->","")
 return str
 end
 tiny =true

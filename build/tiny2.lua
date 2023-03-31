@@ -444,7 +444,7 @@ function iface:cmd(inp)
 	end
 	if cmd == 'act' or cmd == 'use' or cmd == 'go' then
 		if a[1] == '' then -- fix use vs look
-			return iface_cmd(self, "look")
+			return iface_cmd("look")
 		end
 		if cmd == 'use' then
 			local use = { }
@@ -468,25 +468,3 @@ function iface:cmd(inp)
 	return iface_cmd(self, inp)
 end
 
-function iface:title(t)
-if type(t) ~= 'string' then return end
-	return t
-end
-function iface:img() return '' end
-function iface:imgl() return '' end
-
-function iface:imgr() return '' end
-
-function iface:anchor() return '' end
-
-function iface:nb(t)
-	return t == '' and ' ' or t
-end
-
-function iface:y()
-	return ''
-end
-
-function iface:tab(str)
-	return stead.tostr(str)..' '
-end

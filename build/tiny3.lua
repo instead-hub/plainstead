@@ -69,36 +69,6 @@ function instead.text_input()
 	return false
 end
 function instead.screen_size() return 0,0 end
-
-function iface:title(str) -- hide title
-if type(str) ~= 'string' then return end
-	return str
-
-end
-
-function iface:img() return '' end
-
-function iface:imgl() return '' end
-
-function iface:imgr() return '' end
-
-function iface:anchor() return '' end
-
-function iface:nb(t)
-	return t == '' and ' ' or t
-end
-
-	function iface:em(str)
-		if type(str) == 'string' then
-			return str
-		end
-	end
-	function iface:bold(str)
-		if type(str) == 'string' then
-			return str
-		end
-	end
-
 std.stat = std.class({
 	__stat_type = true;
 }, std.obj);
