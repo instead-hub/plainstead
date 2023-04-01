@@ -783,8 +783,7 @@ static void game_music_player(void)
 	instead_function("instead.get_music", NULL);
 	char* mus = instead_retval(0);
 	int loop = instead_iretval(1);
-	if (mus &&loop <= 0) exit(0);
-	unix_path(mus);
+		unix_path(mus);
 	instead_clear();
 	instead_function("instead.get_music_fading", NULL);
 	int cf_out = instead_iretval(0);
@@ -846,6 +845,7 @@ musFree(cf_out);
 			if (mus) {
 				free(mus);
 				mus = NULL;
+				last_music = NULL;
 }
 		}
 	}
