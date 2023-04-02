@@ -512,7 +512,7 @@ InterpreterController::startGameFile(file,name,needAutoLog);
 	}
 
 	GlobalManager::getInstance().userStartGame();
-	CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"", L"начало игры "+ name,false);
+	CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"look", L"начало игры "+ name,false);
 	CPlainInsteadView::GetCurrentView()->InitFocusLogic();
 	GlobalManager::lastString = 0;
 }
