@@ -46,7 +46,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;tiny_instead;lua\include"
+				AdditionalIncludeDirectories=".;tiny_instead;lua\include;iconv\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;T_WIN32"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
