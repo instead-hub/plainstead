@@ -144,11 +144,11 @@ static void sound_free(_snd_t* sn)
 		free(sn->fname);
 		sn->fname = NULL;
 	}
-	media_free(&sn->sam, &sn->chan);
 	if (sn->buf) {
 		free(sn->buf);
 		sn->buf = NULL;
 	}
+	media_free(&sn->sam, &sn->chan);
 	free(sn);
 	sn = NULL;
 }
@@ -239,11 +239,18 @@ static void halt_chan(int chan, int ms)
 		return;
 	}
 	if (!channels[chan].snd) return;
+	channels[chan].loop = 1;
 		if (BASS_ChannelFlags(channels[chan].snd->chan, 0, 0) & BASS_SAMPLE_LOOP) BASS_ChannelFlags(channels[chan].snd->chan, 0, BASS_SAMPLE_LOOP);
-		BASS_ChannelStop(channels[chan].snd->chan);
 		BASS_ChannelRemoveSync(channels[chan].snd->chan,channels[chan].sync);
 		channels[chan].sync = 0;
-		fun(chan);
+		if (!ms) {
+			BASS_ChannelStop(channels[chan].snd->chan);
+			fun(chan);
+		}
+		else {
+			BASS_ChannelSetSync(channels[chan].snd->chan, BASS_SYNC_SLIDE, 0, finishCallback, &channels[chan]);
+			BASS_ChannelSlideAttribute(channels[chan].snd->chan, BASS_ATTRIB_VOL, -1.0f,ms);
+		}
 }
 static const char* get_filename_ext(const char* filename) {
 	const char* dot = strrchr(filename, '.');
@@ -300,8 +307,7 @@ static _snd_t* sound_add(const char* fname, int fmt, short* buf, int len)
 	sn->len = len;
 	sn->fmt = fmt;
 	if (!sn->fname) {
-		free(sn);
-		sn = NULL;
+		sound_free(sn);
 		return NULL;
 	}
 	if (buf) {
@@ -309,6 +315,10 @@ static _snd_t* sound_add(const char* fname, int fmt, short* buf, int len)
 	}
 	else {
 		setPlayableInfo(sn->fname, &sn->sam, &sn->chan, 0, 0);
+		if (!sn->chan) { //Возникла ошибка
+			sound_free(sn);
+			return NULL;
+}
 	}
 	if (!sn->chan) 		goto err;
 	sounds_shrink();
@@ -332,6 +342,7 @@ static void sound_play(_snd_t* sn, int chan, int loop) {
 	else
 		c = chan;
 	if (channels[c].snd) {
+
 		sound_reqs[c].snd = sn;
 		sound_reqs[c].loop = loop;
 		sound_reqs[c].channel = chan;
@@ -343,6 +354,7 @@ static void sound_play(_snd_t* sn, int chan, int loop) {
 	channels[c].loop = loop;
 	if (loop != 1 && !(BASS_ChannelFlags(sn->chan, 0, 0) & BASS_SAMPLE_LOOP))  BASS_ChannelFlags(sn->chan, BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
 	BASS_ChannelSetAttribute(sn->chan, BASS_ATTRIB_PAN,channels[c].pan);
+	//Удаляем callback,поскольку,к примеру,перед этим звук мог воспроизводиться в другом канале,а значит при срабатывании вызова мы будем работать с другим звуком.
 	if (channels[c].sync) BASS_ChannelRemoveSync(channels[c].snd->chan,channels[c].sync);
 	channels[c].index = c;
 	channels[c].sync = BASS_ChannelSetSync(sn->chan, /*BASS_SYNC_ONETIME |*/ BASS_SYNC_END, 0, finishCallback, &channels[c]);
@@ -384,11 +396,10 @@ static int _play_combined_snd(char* filename, int chan, int loop)
 		if (sn)
 			sound_play(sn, c, l);
 		else if (at || c != -1) { /* if @ or specific channel */
-//halt_chan(c, (at == 2) ? l : 500);
+halt_chan(c, (at == 2) ? l : 0);
 			/*char buf[32];
 			sprintf(buf, "%d", c);
 			MessageBox(0, buf, "", 0);*/
-			halt_chan(c, 0);
 		}
 		p = ep;
 	}
@@ -400,6 +411,7 @@ err:
 }
 static void fun(int a) {
 _snd_req_t* r = &sound_reqs[a];
+BASS_ChannelSetAttribute(channels[a].snd->chan, BASS_ATTRIB_VOL, global_sounds_lvl);
 	channels[a].snd = NULL;
 	if (r->snd) {
 		_snd_t* s = r->snd;
@@ -440,6 +452,11 @@ static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, voi
 					if (channels[a].loop > 1) channels[a].loop--;
 					return;
 				}
+				//Приглушение
+							if (handle != channels[a].sync) {
+BASS_ChannelRemoveSync(channels[a].snd, handle);
+BASS_ChannelSetAttribute(channels[a].snd->chan, BASS_ATTRIB_VOL, global_sounds_lvl);
+}
 					fun(a);
 									break;
 			}*/
@@ -450,6 +467,11 @@ static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, voi
 				if (channels[a].loop > 1) channels[a].loop--;
 				return;
 			}
+			//Приглушение
+			if (handle != channels[a].sync) {
+				BASS_ChannelRemoveSync(channels[a].snd, handle);
+BASS_ChannelSetAttribute(channels[a].snd->chan, BASS_ATTRIB_VOL, global_sounds_lvl);
+}
 			fun(a);
 		}
 
