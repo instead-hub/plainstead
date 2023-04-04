@@ -60,6 +60,7 @@ HANDLE hMachine = NULL;
 DWORD tidMachine = 0;
 
 void InterpreterController::loadFile(CString gameFile,CString gameName) {
+    instead_set_lang("ru");
     char* str;
     if (instead_load(&str) == 0)
     {
