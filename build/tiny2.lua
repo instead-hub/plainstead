@@ -82,6 +82,13 @@ function menu(v)
 	end
 	return obj(v);
 end
+--[[function stead.menu(n)
+end
+
+function stead.restart(v)
+end]]
+stead.restart =instead_restart
+stead.menu_toggle =instead_menu
 -- Audio
 stead.get_music = function()
 	return game._music, game._music_loop;

@@ -1,4 +1,4 @@
---require "ext/gui"
+require "ext/gui"
 -- some stubs for tiny-instead
 -- stat, menu
 -- fake audio
