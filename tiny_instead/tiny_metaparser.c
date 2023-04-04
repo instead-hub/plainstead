@@ -3,17 +3,20 @@
 int need_restart = 0;
 int need_load = 0;
 int need_save = 0;
+int need_exit = 0;
 void restart();
 void save();
 void load();
+void onMenuExit();
 static int luaB_menu(lua_State* L)
 {
 	const char* menu = luaL_optstring(L, 1, NULL);
 	if (!menu)
 		return 0;
 	need_save = !strcmp(menu, "save");
-	need_load = !strcmp(menu, "load");
-	if (need_save) save(); else if (need_load) load();
+need_load = !strcmp(menu, "load");
+need_exit = !strcmp(menu, "quit");
+	if (need_save) save(); else if (need_load) load(); else if (need_exit) onMenuExit();
 	return 0;
 }
 

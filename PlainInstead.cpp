@@ -51,6 +51,10 @@ extern int instead_sprites_init(void);
 	void load() {
 		AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_FILE_OPEN, 0L);
 	}
+	void onMenuExit() {
+		//Вызывается,когда автор игры явно хочет,чтобы мы вышли из приложения.
+		AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_APP_EXIT, 0L);
+	}
 	void onNewInsteadCommand(char* cmd, char* p,int rc) {
 		//AfxMessageBox(L"Тест");
 		if (!rc)CPlainInsteadView::GetCurrentView()->onNewInsteadCommand(cmd, p, L"Таймер сработал"); else if (p && *p) {
@@ -736,7 +740,6 @@ void CPlainInsteadApp::OnResetAllSettings()
 		MessageBox(NULL,L"Для полного сброса настроек, перезапустите программу",L"Завершение сброса", MB_OK);
 	}
 }
-
 void CPlainInsteadApp::OnAppExit()
 {
 	// TODO: добавьте свой код обработчика команд
