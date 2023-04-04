@@ -6,6 +6,7 @@ int GlobalManager::lastString=0;
 GlobalManager::GlobalManager():
 	m_haveFileSaved(true),
 	m_userStartGame(false),
+	m_userRestartGame(false),
 	m_useMenu(false),
 emptyCmd(true),
 	m_en_history(true)
@@ -27,9 +28,13 @@ void GlobalManager::userStartGame()
 	appendCommand(L"");
 }
 
+void GlobalManager::setUserRestartGame(bool m_userRestartGame) {
+	this->m_userRestartGame = m_userRestartGame;
+}
 void GlobalManager::userSavedFile()
 {
 	m_haveFileSaved = true;
+	setEmptyCmd(false);
 }
 
 void GlobalManager::userNewCommand()
@@ -54,6 +59,9 @@ bool GlobalManager::isUserStartGame()
 	return m_userStartGame;
 }
 
+bool GlobalManager::isUserRestartGame() {
+	return m_userRestartGame;
+}
 void GlobalManager::appendCommandAndRespond(CString command, CString respond)
 {
 	commandHistory.push_back(std::make_pair(command,respond));

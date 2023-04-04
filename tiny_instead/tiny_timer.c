@@ -42,10 +42,13 @@ instead_timer_nr = 0;
 		cmd = instead_retval(0);
 instead_clear();
 		instead_unlock();
-		if (!cmd) return;
 int rc;
 char* p=instead_cmd(cmd,&rc);
 onNewInsteadCommand(cmd,p,rc);
+if (cmd) {
+	free(cmd);
+	cmd = NULL;
+}
 }
 static void CALLBACK instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword)
 {

@@ -53,8 +53,10 @@ extern int instead_sprites_init(void);
 	}
 	void onNewInsteadCommand(char* cmd, char* p,int rc) {
 		//AfxMessageBox(L"Тест");
-		if (!rc)CPlainInsteadView::GetCurrentView()->onNewInsteadCommand(cmd, p, L"Таймер сработал"); else if (p &&*p) free(p);
-		if (cmd) free(cmd);
+		if (!rc)CPlainInsteadView::GetCurrentView()->onNewInsteadCommand(cmd, p, L"Таймер сработал"); else if (p && *p) {
+			free(p);
+			p = NULL;
+		}
 		GlobalManager::getInstance().userNewCommand();
 	}
 	uint64_t getTicks() {
@@ -297,7 +299,7 @@ BOOL CPlainInsteadApp::InitInstance()
 			if (useAutosave)
 			{
 				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load autosave",false);
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",false);
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"look",false);
 				CPlainInsteadView::GetCurrentView()->InitFocusLogic();
 				GlobalManager::lastString = 0;
 			}
@@ -452,7 +454,7 @@ void CPlainInsteadApp::OnFileOpen()
 				CString userFileName = saveGameNameDir + L"/" + fileDialog.GetFileName();
 				InterpreterController::loadSave(userFileName);
 				int load =CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + userFileName,false);
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",L"загрузка",false);
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"look",L"загрузка",false);
 				AfxMessageBox(load? L"Не удалось восстановить сохранение":L"Восстановлено!");
 				return;
 			}
@@ -539,7 +541,7 @@ if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) {
 			{
 				CString userFileName = saveGameNameDir + L"/" + fileDialog.GetFileName();
 				int save = CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + userFileName,false);
-								CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"",L"сохранение игры",false);
+								CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"look",L"сохранение игры",false);
 				AfxMessageBox(save?L"Не удалось сохранить игру!":L"Сохранено!");
 				return;
 			}

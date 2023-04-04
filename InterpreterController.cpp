@@ -82,6 +82,7 @@ GlobalManager::getInstance().userSavedFile();
          //loadFile(gameFile,gameName);
         return;
 }
+    GlobalManager::getInstance().setUserRestartGame(!saveFile.IsEmpty());
 instead_done();
     instead_set_debug(1);
     if (instead_init(ascii) == 0) loadFile(gameFile, gameName);

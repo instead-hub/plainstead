@@ -102,7 +102,7 @@ public:
 	afx_msg void OnHistoryStart();
 int TryInsteadCommand(CString textIn, CString cmdForLog = L"", bool needSearchVariants=true,bool isFromEdit=false); //Отправка команды в интерпретатор
 void updateText(char* txt=NULL);
-void onNewInsteadCommand(char*cmd, char* p,CString cmdForLog = L"",CString err=L"");
+void onNewInsteadCommand(char*cmd, char* p,CString cmdForLog = L"",int rc=0);
 	void TurnOffLogging();
 	CListBox mListScene;
 	std::map<int,int> pos_id_scene;

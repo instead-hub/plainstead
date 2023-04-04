@@ -10,12 +10,14 @@ public:
         return instance;
     }
 	void userStartGame(); //Пользователь начал игру
-	void userSavedFile();  //Пользователь сохранил файл
+		void userSavedFile();  //Пользователь сохранил файл
 	void userNewCommand(); //выполнение новой команды пользователем
 	bool isUserSaveLastFile(); //Признак того, что пользователь сохранил игру
 	bool isUserStartGame();
+	bool isUserRestartGame();
 	bool isEmptyCmd();
 	void setEmptyCmd(bool emptyCmd);
+	void setUserRestartGame(bool m_userRestartGame);
 	void appendCommandAndRespond(CString command, CString respond); //добавление команды с откликом
 	void appendCommand(CString command); //добавить новую команду
 	void appendLastRespond(CString command); //добавить последний ответ на команду
@@ -42,12 +44,9 @@ private:
 	GlobalManager( const GlobalManager&);  
     GlobalManager& operator=( GlobalManager& );
 
-	bool m_haveFileSaved;
-	bool m_userStartGame;
+	bool m_haveFileSaved, m_userStartGame, m_userRestartGame, m_useMenu, m_en_history;
 	bool emptyCmd = true; //Если пользователь загрузил сохранение на stead2,или начал заново игру на stead2,или любой другой версии api,к примеру stead3.
 	std::vector< std::pair<CString/*command*/,CString/*respond*/> > commandHistory; //история команд
 	int m_currHistPos; //текущий указатель в истории
 	int m_currCmdPos; //текущий указатель в командах
-	bool m_useMenu;
-	bool m_en_history;
 };
