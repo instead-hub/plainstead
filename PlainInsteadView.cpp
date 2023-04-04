@@ -288,7 +288,7 @@ static std::wstring process_instead_text(std::wstring inp, //входной текст
 	//Обработка отображения объектов сцены
 	//const std::wregex regex(L"\\{\\s*(\\w+)\\s*\\#(\\d+)\\}"); //Для фигурных скобочек
 	//const std::wregex regex(L"(\\w+)\\s*\\((\\d+)\\)"); //Для круглых после
-	const std::wregex regex(L"\\[a\\]([^]*?)\\#(\\d+)\\[/a\\]"); //для тэгов [a]
+	const std::wregex regex(L"\\[a\\]([^]*?)\\#(-?\\d+)\\[/a\\]"); //для тэгов [a]
 	std::wsmatch match;
 	std::wsregex_iterator next(inp.begin(), inp.end(), regex);
 	std::wsregex_iterator end;
@@ -307,7 +307,7 @@ static std::wstring process_instead_text(std::wstring inp, //входной текст
 			map_action.insert(std::make_pair(pos, obj_id));
 			CString oldText;
 			if (pos <= resBox.GetCount() - 1)resBox.GetText(pos, oldText);
-			if (!prev_map.count(pos) || map_action[pos] != prev_map[pos] || oldText != addStr) {
+			if (!prev_map.count(pos) || map_action[pos] != (prev_map[pos]<0? -prev_map[pos] : prev_map[pos]) || oldText != addStr) {
 //if(prev_map.count(pos) &&map_action[pos] != prev_map[pos])AfxMessageBox(L"Тест");
 				shouldRedraw = true;
 				/*CString test;
@@ -384,7 +384,6 @@ text_er +=getError(tmp);
 				tmp.ReleaseBuffer();
 				Utf8ToCString(tmp, cmd);
 				text[0] = result.data();
-				//text[0].Append(tmp);
 				if (/*m_BeepList && */shouldRedraw) {
 					shouldRedraw = false;
 					wave_scene->play();
@@ -642,7 +641,7 @@ bool was_enter = false;
 			else {
 				CString res;
 				int res_pos = pos_id_scene[sel_pos];
-				if (res_pos > 1000) res_pos -= 1000;
+				if (res_pos <0) res_pos =-res_pos;
 				res.Format(L"%d", res_pos);
 				if (inv_save_index >= 0) {
 					res.Format(L"%d,%s", pos_id_inv[inv_save_index], res);
@@ -805,7 +804,7 @@ code.Format(L"%s",act_on_scene[sel_pos]);
 			else {
 				CString res;
 				int res_pos = pos_id_ways[sel_pos];
-				if (res_pos > 1000) res_pos -= 1000;
+				if (res_pos < 0) res_pos = -res_pos;
 				res.Format(L"%d", res_pos);
 				if (inv_save_index >= 0) {
 					res.Format(L"%d,%s", pos_id_inv[inv_save_index], res);
@@ -836,8 +835,8 @@ code.Format(L"%s",act_on_scene[sel_pos]);
 			}
 			else {
 				CString res;
-				bool isMenuItem = (pos_id_inv[sel_pos] > 1000);
-				if (isMenuItem) res.Format(L"%d", pos_id_inv[sel_pos] - 1000);
+				bool isMenuItem = (pos_id_inv[sel_pos]<0);
+				if (isMenuItem) res.Format(L"%d", -pos_id_inv[sel_pos]);
 				else res.Format(L"%d", pos_id_inv[sel_pos]);
 				if (inv_save_index < 0 && !isMenuItem) {
 					inv_save_index = sel_pos;

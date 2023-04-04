@@ -123,7 +123,7 @@ table.insert(dict, xref)
 	xref = std.tostr(#dict)
 end
 if o:type 'menu' or std.is_system(o) then
-		return "[a]"..str..std.string.format("#%s", xref+1000).."[/a]"
+		return "[a]"..str..std.string.format("#%s", -xref).."[/a]"
 		end
 	return "[a]"..str..std.string.format("#%s", xref).."[/a]"
 end

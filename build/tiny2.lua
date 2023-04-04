@@ -418,7 +418,7 @@ iface.xref = function(self, str, obj, ...)
 
 	local n = xref
 	if isMenu(o) then
-		n = n + 1000 -- ???
+		n = -n
 	end
 --	if isXaction(o) and not o.id then
 --		return stead.cat('[a:'..stead.tostr(n)..']',str,'[/a]')
