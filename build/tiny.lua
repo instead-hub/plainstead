@@ -10,7 +10,7 @@ iface = std '@iface'
 else
 	require 'tiny2'
 end
-instead_theme_name = function() return '/default' end
+instead_theme_name = function() return '.' end
 instead_font_load =function() return {} end
 stead.ticks =instead_ticks
 get_ticks =instead_ticks
@@ -37,13 +37,13 @@ end
 --function instead_sprite_text() return "" end
 function instead_sprite_text_size() return 0,0 end
 function instead_sprite_fill() end
-function instead_sound()
+--[[function instead_sound()
 	return true
 end
 is_sound = function()
   return false
 end
-instead_sound_channel =function() end
+instead_sound_channel =function() end]]
 function instead_theme_var(a,b) return 1,"" end
 function hideinv() end
 -- fake themes

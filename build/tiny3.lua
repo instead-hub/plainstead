@@ -171,7 +171,7 @@ stat = std.stat
 
 -- fake sound
 local function nop() end
-instead.sound_load = nop -- instead_sound_load
+--[[instead.sound_load = nop -- instead_sound_load
 instead.sound_free = nop -- instead_sound_free
 instead.sounds_free = nop -- instead_sounds_free
 instead.sound_channel = nop -- instead_sound_channel
@@ -179,8 +179,16 @@ instead.sound_volume = nop -- instead_sound_volume
 instead.sound_panning = nop -- instead_sound_panning
 instead.sound_load_mem = nop -- instead_sound_load_mem
 instead.music_callback = nop -- instead_music_callback
-instead.is_sound = function() return false end -- instead_sound
-
+instead.is_sound = function() return false end -- instead_sound]]
+instead.sound_load = instead_sound_load
+instead.sound_free = instead_sound_free
+instead.sounds_free = instead_sounds_free
+instead.sound_channel = instead_sound_channel
+instead.sound_volume = instead_sound_volume
+instead.sound_panning = instead_sound_panning
+instead.sound_load_mem = instead_sound_load_mem
+instead.music_callback = instead_music_callback
+instead.is_sound = instead_sound
 
 function instead.get_music()
 	return instead.__music, instead.__music_loop
