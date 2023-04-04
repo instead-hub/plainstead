@@ -370,7 +370,7 @@ if (!first_er.IsEmpty()) {
 }
 else text_er = L"";
 text_er +=getError(tmp);
-	if (rc ||(p && *p) ||(first_er && first_er.GetLength() >0)) {
+	if (rc ||(p && *p) ||(text_er && text_er.GetLength() >0)) {
 		onlyInvRedraw = false;
 		//act_on_scene.clear();
 		if (p && *p) {
