@@ -31,6 +31,7 @@ protected:
 	void CreateColumns();
 	void RescanInstalled();
 	void updateDataAfterInstalationOfGame(CString gameName, int sel, bool gameWasRemoved = false);
+	void loadGame(CString gameName, CString gameDwnUrl, CString loadingMessage, CString afterLoadMessage, int sel);
 	void AddNewGame(CString date,CString name,CString author,CString description, CString version, CString language, std::pair<CString, CString> downloadPageAndInstallName, CListCtrl& games, CString sz = L"", CString page = L"");
 	void SetCell(CListCtrl& ctrl, CString value, int nRow, int nCol);
 	bool UpdateGamesFromUrl(CString url, CString res_path, bool updateInstalledGames = true);
@@ -45,7 +46,7 @@ protected:
 	//std::vector<std::pair<CString/*name*/, CString/*page*/> > networkGameDWPageAndName;
 	//std::set<CString> networkGameName;
 
-	std::map<CString/*game name*/, std::pair<CString /*approve*/, CString /*info*/> > approveInfo;
+	std::map<CString/*game name*/, std::pair<CString /*accessibility comment*/, int /*accessibility status*/> > approveInfo;
 	CString m_stGamePath;
 	CString m_stGameTitle;
 	bool    m_wantPlay;

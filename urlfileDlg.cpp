@@ -227,10 +227,12 @@ STDMETHODIMP CBSCallbackImpl::OnObjectAvailable(REFIID, IUnknown *)
 
 IMPLEMENT_DYNAMIC(CUrlFileDlg, CDialog)
 
-CUrlFileDlg::CUrlFileDlg(CString url, CString filename, CWnd* pParent /*=NULL*/)
+CUrlFileDlg::CUrlFileDlg(CString url, CString filename, CString loadingMessage, CString afterLoadMessage, CWnd* pParent /*=NULL*/)
 	: CDialog(IDD_URLFILE_DIALOG, pParent),
 	m_strURL(url),
-	m_selFile(filename)
+	m_selFile(filename),
+	m_loadingMessage(loadingMessage),
+	m_afterLoadMessage(afterLoadMessage)
 
 {
 	//{{AFX_DATA_INIT(CUrlFileDlg)
@@ -275,10 +277,10 @@ END_MESSAGE_MAP()
 BOOL CUrlFileDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
-
 	m_progressPercent.SetScrollRange(0, 100, TRUE);
 	m_progressPercent.SetPos(0);
 	m_bytesLoad.SetWindowTextW(L"");
+	SetWindowText(m_loadingMessage);
 	//Сразу начинаем загрузку
 	StartDownload();
 	
@@ -359,7 +361,7 @@ LRESULT CUrlFileDlg::OnEndDownload(WPARAM, LPARAM)
 	else
 	{
 		//Загрузка успешная
-		::AfxMessageBox(L"Игра загружена!",
+		::AfxMessageBox(m_afterLoadMessage,
 						MB_OK | MB_ICONINFORMATION);
 
 		//Распаковка через zip utils
@@ -420,7 +422,7 @@ LRESULT CUrlFileDlg::OnDisplayStatus(WPARAM, LPARAM lParam)
 		//VERIFY(strStatus.LoadString(pDownloadStatus->ulStatusCode -
 		//							UF_BINDSTATUS_FIRST +
 		//							IDS_BINDSTATUS01));
-		strStatus += _T("  ");
+		strStatus += _T(" ");
 		strStatus += pDownloadStatus->szStatusText;
 
 		strProgress.Format(L"Загружено байт %lu из %lu",

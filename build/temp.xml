@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <game_list version="1.0">
  <game>
+  <name>rangers</name>
+  <date>2023-04-03</date>
+  <title>Космические рейнджеры</title>
+  <author>Peter Kosyh</author>
+  <description>Модуль для проигрывания TGE квестов.</description>
+  <image>https://instead-games.ru/games/screenshots/20140314112011710.jpg</image>
+  <version>1.8.3</version>
+  <url>https://instead-games.ru//download/instead-rangers-1.8.3.zip</url>
+  <size>47324028</size>
+  <lang>ru</lang>
+  <descurl>https://instead-games.ru/game.php?ID=126</descurl>
+  <accessible>4</accessible>
+  <accessibleComment>16</accessibleComment>
+  <sandbox>rangers</sandbox>
+ </game>
+ <game>
   <name>cowboys</name>
   <date>2023-01-19</date>
   <title>Дикий Дикий кВест</title>
@@ -43,22 +59,6 @@
   <accessible>16</accessible>
   <accessibleComment></accessibleComment>
   <sandbox>quarantine</sandbox>
- </game>
- <game>
-  <name>rangers</name>
-  <date>2022-09-04</date>
-  <title>Космические рейнджеры</title>
-  <author>Peter Kosyh</author>
-  <description>Модуль для проигрывания TGE квестов.</description>
-  <image>https://instead-games.ru/games/screenshots/20140314112011710.jpg</image>
-  <version>1.8.2</version>
-  <url>https://instead-games.ru//download/instead-rangers-1.8.2.zip</url>
-  <size>47324005</size>
-  <lang>ru</lang>
-  <descurl>https://instead-games.ru/game.php?ID=126</descurl>
-  <accessible>16</accessible>
-  <accessibleComment></accessibleComment>
-  <sandbox>rangers</sandbox>
  </game>
  <game>
   <name>great_grandmas_chest</name>

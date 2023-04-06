@@ -17,7 +17,7 @@ class CUrlFileDlg : public CDialog
 // Construction
 public:
 	DECLARE_DYNAMIC(CUrlFileDlg)
-	CUrlFileDlg(CString url, CString filename, CWnd* pParent = NULL);	// standard constructor
+	CUrlFileDlg(CString url, CString filename, CString loadingMessage,CString afterLoadMessage,CWnd* pParent = NULL);	// standard constructor
 
 	void StartDownload();
 	bool isGoodLoad();
@@ -38,6 +38,7 @@ public:
 #endif
 	CString	m_strURL;
 	CString m_selFile;
+	CString m_loadingMessage, m_afterLoadMessage;
 	bool goodLoad;
 	//}}AFX_DATA
 
@@ -83,6 +84,7 @@ private:
 public:
 	CProgressCtrl m_progressPercent;
 	CEdit m_bytesLoad;
+
 };
 
 /////////////////////////////////////////////////////////////////////////////
