@@ -437,7 +437,7 @@ static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, voi
 	if (channel == old_channel ) {
 		//Приглушение завершено.
 		media_free(&old_music, &old_channel);
-			//BASS_ChannelSetAttribute(back_channel, BASS_ATTRIB_VOL, global_mus_lvl);
+			BASS_ChannelSetAttribute(back_channel, BASS_ATTRIB_VOL, global_mus_lvl);
 			if(back_channel)BASS_ChannelPlay(back_channel, FALSE);
 	}
 	else if (channel == back_channel) {
