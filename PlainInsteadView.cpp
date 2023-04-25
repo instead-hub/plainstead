@@ -210,11 +210,12 @@ void CPlainInsteadView::OnSize(UINT nType, int cx, int cy)
 	int h_static_text = h_static - dh_static_text;
 	int sz_list = 200;
 	int h_list = (cy / 3 - h_static);
-	if (m_OutEdit.m_hWnd) m_OutEdit.SetWindowPos(NULL, 0, 0, cx - sz_list, cy, SWP_NOACTIVATE | SWP_NOZORDER);
+	if (m_OutEdit.m_hWnd) m_OutEdit.SetWindowPos(NULL, 0, 0, cx - sz_list, cy - h_static, SWP_NOACTIVATE | SWP_NOZORDER);
 	if (m_InputEdit.m_hWnd && !m_InputEdit.IsWindowVisible())
 	{
 		m_InputEdit.ShowWindow(SW_SHOW);
 		m_InputEdit.EnableWindow(TRUE);
+		m_InputEdit.SetWindowPos(NULL, 0, cy - h_static, cx - sz_list, cy, SWP_NOACTIVATE | SWP_NOZORDER);
 	}
 	//if (mStaticScene.m_hWnd) mStaticScene.SetWindowPos(NULL, 2+cx - sz_list, dh_static_text, sz_list, h_static_text, SWP_NOACTIVATE | SWP_NOZORDER);
 	if (mListScene.m_hWnd) mListScene.SetWindowPos(NULL, 2 + cx - sz_list, h_static, sz_list, h_list, SWP_NOACTIVATE | SWP_NOZORDER);
@@ -288,7 +289,7 @@ static std::wstring process_instead_text(std::wstring inp, //входной текст
 	//Обработка отображения объектов сцены
 	//const std::wregex regex(L"\\{\\s*(\\w+)\\s*\\#(\\d+)\\}"); //Для фигурных скобочек
 	//const std::wregex regex(L"(\\w+)\\s*\\((\\d+)\\)"); //Для круглых после
-	const std::wregex regex(L"\\[a\\]([^]*?)\\#(-?\\d+)\\[/a\\]"); //для тэгов [a]
+	const std::wregex regex(L"\\[a\\]([^]*?)\\#(-?\\d+)\\[/a\\]", std::regex_constants::optimize); //для тэгов [a]
 	std::wsmatch match;
 	std::wsregex_iterator next(inp.begin(), inp.end(), regex);
 	std::wsregex_iterator end;
@@ -341,7 +342,7 @@ static std::wstring process_instead_text(std::wstring inp, //входной текст
 }
 static CString getLogsDir() {
 	TCHAR buff[MAX_PATH];
-	::GetModuleFileName(NULL, buff, sizeof(buff));
+	::GetModuleFileName(NULL, buff, std::size(buff));
 	CString baseDir = buff;
 	/*free(buff);
 	delete[] buff;*/
@@ -423,7 +424,7 @@ text_er +=getError(tmp);
 			pos_id_ways.clear();
 			mListWays.ResetContent();
 			ways = L"";
-			ways_er = L"";
+			//ways_er = L"";
 		}
 	}
 	//Если результат команды NULL,перерисовываем только инвентарь.
@@ -456,7 +457,7 @@ inv = tmp;
 pos_id_inv.clear();
 		mListInv.ResetContent();
 		inv = L"";
-		inv_er = L"";
+		//inv_er = L"";
 }
 	if (!onlyInvRedraw) {
 		text[0].Replace(L"\n", L"\r\n");
@@ -562,7 +563,7 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 {
 	CString resout;
 	int rc;
-	char cmd[256];
+	char cmd[512];
 	char* p;
 	std::string newCmd = utf8_encode(textIn);
 	CString er = L"";
@@ -783,7 +784,7 @@ code.Format(L"%s",act_on_scene[sel_pos]);
 			//m_OutEdit.SetWindowTextW(L"");
 			m_InputEdit.SetWindowTextW(L"");
 			//m_OutEdit.SetFocus();
-			TryInsteadCommand(textIn, L"Ввод текста", false, true);
+			TryInsteadCommand(textIn, L"Ввод текста "+textIn, false, true);
 		}
 		else
 		{

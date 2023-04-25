@@ -2,10 +2,17 @@
 #include "afxcmn.h"
 #include "afxwin.h"
 #include <vector>
-#include <set>
-#include <map>
-
-
+#include <unordered_set>
+/*#include <set>
+#include <map>*/
+#include <unordered_map>
+struct CString_hash
+{
+	size_t operator()(const CString& s) const noexcept
+	{
+		return std::hash<std::wstring_view>{}({ s.GetString(), (size_t)s.GetLength() });
+	}
+};
 // диалоговое окно LauncherDialog
 
 class LauncherDialog : public CDialog
@@ -40,13 +47,13 @@ protected:
 	void ClearNewList();
 	void SortColumn(CListCtrl* ctrl, int columnIndex, bool ascending);
 
-	//std::map<CString/*game name*/, CString/*game path*/> installedGamePath;
-	std::set<CString> installedGameNameCache; //кеш для быстрой проверки
+	//std::unordered_map<CString/*game name*/, CString/*game path*/> installedGamePath;
+	std::unordered_set<CString,CString_hash> installedGameNameCache; //кеш для быстрой проверки
 
 	//std::vector<std::pair<CString/*name*/, CString/*page*/> > networkGameDWPageAndName;
 	//std::set<CString> networkGameName;
 
-	std::map<CString/*game name*/, std::pair<CString /*accessibility comment*/, int /*accessibility status*/> > approveInfo;
+	std::unordered_map<CString/*game name*/, std::pair<CString /*accessibility comment*/, int /*accessibility status*/>, CString_hash> approveInfo;
 	CString m_stGamePath;
 	CString m_stGameTitle;
 	bool    m_wantPlay;

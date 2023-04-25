@@ -1,4 +1,4 @@
-require "ext/gui"
+--require "ext/gui"
 -- some stubs for tiny-instead
 -- stat, menu
 -- fake audio
@@ -10,32 +10,41 @@ iface = std '@iface'
 else
 	require 'tiny2'
 end
-instead_theme_name = function() return '.' end
-instead_font_load =function() return {} end
+instead_busy =function() return 0 end
+instead_direct=function() return 0 end
+instead_themespath =function() return "themes/" end
+instead_theme_name = function() return 'default' end
+instead_font_load =function() return "" end
 stead.ticks =instead_ticks
 get_ticks =instead_ticks
-mouse_pos =function() return 0,0 end
+instead_mouse_pos =function() return 0,0 end
+mouse_pos =instead_mouse_pos
+instead_mouse_filter =function() return 0 end
 function instead_sprite_free() end
 function instead_sprites_free() end
 function instead_font_free() end
 function instead_fonts_free() end
 function instead_font_scaled_size()
-return 0
+return 1,1
 end
 function instead_sprite_alpha() end
-function instead_sprite_colorkey() end
+function instead_sprite_colorkey() return "" end
 function instead_sprite_copy(...) end
 function instead_sprite_compose() end
 function instead_sprite_draw() end
 function instead_sprite_dup() end
-function instead_sprite_load() return "" end
-function instead_sprite_pixel() end
+function instead_sprite_load() return ""
+end
+function instead_sprite_pixel() return "" end
+function instead_sprite_pixels()
+return ""
+end
 function instead_sprite_scale() return 0
 end
-function instead_sprite_size() return 0,0
+function instead_sprite_size() return 1,1
 end
 --function instead_sprite_text() return "" end
-function instead_sprite_text_size() return 0,0 end
+function instead_sprite_text_size() return 1,1 end
 function instead_sprite_fill() end
 --[[function instead_sound()
 	return true
@@ -44,7 +53,9 @@ is_sound = function()
   return false
 end
 instead_sound_channel =function() end]]
-function instead_theme_var(a,b) return 1,"" end
+function instead_theme_var(a,b) return "1" end
+function instead_screen_size() return 0,0 end
+function instead_screen_dpi() return 0 end
 function hideinv() end
 -- fake themes
 local function getstr(str)
@@ -59,7 +70,9 @@ function iface:title(str)
 if type(str) ~= 'string' then return end
 	return getstr(str)
 end
-function iface:img() return '' end
+function iface:img(str)
+return "<img></img>"
+end
 function iface:imgl() return '' end
 function iface:imgr() return '' end
 function iface:anchor() return '' end
@@ -134,13 +147,20 @@ end
 --Форматирование текста
 steadfmt =stead.fmt
 function stead.fmt(...)
-local str =steadfmt(...)
+local str,rep =steadfmt(...),0
 if (not str) then return "" end
-str =stead.string.gsub(str,"<w:(.-)>","%1")
-str =stead.string.gsub(str,"<.->","")
+str =string.gsub(str,"<w:(.-)>","%1")
+local regexp ="<(.-).->(.-)</%1>"
+str,rep =string.gsub(str,regexp,"%2")
+--Заменяем вложенные теги тоже.
+while rep >0 do
+str,rep =string.gsub(str,regexp,"%2")
+end
 return str
 end
+instead_render_callback =function() end
 tiny =true
 require "ext/paths"
 require "ext/sound"
+--require "ext/sprites"
 require "ext/timer"

@@ -131,10 +131,6 @@ BEGIN
         MENUITEM "Режим отладки\t CTRL+D", ID_MENU_DEBUG,
         MENUITEM "Включить логирование",        ID_MENU_LOG
     END
-    POPUP "&Справка"
-    BEGIN
-        MENUITEM "&О проекте PlainInstead...",  ID_APP_ABOUT
-    END
     POPUP "&Звук"
     BEGIN
         MENUITEM "Музыка &громче\tCTRL+=",      ID_VOLUME_UP
@@ -147,6 +143,11 @@ BEGIN
         MENUITEM "Уведомления т&ише\t\tCTRL+6", ID_LISTSND_DOWN
         MENUITEM "Уведомления в&ключены\t\tCTRL+5", ID_LISTSND_ON, CHECKED
     END
+    POPUP "&Справка"
+    BEGIN
+        MENUITEM "&О проекте PlainInstead...",  ID_APP_ABOUT
+    END
+
 END
 
 

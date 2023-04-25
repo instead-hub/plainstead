@@ -272,11 +272,11 @@ static void setPlayableInfo(char* mus, HSAMPLE* sam, HCHANNEL* channel, DWORD lo
 		strcmp(get_filename_ext(mus), "umx") == 0)
 			)
 {
-		*channel = BASS_MusicLoad(FALSE, mus, 0, 0, loop_flag, 0);
+		*channel = BASS_MusicLoad(FALSE, mus, 0, 0, loop_flag | BASS_SAMPLE_FLOAT | BASS_MUSIC_SINCINTER | BASS_MUSIC_FT2MOD | BASS_MUSIC_FT2PAN | BASS_MUSIC_RAMP, 0);
 	}
 	else if(!*sam)
 	{
-		*sam = BASS_SampleLoad(FALSE, mus, 0, 0, 1, loop_flag);
+		*sam = BASS_SampleLoad(FALSE, mus, 0, 0, 1, loop_flag | BASS_SAMPLE_FLOAT);
 	}
 	if (*sam &&!*channel) {
 		/**channel = BASS_SampleGetChannel(*sam, BASS_SAMCHAN_STREAM|BASS_STREAM_DECODE);
@@ -360,7 +360,7 @@ static void sound_play(_snd_t* sn, int chan, int loop) {
 	//Удаляем callback,поскольку,к примеру,перед этим звук мог воспроизводиться в другом канале,а значит при срабатывании вызова мы будем работать с другим звуком.
 	if (channels[c].sync) BASS_ChannelRemoveSync(channels[c].snd->channels[c], channels[c].sync);
 	channels[c].index = c;
-	channels[c].sync = BASS_ChannelSetSync(sn->channels[c], /*BASS_SYNC_ONETIME |*/ BASS_SYNC_END, 0, finishCallback, &channels[c]);
+	channels[c].sync = BASS_ChannelSetSync(sn->channels[c], /*BASS_SYNC_ONETIME |*/ BASS_SYNC_MIXTIME|BASS_SYNC_END, 0, finishCallback, &channels[c]);
 	BASS_ChannelPlay(sn->channels[c], FALSE);
 		/*	fprintf(stderr, "added: %d\n", c); */
 }
@@ -415,7 +415,7 @@ err:
 static void fun(int a) {
 _snd_req_t* r = &sound_reqs[a];
 BASS_ChannelSetAttribute(channels[a].snd->channels[a], BASS_ATTRIB_VOL, global_sounds_lvl);
-	channels[a].snd = NULL;
+channels[a].snd = NULL;
 	if (r->snd) {
 		_snd_t* s = r->snd;
 		r->snd = NULL;
@@ -432,6 +432,10 @@ static void finishMusicLua() {
 	instead_clear();
 	instead_unlock();
 }
+//Некоторые трекерные файлы,в основном вроде .xm и .mod файлы,имеют команду F00,что приводит к остановке воспроизведения,т.к bass так её воспринимает (см https://www.un4seen.com/forum/?topic=20037.msg140533#msg140533).
+static boolean playingIsContinue(DWORD channel) {
+	return BASS_ChannelSetPosition(channel, BASS_ChannelGetPosition(channel, BASS_POS_MUSIC_ORDER | BASS_POS_DECODE) + 1, BASS_POS_MUSIC_ORDER);
+}
 static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, void* user)
 {
 	if (channel == old_channel ) {
@@ -441,6 +445,7 @@ static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, voi
 			if(back_channel)BASS_ChannelPlay(back_channel, FALSE);
 	}
 	else if (channel == back_channel) {
+		if (playingIsContinue(back_channel)) return;
 		if (mus_loop != 1) {
 			if (mus_loop > 1) mus_loop--;
 			return;
@@ -451,6 +456,7 @@ static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, voi
 	else {
 		/*for (int a = 0; a < SND_CHANNELS; a++) {
 			if (channels[a].snd && channel == channels[a].snd->channels[a]) {
+if(playingIsContinue(channels[a].snd->channels[a])) return;
 				if (channels[a].loop != 1) {
 					if (channels[a].loop > 1) channels[a].loop--;
 					return;
@@ -460,12 +466,13 @@ static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, voi
 BASS_ChannelRemoveSync(channels[a].snd->channels[a], handle);
 BASS_ChannelSetAttribute(channels[a].snd->channels[a], BASS_ATTRIB_VOL, global_sounds_lvl);
 }
-					fun(a);
+halt_chan(a,0);
 									break;
 			}*/
 		if (!user) return;
 		int a = (* (_snd_chan_t*)user).index;
-		if (channels[a].snd && channel == channels[a].snd->channels[a]) {
+				if (channels[a].snd && channel == channels[a].snd->channels[a]) {
+					if (playingIsContinue(channels[a].snd->channels[a])) return;
 			if (channels[a].loop != 1) {
 				if (channels[a].loop > 1) channels[a].loop--;
 				return;
@@ -475,7 +482,7 @@ BASS_ChannelSetAttribute(channels[a].snd->channels[a], BASS_ATTRIB_VOL, global_s
 				BASS_ChannelRemoveSync(channels[a].snd->channels[a], handle);
 BASS_ChannelSetAttribute(channels[a].snd->channels[a], BASS_ATTRIB_VOL, global_sounds_lvl);
 }
-			fun(a);
+			halt_chan(a, 0);
 		}
 			}
 }
@@ -860,7 +867,7 @@ musFree(cf_out);
 		setPlayableInfo(last_music, &back_music, &back_channel, loop_flag, cf_in);
 		if (back_channel && !old_music) { //Играем только если канал создан и музыка полностью затухла
 			//Не думаем об удалении вызовов,т.к мы используем музыку один раз,а потом полностью освобождаем её.
-			BASS_ChannelSetSync(back_channel, /*BASS_SYNC_ONETIME |*/ BASS_SYNC_END, 0, finishCallback, 0);
+			BASS_ChannelSetSync(back_channel, /*BASS_SYNC_ONETIME |*/ BASS_SYNC_MIXTIME|BASS_SYNC_END, 0, finishCallback, 0);
 			BASS_ChannelPlay(back_channel, FALSE);
 			//free(mus);
 		}

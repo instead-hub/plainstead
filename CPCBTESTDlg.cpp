@@ -117,7 +117,7 @@ BOOL CCPCBTESTDlg::OnInitDialog()
 
 	TCHAR buff[MAX_PATH];
 	memset(buff, 0, MAX_PATH);
-	::GetModuleFileName(NULL, buff, sizeof(buff));
+	::GetModuleFileName(NULL, buff, std::size(buff));
 	CString baseDir = buff;
 	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
 	SetCurrentDirectory(baseDir);
