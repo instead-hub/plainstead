@@ -231,10 +231,14 @@ function stead.mouse_filter() return 0 end
 function stead.screen_size() return 0,0 end
 --Для космический рейнджеров
 unpack = stead.unpack;
-
+stead.font_load = instead_font_load
 stead.module_init(function(s)
 local theme = obj {
 	nam = 'theme';
+		object_type = true;
+	system_type = true;
+	vars = {};
+	reset_vars = {};
 			win = { gfx = {}};
 		inv = { gfx = {}};
 		menu = { gfx = {}};

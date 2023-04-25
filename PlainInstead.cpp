@@ -212,7 +212,7 @@ BOOL CPlainInsteadApp::InitInstance()
 		gBassInit = 0;
 	}
 
-	if (BASS_Init(-1, 48000, BASS_DEVICE_DEFAULT | BASS_DEVICE_FREQ, 0, NULL) == 0) {
+	if (BASS_Init(-1, 48000, BASS_DEVICE_FREQ, 0, NULL) == 0) {
 		gBassInit = 0;
 	}
 
@@ -434,10 +434,10 @@ END_MESSAGE_MAP()
 // Команда приложения для запуска диалога
 void CPlainInsteadApp::OnAppAbout()
 {
-	CString textVoice = L"Текущий диктор: ";
-	textVoice += MultiSpeech::getInstance().GetCurrentReader();
-	CAboutDlg aboutDlg(textVoice);
-	aboutDlg.DoModal();
+	CString textVoice = L"Текущий диктор: "+MultiSpeech::getInstance().GetCurrentReader();
+	/*CAboutDlg aboutDlg(textVoice);
+	aboutDlg.DoModal();*/
+	AfxMessageBox(textVoice);
 }
 
 
@@ -460,6 +460,7 @@ void CPlainInsteadApp::OnFileOpen()
 				int load =CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + userFileName,false);
 				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"look",L"загрузка",false);
 				AfxMessageBox(load? L"Не удалось восстановить сохранение":L"Восстановлено!");
+				millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 				return;
 			}
 			else
@@ -500,7 +501,7 @@ soundsVolumeBeforeMute = savedSoundsVol;
 	//Определяем путь для сохранения
 TCHAR buff[MAX_PATH];
 	//memset(buff, 0, MAX_PATH);
-	::GetModuleFileName(NULL, buff, sizeof(buff));
+	::GetModuleFileName(NULL, buff, std::size(buff));
 	CString baseDir = buff;
 	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
 	CString gameName = file.Right(file.GetLength() - file.ReverseFind(_T('\\')) - 1);
@@ -544,15 +545,15 @@ if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) {
 			if (userFilePath == saveDir)
 			{
 				CString userFileName = saveGameNameDir + L"/" + fileDialog.GetFileName();
-				int save = CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + userFileName,false);
-								CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"look",L"сохранение игры",false);
-				AfxMessageBox(save?L"Не удалось сохранить игру!":L"Сохранено!");
+				int save = CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + userFileName, false);
+				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"look", L"сохранение игры", false);
+				AfxMessageBox(save ? L"Не удалось сохранить игру!" : L"Сохранено!");
 				return;
 			}
 			else
 			{
 				AfxMessageBox(L"Запрещено менять папку. Попробуйте сохранить еще раз.");
-			}
+			}return;
 		}
 		else
 		{
@@ -1063,7 +1064,7 @@ void CPlainInsteadApp::OnAddGameToLib()
 	{
 
 		TCHAR buff[MAX_PATH];
-		::GetModuleFileName(NULL, buff, sizeof(buff));
+		::GetModuleFileName(NULL, buff, std::size(buff));
 		CString baseDir = buff;
 		baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
 		SetCurrentDirectory(baseDir);

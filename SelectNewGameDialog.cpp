@@ -97,7 +97,7 @@ BOOL CSelectNewGameDialog::OnInitDialog()
 	//GetCurrentDirectory( MAX_PATH, CStrBuf(dir, MAX_PATH) );
 	TCHAR buff[MAX_PATH];
 	memset(buff, 0, MAX_PATH);
-	::GetModuleFileName(NULL, buff, sizeof(buff));
+	::GetModuleFileName(NULL, buff, std::size(buff));
 	baseDir = buff;
 	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
 	CString dir = baseDir + L"\\games";

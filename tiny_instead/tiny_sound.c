@@ -38,8 +38,8 @@ typedef struct {
 } _snd_t;
 typedef struct {
 	_snd_t* snd;
-	int	loop,index;
-	float vol,pan;
+	int	loop, index;
+	float vol, pan;
 	HSYNC sync;
 } _snd_chan_t;
 typedef struct {
@@ -98,9 +98,9 @@ static int  sound_playing(_snd_t* snd)
 {
 	int i;
 	for (i = 0; i < SND_CHANNELS; i++) {
-		if (&channels[i] &&channels[i].snd == snd)
+		if (&channels[i] && channels[i].snd == snd)
 			return i;
-		if (&sound_reqs[i] &&sound_reqs[i].snd == snd)
+		if (&sound_reqs[i] && sound_reqs[i].snd == snd)
 			return i;
 	}
 	return -1;
@@ -124,7 +124,7 @@ static const char* sound_channel(int i)
 	return sn->fname;
 }
 static void media_free(HSAMPLE* sam, HCHANNEL* chan) {
-		BOOL result = FALSE;
+	BOOL result = FALSE;
 	if (*chan) {
 		result = BASS_ChannelFree(*chan) || BASS_MusicFree(*chan) || BASS_StreamFree(*chan);
 		*chan = 0;
@@ -134,7 +134,7 @@ static void media_free(HSAMPLE* sam, HCHANNEL* chan) {
 		*sam = 0;
 	}
 }
-static void sound_free(_snd_t* sn,boolean removeFromList)
+static void sound_free(_snd_t* sn, boolean removeFromList)
 {
 	if (!sn)
 		return;
@@ -150,7 +150,7 @@ static void sound_free(_snd_t* sn,boolean removeFromList)
 		free(sn->buf);
 		sn->buf = NULL;
 	}
-	for (int a = 0; a < SND_CHANNELS;a++)media_free(&sn->sam, &sn->channels[a]);
+	for (int a = 0; a < SND_CHANNELS; a++)media_free(&sn->sam, &sn->channels[a]);
 	free(sn);
 	sn = NULL;
 }
@@ -169,7 +169,7 @@ static void sounds_free(void)
 		if (sn->system)
 			sn->loaded = 1; /* ref by system only */
 		else
-			sound_free(sn,TRUE);
+			sound_free(sn, TRUE);
 		pos = pos2;
 	}
 	for (i = 0; i < SND_CHANNELS; i++) {
@@ -220,7 +220,7 @@ static void sounds_shrink(void)
 			continue;
 		}
 		pos2 = list_next(&sounds, pos, list);
-		sound_free(sn,TRUE);
+		sound_free(sn, TRUE);
 		pos = pos2;
 		/*		fprintf(stderr,"shrink by 1\n"); */
 	}
@@ -244,17 +244,17 @@ static void halt_chan(int chan, int ms)
 	}
 	if (!channels[chan].snd) return;
 	channels[chan].loop = 1;
-		if (BASS_ChannelFlags(channels[chan].snd->channels[chan], 0, 0) & BASS_SAMPLE_LOOP) BASS_ChannelFlags(channels[chan].snd->channels[chan], 0, BASS_SAMPLE_LOOP);
-		BASS_ChannelRemoveSync(channels[chan].snd->channels[chan], channels[chan].sync);
-		channels[chan].sync = 0;
-		if (!ms) {
-			BASS_ChannelStop(channels[chan].snd->channels[chan]);
-			fun(chan);
-		}
-		else {
-			BASS_ChannelSetSync(channels[chan].snd->channels[chan], BASS_SYNC_SLIDE, 0, finishCallback, &channels[chan]);
-			BASS_ChannelSlideAttribute(channels[chan].snd->channels[chan], BASS_ATTRIB_VOL, -1.0f, ms);
-		}
+	if (BASS_ChannelFlags(channels[chan].snd->channels[chan], 0, 0) & BASS_SAMPLE_LOOP) BASS_ChannelFlags(channels[chan].snd->channels[chan], 0, BASS_SAMPLE_LOOP);
+	BASS_ChannelRemoveSync(channels[chan].snd->channels[chan], channels[chan].sync);
+	channels[chan].sync = 0;
+	if (!ms) {
+		BASS_ChannelStop(channels[chan].snd->channels[chan]);
+		fun(chan);
+	}
+	else {
+		BASS_ChannelSetSync(channels[chan].snd->channels[chan], BASS_SYNC_SLIDE, 0, finishCallback, &channels[chan]);
+		BASS_ChannelSlideAttribute(channels[chan].snd->channels[chan], BASS_ATTRIB_VOL, -1.0f, ms);
+	}
 }
 static const char* get_filename_ext(const char* filename) {
 	const char* dot = strrchr(filename, '.');
@@ -263,34 +263,34 @@ static const char* get_filename_ext(const char* filename) {
 }
 //Получение канала и hsample
 static void setPlayableInfo(char* mus, HSAMPLE* sam, HCHANNEL* channel, DWORD loop_flag, int cf_in) {
-	if (!*channel &&(strcmp(get_filename_ext(mus), "xm") == 0 ||
+	if (!*channel && (strcmp(get_filename_ext(mus), "xm") == 0 ||
 		strcmp(get_filename_ext(mus), "s3m") == 0 ||
 		strcmp(get_filename_ext(mus), "mod") == 0 ||
 		strcmp(get_filename_ext(mus), "mo3") == 0 ||
 		strcmp(get_filename_ext(mus), "it") == 0 ||
 		strcmp(get_filename_ext(mus), "mtm") == 0 ||
 		strcmp(get_filename_ext(mus), "umx") == 0)
-			)
-{
-		*channel = BASS_MusicLoad(FALSE, mus, 0, 0, loop_flag, 0);
-	}
-	else if(!*sam)
+		)
 	{
-		*sam = BASS_SampleLoad(FALSE, mus, 0, 0, 1, loop_flag);
+		*channel = BASS_MusicLoad(FALSE, mus, 0, 0, loop_flag | BASS_SAMPLE_FLOAT | BASS_MUSIC_SINCINTER | BASS_MUSIC_FT2MOD | BASS_MUSIC_FT2PAN | BASS_MUSIC_RAMP, 0);
 	}
-	if (*sam &&!*channel) {
+	else if (!*sam)
+	{
+		*sam = BASS_SampleLoad(FALSE, mus, 0, 0, 1, loop_flag | BASS_SAMPLE_FLOAT);
+	}
+	if (*sam && !*channel) {
 		/**channel = BASS_SampleGetChannel(*sam, BASS_SAMCHAN_STREAM|BASS_STREAM_DECODE);
 		float level;
 		BOOL success = BASS_ChannelGetLevelEx(*channel, &level, 10000, BASS_LEVEL_MONO);
 		char buf[32];
 		snprintf(buf, sizeof(buf), "%f", level);
 		MessageBoxA(0, buf, "", 0);*/
-		*channel = BASS_SampleGetChannel(*sam, BASS_SAMCHAN_STREAM|BASS_SAMCHAN_NEW);
+		*channel = BASS_SampleGetChannel(*sam, BASS_SAMCHAN_STREAM | BASS_SAMCHAN_NEW);
 	}
 	if (*channel) {
 		BASS_ChannelSetAttribute(*channel, BASS_ATTRIB_VOL, cf_in ? 0.0f : *channel == back_channel ? global_mus_lvl : global_sounds_lvl);
-		if (cf_in) BASS_ChannelSlideAttribute(*channel, BASS_ATTRIB_VOL, *channel == back_channel ? global_mus_lvl: global_sounds_lvl, cf_in);
-			}
+		if (cf_in) BASS_ChannelSlideAttribute(*channel, BASS_ATTRIB_VOL, *channel == back_channel ? global_mus_lvl : global_sounds_lvl, cf_in);
+	}
 }
 //Добавление звука к списку звуков.
 static _snd_t* sound_add(const char* fname, int fmt, short* buf, int len)
@@ -309,7 +309,7 @@ static _snd_t* sound_add(const char* fname, int fmt, short* buf, int len)
 	sn->len = len;
 	sn->fmt = fmt;
 	if (!sn->fname) {
-		sound_free(sn,TRUE);
+		sound_free(sn, TRUE);
 		return NULL;
 	}
 	if (buf) {
@@ -319,20 +319,20 @@ static _snd_t* sound_add(const char* fname, int fmt, short* buf, int len)
 		for (int a = 0; a < SND_CHANNELS; a++) {
 			setPlayableInfo(sn->fname, &sn->sam, &sn->channels[a], 0, 0);
 			if (!sn->channels[a]) { //Возникла ошибка
-				sound_free(sn,FALSE);
+				sound_free(sn, FALSE);
 				return NULL;
 			}
 		}
-}
-		//if (!sn->channels[0]) goto err;
+	}
+	//if (!sn->channels[0]) goto err;
 	sounds_shrink();
 	list_add(&sounds, &sn->list);
 	sounds_nr++;
 	return sn;
-/*err:
-	free(sn);
-	sn = NULL;
-	return NULL;*/
+	/*err:
+		free(sn);
+		sn = NULL;
+		return NULL;*/
 }
 static void sound_play(_snd_t* sn, int chan, int loop) {
 	int c;
@@ -346,13 +346,13 @@ static void sound_play(_snd_t* sn, int chan, int loop) {
 	else
 		c = chan;
 	if (channels[c].snd) {
-				sound_reqs[c].snd = sn;
+		sound_reqs[c].snd = sn;
 		sound_reqs[c].loop = loop;
 		sound_reqs[c].channel = chan;
-			halt_chan(chan, 0); /* work in callback */
-					//input_uevents(); /* all callbacks */
-			return;
-		}
+		halt_chan(chan, 0); /* work in callback */
+				//input_uevents(); /* all callbacks */
+		return;
+	}
 	channels[c].snd = sn;
 	channels[c].loop = loop;
 	if (loop != 1 && !(BASS_ChannelFlags(sn->channels[c], 0, 0) & BASS_SAMPLE_LOOP))  BASS_ChannelFlags(sn->channels[c], BASS_SAMPLE_LOOP, BASS_SAMPLE_LOOP);
@@ -360,9 +360,9 @@ static void sound_play(_snd_t* sn, int chan, int loop) {
 	//Удаляем callback,поскольку,к примеру,перед этим звук мог воспроизводиться в другом канале,а значит при срабатывании вызова мы будем работать с другим звуком.
 	if (channels[c].sync) BASS_ChannelRemoveSync(channels[c].snd->channels[c], channels[c].sync);
 	channels[c].index = c;
-	channels[c].sync = BASS_ChannelSetSync(sn->channels[c], /*BASS_SYNC_ONETIME |*/ BASS_SYNC_END, 0, finishCallback, &channels[c]);
+	channels[c].sync = BASS_ChannelSetSync(sn->channels[c], /*BASS_SYNC_ONETIME |*/ BASS_SYNC_MIXTIME | BASS_SYNC_END, 0, finishCallback, &channels[c]);
 	BASS_ChannelPlay(sn->channels[c], FALSE);
-		/*	fprintf(stderr, "added: %d\n", c); */
+	/*	fprintf(stderr, "added: %d\n", c); */
 }
 static int _play_combined_snd(char* filename, int chan, int loop)
 {
@@ -399,7 +399,7 @@ static int _play_combined_snd(char* filename, int chan, int loop)
 		if (sn)
 			sound_play(sn, c, l);
 		else if (at || c != -1) { /* if @ or specific channel */
-halt_chan(c, (at == 2) ? l : 0);
+			halt_chan(c, (at == 2) ? l : 0);
 			/*char buf[32];
 			sprintf(buf, "%d", c);
 			MessageBox(0, buf, "", 0);*/
@@ -413,8 +413,8 @@ err:
 	return -1;
 }
 static void fun(int a) {
-_snd_req_t* r = &sound_reqs[a];
-BASS_ChannelSetAttribute(channels[a].snd->channels[a], BASS_ATTRIB_VOL, global_sounds_lvl);
+	_snd_req_t* r = &sound_reqs[a];
+	BASS_ChannelSetAttribute(channels[a].snd->channels[a], BASS_ATTRIB_VOL, global_sounds_lvl);
 	channels[a].snd = NULL;
 	if (r->snd) {
 		_snd_t* s = r->snd;
@@ -432,15 +432,20 @@ static void finishMusicLua() {
 	instead_clear();
 	instead_unlock();
 }
+//Некоторые трекерные файлы,в основном вроде .xm и .mod файлы,имеют команду F00,что приводит к остановке воспроизведения,т.к bass так её воспринимает (см https://www.un4seen.com/forum/?topic=20037.msg140533#msg140533).
+static boolean playingIsContinue(DWORD channel) {
+	return BASS_ChannelSetPosition(channel, BASS_ChannelGetPosition(channel, BASS_POS_MUSIC_ORDER | BASS_POS_DECODE) + 1, BASS_POS_MUSIC_ORDER);
+}
 static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, void* user)
 {
-	if (channel == old_channel ) {
+	if (channel == old_channel) {
 		//Приглушение завершено.
 		media_free(&old_music, &old_channel);
-			BASS_ChannelSetAttribute(back_channel, BASS_ATTRIB_VOL, global_mus_lvl);
-			if(back_channel)BASS_ChannelPlay(back_channel, FALSE);
+		BASS_ChannelSetAttribute(back_channel, BASS_ATTRIB_VOL, global_mus_lvl);
+		if (back_channel)BASS_ChannelPlay(back_channel, FALSE);
 	}
 	else if (channel == back_channel) {
+		if (playingIsContinue(back_channel)) return;
 		if (mus_loop != 1) {
 			if (mus_loop > 1) mus_loop--;
 			return;
@@ -451,6 +456,7 @@ static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, voi
 	else {
 		/*for (int a = 0; a < SND_CHANNELS; a++) {
 			if (channels[a].snd && channel == channels[a].snd->channels[a]) {
+if(playingIsContinue(channels[a].snd->channels[a])) return;
 				if (channels[a].loop != 1) {
 					if (channels[a].loop > 1) channels[a].loop--;
 					return;
@@ -460,12 +466,13 @@ static void CALLBACK finishCallback(HSYNC handle, DWORD channel, DWORD data, voi
 BASS_ChannelRemoveSync(channels[a].snd->channels[a], handle);
 BASS_ChannelSetAttribute(channels[a].snd->channels[a], BASS_ATTRIB_VOL, global_sounds_lvl);
 }
-					fun(a);
+halt_chan(a,0);
 									break;
 			}*/
 		if (!user) return;
-		int a = (* (_snd_chan_t*)user).index;
+		int a = (*(_snd_chan_t*)user).index;
 		if (channels[a].snd && channel == channels[a].snd->channels[a]) {
+			if (playingIsContinue(channels[a].snd->channels[a])) return;
 			if (channels[a].loop != 1) {
 				if (channels[a].loop > 1) channels[a].loop--;
 				return;
@@ -473,11 +480,11 @@ BASS_ChannelSetAttribute(channels[a].snd->channels[a], BASS_ATTRIB_VOL, global_s
 			//Приглушение
 			if (handle != channels[a].sync) {
 				BASS_ChannelRemoveSync(channels[a].snd->channels[a], handle);
-BASS_ChannelSetAttribute(channels[a].snd->channels[a], BASS_ATTRIB_VOL, global_sounds_lvl);
-}
-			fun(a);
-		}
+				BASS_ChannelSetAttribute(channels[a].snd->channels[a], BASS_ATTRIB_VOL, global_sounds_lvl);
 			}
+			halt_chan(a, 0);
+		}
+	}
 }
 
 static void sounds_reload(void)
@@ -490,7 +497,7 @@ static void sounds_reload(void)
 		sn = (_snd_t*)pos;
 		for (int a = 0; a < SND_CHANNELS; a++) {
 			media_free(&sn->sam, &sn->channels[a]);
-			if(!sn->buf)setPlayableInfo(sn->fname, &sn->sam, &sn->channels[a], 0, 0);
+			if (!sn->buf)setPlayableInfo(sn->fname, &sn->sam, &sn->channels[a], 0, 0);
 		}
 		if (sn->buf)
 			/*sn->wav =*/ snd_load_mem(sn->fmt, sn->buf, sn->len);
@@ -540,7 +547,7 @@ static void _sound_put(void* s)
 	if (!sn->system || sn->loaded > 1)
 		sn->loaded--;
 	if (!sn->loaded && sound_playing(sn) == -1)
-		sound_free(sn,TRUE);
+		sound_free(sn, TRUE);
 	return;
 }
 
@@ -689,7 +696,7 @@ static int luaB_panning_sound(lua_State* L) {
 	}
 	channels[chan].vol = vol;
 	channels[chan].pan = pan;
-	BASS_ChannelSetAttribute(channels[chan].snd->channels[chan], BASS_ATTRIB_PAN, pan);
+	if (channels[chan].snd)BASS_ChannelSetAttribute(channels[chan].snd->channels[chan], BASS_ATTRIB_PAN, pan);
 	return 0;
 }
 static int luaB_free_sound(lua_State* L) {
@@ -796,7 +803,7 @@ static int sound_init(void)
 //Проигрывание музыки
 static void game_music_player(void)
 {
-		//Не инициализирован BASS
+	//Не инициализирован BASS
 	if (!gBassInit) return;
 	//Если отключено или нет звуков
 	//if (!snd_volume_mus(-1))
@@ -808,7 +815,7 @@ static void game_music_player(void)
 	instead_function("instead.get_music", NULL);
 	char* mus = instead_retval(0);
 	int loop = instead_iretval(1);
-		unix_path(mus);
+	unix_path(mus);
 	instead_clear();
 	instead_function("instead.get_music_fading", NULL);
 	int cf_out = instead_iretval(0);
@@ -822,13 +829,13 @@ static void game_music_player(void)
 	//Для библиотеки bass это не имеет значения
 	/*if (loop == 0)
 		loop = -1;*/
-	/*if (cf_out == 0)
-		cf_out = 500;
-	else */ if (cf_out < 0)
-		cf_out = 0;
+		/*if (cf_out == 0)
+			cf_out = 500;
+		else */ if (cf_out < 0)
+	cf_out = 0;
 
-	if (cf_in < 0)
-		cf_in = 0;
+		if (cf_in < 0)
+			cf_in = 0;
 #ifndef fad_music
 #define fad_music if (cf_out && !old_music) {\
 	/*Помечаем,что музыка ещё не остановлена.*/\
@@ -843,37 +850,37 @@ BASS_ChannelSlideAttribute(old_channel, BASS_ATTRIB_VOL, -1.0f, cf_out);\
 }\
 musFree(cf_out);
 #endif
-	//Играем или останавливаем музыку, надо учитывать останов предыдущей
-	if (!mus && last_music) {
-		//Останавливаем музыку
-//game_stop_mus(cf_out);
-		fad_music
-	}
-	else if (mus && (!last_music || strcmp(last_music, mus)))
-	{
-		//game_stop_mus(cf_out);
-		fad_music
-		last_music = mus;
-		mus_loop = loop;
-		DWORD loop_flag = 0;
-		if (loop !=1) loop_flag |= BASS_SAMPLE_LOOP;
-		setPlayableInfo(last_music, &back_music, &back_channel, loop_flag, cf_in);
-		if (back_channel && !old_music) { //Играем только если канал создан и музыка полностью затухла
-			//Не думаем об удалении вызовов,т.к мы используем музыку один раз,а потом полностью освобождаем её.
-			BASS_ChannelSetSync(back_channel, /*BASS_SYNC_ONETIME |*/ BASS_SYNC_END, 0, finishCallback, 0);
-			BASS_ChannelPlay(back_channel, FALSE);
-			//free(mus);
+		//Играем или останавливаем музыку, надо учитывать останов предыдущей
+		if (!mus && last_music) {
+			//Останавливаем музыку
+	//game_stop_mus(cf_out);
+			fad_music
 		}
-		else if (!back_channel) {
-			//Выдача ошибки, если что не так
-//game_res_err_msg(mus, debug_sw);
-			if (mus) {
-				free(mus);
-				mus = NULL;
-				last_music = NULL;
-}
+		else if (mus && (!last_music || strcmp(last_music, mus)))
+		{
+			//game_stop_mus(cf_out);
+			fad_music
+				last_music = mus;
+			mus_loop = loop;
+			DWORD loop_flag = 0;
+			if (loop != 1) loop_flag |= BASS_SAMPLE_LOOP;
+			setPlayableInfo(last_music, &back_music, &back_channel, loop_flag, cf_in);
+			if (back_channel && !old_music) { //Играем только если канал создан и музыка полностью затухла
+				//Не думаем об удалении вызовов,т.к мы используем музыку один раз,а потом полностью освобождаем её.
+				BASS_ChannelSetSync(back_channel, /*BASS_SYNC_ONETIME |*/ BASS_SYNC_MIXTIME | BASS_SYNC_END, 0, finishCallback, 0);
+				BASS_ChannelPlay(back_channel, FALSE);
+				//free(mus);
+			}
+			else if (!back_channel) {
+				//Выдача ошибки, если что не так
+	//game_res_err_msg(mus, debug_sw);
+				if (mus) {
+					free(mus);
+					mus = NULL;
+					last_music = NULL;
+				}
+			}
 		}
-	}
 }
 
 //Проигрывание звуков
@@ -967,7 +974,7 @@ void setGlobalSoundsLevel(int volume)
 	if (volume > 100) volume = 100;
 	//Для всех работающих каналов
 	global_sounds_lvl = volume / 100.0f;
-for (int a = 0; a < SND_CHANNELS; a++) {
+	for (int a = 0; a < SND_CHANNELS; a++) {
 		channels[a].vol = global_sounds_lvl;
 		for (int b = 0; b < SND_CHANNELS; b++) {
 			if (channels[a].snd && channels[a].snd->channels[b]) BASS_ChannelSetAttribute(channels[a].snd->channels[b], BASS_ATTRIB_VOL, global_sounds_lvl);

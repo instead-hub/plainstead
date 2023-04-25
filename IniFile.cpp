@@ -1,6 +1,6 @@
 // IniFile.cpp : implementation file
 //
-
+#include <iostream>
 #include "stdafx.h"
 //#include "IniFileClass.h"
 #include "IniFile.h"
@@ -26,7 +26,7 @@ CIniFile::CIniFile() : m_MAXSTRLEN(1024)
 {
 	TCHAR buff[MAX_PATH];
 	memset(buff, 0, MAX_PATH);
-	::GetModuleFileName(NULL, buff, sizeof(buff));
+	::GetModuleFileName(NULL, buff, std::size(buff));
 	CString baseDir = buff;
 	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
 	SetIniFileName(baseDir+L"\\settings.ini");
