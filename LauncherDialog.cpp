@@ -523,7 +523,7 @@ void LauncherDialog::CreateColumns()
 
 void LauncherDialog::AddInstalledGame(CString name, CString version, std::pair<CString, CString> path)
 {
-	CString mark = L"Ќеизвестно";
+	CString mark = L"Ќепроверен";
 	CString info = L"";
 	CString date = L"";
 	if (approveInfo.count(path.second)) {
@@ -1056,12 +1056,12 @@ void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile)
 		{
 			CString csAccesible = xml.GetChildData();
 			enum AccessibleLevel {
-				NotApproved = -2, //не проверенные игры.
-				Impossible = -1,  //Ќепроходимые игры, к примеру из - за разных версий lua в игре и	интерпретаторе.
-				NoAccesible = 0, //Ќедоступные игры.
-				PartAccesible = 1, //„астично доступные игры, т.е игры, дл€ доступности которых нужно мало
+				NotApproved = 1, //не проверенные игры.
+				Impossible = 2,  //Ќепроходимые игры, к примеру из - за разных версий lua в игре и	интерпретаторе.
+				NoAccesible = 4, //Ќедоступные игры.
+				PartAccesible = 8, //„астично доступные игры, т.е игры, дл€ доступности которых нужно мало
 									//сделать, или игры, которые можно пройти с танцами с бубнам.
-				FullAccesible = 2 //ѕолностью доступные игры.
+				FullAccesible = 16 //ѕолностью доступные игры.
 			};
 			int accesibleLevel = _wtoi(csAccesible);
 			if ( (accesibleLevel == PartAccesible) || (accesibleLevel == FullAccesible) )
