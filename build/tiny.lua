@@ -12,6 +12,10 @@ else
 end
 instead_busy =function() return 0 end
 instead_direct=function() return 0 end
+instead_autosave =function(n)
+if not n then n="auto" end
+iface:cmd("save "..instead_autosavepath().."/"..n..".sav")
+end
 instead_themespath =function() return "themes/" end
 instead_theme_name = function() return 'default' end
 instead_font_load =function() return "" end

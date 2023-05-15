@@ -25,11 +25,12 @@
 #pragma comment( lib, "bass.lib" )
 #include "bassmidi.h"
 #pragma comment( lib, "bassmidi.lib" )
-CString saveDir;
+CString saveDir, autoSaveDir;
 CString saveGameNameDir;
 extern "C" {
-#include "instead\instead.h"
+	#include "instead\instead.h"
 	static uint64_t millis;
+	boolean isSaving=false;
 	extern int instead_gui_init(void);
 	extern int instead_metaparser_init(void);
 	extern int instead_paths_init(void);
@@ -73,7 +74,10 @@ extern int instead_sprites_init(void);
 		if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) SHCreateDirectoryEx(NULL, saveDir, NULL);
 		strcpy(buf, CT2A(saveDir));
 	}
-
+	void getAutoSavePath(char* buf) {
+		if (GetFileAttributes(autoSaveDir) == INVALID_FILE_ATTRIBUTES) SHCreateDirectoryEx(NULL, autoSaveDir, NULL);
+		strcpy(buf, CT2A(autoSaveDir));
+	}
 	void getGamePath(char* buf) {
 		//memset(buff, 0, MAX_PATH);
 		GetCurrentDirectoryA(MAX_PATH, buf);
@@ -104,9 +108,11 @@ BEGIN_MESSAGE_MAP(CPlainInsteadApp, CWinApp)
 	// Стандартные команды по работе с файлами документов
 	//ON_COMMAND(ID_FILE_NEW, &CWinApp::OnFileNew)
 	//ON_COMMAND(ID_FILE_NEW_GAME, OnFileNewGame)
-	ON_COMMAND(ID_FILE_OPEN, OnFileOpen)
+	ON_COMMAND(	ID_FILE_OPEN,  OnFileOpen)
+	ON_COMMAND(ID_FILE_OPEN_WITH_RELOAD, OnFileOpenWithReload)
 	ON_COMMAND(ID_FILE_SAVE_GAME, OnFileSave)
 	ON_UPDATE_COMMAND_UI(ID_FILE_OPEN, &CPlainInsteadApp::OnUpdateFileOpen)
+	ON_UPDATE_COMMAND_UI(ID_FILE_OPEN_WITH_RELOAD, &CPlainInsteadApp::OnUpdateFileOpen)
 	ON_UPDATE_COMMAND_UI(ID_FILE_SAVE_GAME, &CPlainInsteadApp::OnUpdateFileSaveGame)
 	ON_COMMAND(ID_VIEW_FULL_HIST, &CPlainInsteadApp::OnViewFullHist)
 	ON_COMMAND(ID_VIEW_PREV_HIST, &CPlainInsteadApp::OnViewPrevHist)
@@ -442,22 +448,19 @@ void CPlainInsteadApp::OnAppAbout()
 
 
 // обработчики сообщений CPlainInsteadApp
-void CPlainInsteadApp::OnFileOpen()
+void CPlainInsteadApp::OnFileOpen(boolean reload)
 {
-	//Cохранение файла
+	//Загрузка сохранения
 	if (Tolk_IsSpeaking()) Tolk_Silence();
-	for (int i = 0; i < 3; i++) //3 попытки сохранения
-	{
 		CFileDialog fileDialog(TRUE, NULL, saveDir + L"\\1.sav", OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, L"Instead save file (*.sav)|*.sav");	//объект класса выбора файла
 		int result = fileDialog.DoModal();	//запустить диалоговое окно
 		if (result == IDOK)	//если файл выбран
 		{
-			CString userFilePath = fileDialog.GetFolderPath();
-			if (userFilePath == saveDir)
+			CString userFilePath = fileDialog.GetPathName();
+			if (userFilePath== saveDir+L"\\" + fileDialog.GetFileName() || userFilePath == autoSaveDir+L"\\" + fileDialog.GetFileName())
 			{
-				CString userFileName = saveGameNameDir + L"/" + fileDialog.GetFileName();
-				InterpreterController::loadSave(userFileName);
-				int load =CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + userFileName,false);
+								InterpreterController::loadSave(userFilePath, reload);
+				int load =CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + userFilePath,false);
 				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"look",L"загрузка",false);
 				AfxMessageBox(load? L"Не удалось восстановить сохранение":L"Восстановлено!");
 				millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
@@ -465,7 +468,7 @@ void CPlainInsteadApp::OnFileOpen()
 			}
 			else
 			{
-				AfxMessageBox(L"Запрещено менять папку. Попробуйте сохранить еще раз.");
+				AfxMessageBox(L"Запрещено менять папку. Попробуйте загрузить сохранение еще раз.");
 				return;
 			}
 		}
@@ -474,9 +477,12 @@ void CPlainInsteadApp::OnFileOpen()
 			return;
 		}
 	}
+void CPlainInsteadApp::OnFileOpen() {
+	OnFileOpen(false);
 }
-
-
+void CPlainInsteadApp::OnFileOpenWithReload() {
+	OnFileOpen(true);
+}
 void CPlainInsteadApp::StartNewGameFile(CString file, CString name)
 {
 	millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
@@ -506,7 +512,8 @@ TCHAR buff[MAX_PATH];
 	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
 	CString gameName = file.Right(file.GetLength() - file.ReverseFind(_T('\\')) - 1);
 	saveGameNameDir = L"../../saves/" + gameName;
-	saveDir = baseDir + L"saves\\" + gameName;
+saveDir = baseDir + L"saves\\" + gameName;
+autoSaveDir = saveDir+L"\\autosaves";
 
 	//closeAllChannels();
 InterpreterController::startGameFile(file,name,needAutoLog);
@@ -526,47 +533,49 @@ InterpreterController::startGameFile(file,name,needAutoLog);
 
 void CPlainInsteadApp::OnFileSave()
 {
+	isSaving = true;
 	//Cохранение файла
 	if (Tolk_IsSpeaking()) Tolk_Silence();
 	//Создаем каталог для сохранения (если его еще не было)
-if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) {
+	if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) {
 		SHCreateDirectoryEx(NULL, saveDir, NULL);
 		if (GetFileAttributes(saveDir) == INVALID_FILE_ATTRIBUTES) {
 			AfxMessageBox(L"Не могу создать директорию для сохранения!");
-		}
-	}
-	for (int i = 0; i < 3; i++) //3 попытки сохранения
-	{
-		CFileDialog fileDialog(FALSE, L"sav", saveDir + L"\\1.sav", OFN_NOCHANGEDIR | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, L"Instead save file (*.sav)|*.sav");	//объект класса выбора файла
-		int result = fileDialog.DoModal();	//запустить диалоговое окно
-		if (result == IDOK)	//если файл выбран
-		{
-			CString userFilePath = fileDialog.GetFolderPath();
-			if (userFilePath == saveDir)
-			{
-				CString userFileName = saveGameNameDir + L"/" + fileDialog.GetFileName();
-				int save = CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + userFileName, false);
-				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"look", L"сохранение игры", false);
-				AfxMessageBox(save ? L"Не удалось сохранить игру!" : L"Сохранено!");
-				return;
-			}
-			else
-			{
-				AfxMessageBox(L"Запрещено менять папку. Попробуйте сохранить еще раз.");
-			}return;
-		}
-		else
-		{
+			isSaving = false;
 			return;
 		}
 	}
+	CFileDialog fileDialog(FALSE, L"sav", saveDir + L"\\1.sav", OFN_NOCHANGEDIR | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, L"Instead save file (*.sav)|*.sav");	//объект класса выбора файла
+	int result = fileDialog.DoModal();	//запустить диалоговое окно
+	if (result == IDOK)	//если файл выбран
+	{
+		CString userFilePath = fileDialog.GetFolderPath();
+		if (userFilePath == saveDir)
+		{
+			CString userFileName = saveGameNameDir + L"/" + fileDialog.GetFileName();
+			int save = CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + userFileName, false);
+			CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"look", L"сохранение игры", false);
+			AfxMessageBox(save ? L"Не удалось сохранить игру!" : L"Сохранено!");
+		}
+		else
+		{
+			AfxMessageBox(L"Запрещено менять папку. Попробуйте сохранить еще раз.");
+		}
+		isSaving = false;
+	return;
+}
+		else
+		{
+		isSaving = false;
+			return;
+		}
 	//CPlainInsteadView::GetCurrentView()->SetOutputText(L"Для сохранения введите save <имя>. Например: save 1");
 }
 
 void CPlainInsteadApp::OnUpdateFileOpen(CCmdUI *pCmdUI)
 {
 	// TODO: добавьте свой код обработчика ИП обновления команд
-	//pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && fThreadRunning);
+	//pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() );
 }
 
 void CPlainInsteadApp::OnUpdateFileSaveGame(CCmdUI *pCmdUI)

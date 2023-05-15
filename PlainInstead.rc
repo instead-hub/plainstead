@@ -113,6 +113,7 @@ BEGIN
         MENUITEM "&Менеджер игр\t\tCtrl+M",     ID_OPEN_MANAGER
         MENUITEM "&Добавить игру в библиотеку\t\tCtrl+N", ID_ADD_GAME_TO_LIB
         MENUITEM "&Открыть сохранение\tCtrl+O", ID_FILE_OPEN
+        MENUITEM "&Открыть сохранение с перезагрузкой библиотеки\tCtrl+Shift+O", ID_FILE_OPEN_WITH_RELOAD
         MENUITEM "Со&хранить игру\tCtrl+S",     ID_FILE_SAVE_GAME
         MENUITEM "Начать игру &заново\tCtrl+R", ID_RESTART_MENU
         MENUITEM SEPARATOR
@@ -128,7 +129,7 @@ BEGIN
         MENUITEM "Перейти к списку о&бъектов \t\tCTRL+1", ID_GOTO_SCENE
         MENUITEM "Перейти к списку &инвентаря\tCTRL+2", ID_GOTO_INV
         MENUITEM "Перейти к списку п&утей\t CTRL+3", ID_GOTO_WAYS
-        MENUITEM "Режим отладки\t CTRL+D", ID_MENU_DEBUG,
+        MENUITEM "Режим отладки\t CTRL+D",      ID_MENU_DEBUG
         MENUITEM "Включить логирование",        ID_MENU_LOG
     END
     POPUP "&Звук"
@@ -136,9 +137,9 @@ BEGIN
         MENUITEM "Музыка &громче\tCTRL+=",      ID_VOLUME_UP
         MENUITEM "Музыка &тише\tCTRL+-",        ID_VOLUME_DOWN
         MENUITEM "&Музыка включена\tCTRL+0",    ID_VOLUME_ON, CHECKED
-        MENUITEM "Звуки &громче\tCTRL+Shift+=",      ID_SOUNDS_VOLUME_UP
-        MENUITEM "Звуки &тише\tCTRL+Shift+-",        ID_SOUNDS_VOLUME_DOWN
-        MENUITEM "&Звуки включены\tCTRL+Shift+0",    ID_SOUNDS_VOLUME_ON, CHECKED
+        MENUITEM "Звуки &громче\tCTRL+Shift+=", ID_SOUNDS_VOLUME_UP
+        MENUITEM "Звуки &тише\tCTRL+Shift+-",   ID_SOUNDS_VOLUME_DOWN
+        MENUITEM "&Звуки включены\tCTRL+Shift+0", ID_SOUNDS_VOLUME_ON, CHECKED
         MENUITEM "Уведомления г&ромче\t\tCTRL+7", ID_LISTSND_UP
         MENUITEM "Уведомления т&ише\t\tCTRL+6", ID_LISTSND_DOWN
         MENUITEM "Уведомления в&ключены\t\tCTRL+5", ID_LISTSND_ON, CHECKED
@@ -147,7 +148,6 @@ BEGIN
     BEGIN
         MENUITEM "&О проекте PlainInstead...",  ID_APP_ABOUT
     END
-
 END
 
 
@@ -170,6 +170,7 @@ BEGIN
     "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
     "T",            ID_ENTER_SETUP,         VIRTKEY, CONTROL, NOINVERT
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN_WITH_RELOAD, VIRTKEY, SHIFT, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE_GAME,      VIRTKEY, CONTROL, NOINVERT
     VK_F3,          ID_FIND_NEXT,           VIRTKEY, NOINVERT
     "F",            ID_FIND_TEXT,           VIRTKEY, CONTROL, NOINVERT
@@ -187,15 +188,15 @@ BEGIN
     "M",            ID_OPEN_MANAGER,        VIRTKEY, CONTROL, NOINVERT
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
     "R",            ID_RESTART_MENU,        VIRTKEY, CONTROL, NOINVERT
-	    "D",            ID_MENU_DEBUG,        VIRTKEY, CONTROL, NOINVERT
+    "D",            ID_MENU_DEBUG,          VIRTKEY, CONTROL, NOINVERT
     VK_F5,          ID_UPDATE,              VIRTKEY, NOINVERT
     VK_F24,         ID_UPDATE_FORM,         VIRTKEY, NOINVERT
     VK_OEM_MINUS,   ID_VOLUME_DOWN,         VIRTKEY, CONTROL, NOINVERT
     "0",            ID_VOLUME_ON,           VIRTKEY, CONTROL, NOINVERT
     VK_OEM_PLUS,    ID_VOLUME_UP,           VIRTKEY, CONTROL, NOINVERT
-    VK_OEM_MINUS,   ID_SOUNDS_VOLUME_DOWN,         VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "0", ID_SOUNDS_VOLUME_ON,           VIRTKEY, SHIFT, CONTROL, NOINVERT
-    VK_OEM_PLUS,    ID_SOUNDS_VOLUME_UP,           VIRTKEY, SHIFT, CONTROL,NOINVERT
+    VK_OEM_MINUS,   ID_SOUNDS_VOLUME_DOWN,  VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "0",            ID_SOUNDS_VOLUME_ON,    VIRTKEY, SHIFT, CONTROL, NOINVERT
+    VK_OEM_PLUS,    ID_SOUNDS_VOLUME_UP,    VIRTKEY, SHIFT, CONTROL, NOINVERT
 END
 
 
@@ -221,7 +222,7 @@ STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_EDIT_OUT,7,7,258,186,ES_MULTILINE | ES_READONLY | WS_VSCROLL
-EDITTEXT        IDC_EDIT_INP,7,180,306,13,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_INP,7,180,306,13,ES_AUTOHSCROLL
     LISTBOX         IDC_LIST_SCENE,265,15,48,45,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
     LISTBOX         IDC_LIST_INV,265,70,48,51,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
     LISTBOX         IDC_LIST_WAYS,265,133,48,60,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
@@ -289,12 +290,11 @@ BEGIN
     CONTROL         "",IDC_LIST_NEW,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,20,497,173
     PUSHBUTTON      "&ИГРАТЬ  (ENTER)",IDC_BTN_PLAY_GAMEM,66,199,64,14
     PUSHBUTTON      "&Продолжить последнюю игру (F3)",IDC_BTN_RESUMEOLD_GAME2,129,199,139,14
-    COMBOBOX        IDC_COMBO_FILTER,317,7,187,30,CBS_DROPDOWNLIST | /*CBS_SORT |*/ WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_FILTER,317,7,187,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
 END
 
 IDD_URLFILE_DIALOG DIALOGEX 0, 0, 285, 42
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-//CAPTION "Загрузка"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         "",IDC_PROGRESS,"msctls_progress32",WS_BORDER,7,7,271,15
@@ -308,8 +308,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,1,0,0
- PRODUCTVERSION 2,1,0,0
+ FILEVERSION 3,0,0,0
+ PRODUCTVERSION 3,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -326,12 +326,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Ласточкин А. П."
             VALUE "FileDescription", "интерпретатор менюшных квестов PlainInstead"
-            VALUE "FileVersion", "2.1.0.0"
+            VALUE "FileVersion", "3.0.0.0"
             VALUE "InternalName", "PlainInstead.exe"
             VALUE "LegalCopyright", "(c) 2017. Все права защищены."
             VALUE "OriginalFilename", "PlainInstead.exe"
             VALUE "ProductName", "интерпретатор менюшных квестов PlainInstead"
-            VALUE "ProductVersion", "2.1.0.0"
+            VALUE "ProductVersion", "3.0.0.0"
         END
     END
     BLOCK "VarFileInfo"

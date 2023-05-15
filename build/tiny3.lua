@@ -83,16 +83,17 @@ end
 function instead.need_fading()
 end
 
-function instead.autosave(slot)
+--[[function instead.autosave(slot)
 end
 
---[[function instead.menu(n)
+function instead.menu(n)
 end
 
 function instead.restart(v)
 end]]
 instead.restart =instead_restart
 instead.menu =instead_menu
+instead.autosave =instead_autosave
 function instead.atleast(...)
 	return true
 end

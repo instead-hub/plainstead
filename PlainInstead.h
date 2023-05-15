@@ -35,7 +35,10 @@ public:
 
 // Реализация
 	void StartNewGameFile(CString file,CString name);
-	void OnFileOpen();
+protected:
+void OnFileOpen(boolean reload);
+void OnFileOpen();
+	void OnFileOpenWithReload();
 	void OnFileSave();
     //void OnFileNewGame();
 	afx_msg void OnAppAbout();

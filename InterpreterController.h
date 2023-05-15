@@ -5,16 +5,16 @@ class InterpreterController
 public:
     InterpreterController(void);
     ~InterpreterController(void);
-    static void startGameFile(CString gameFile, CString gameName, int autolog);//установить игровой файл
+	static void startGameFile(CString gameFile, CString gameName, CString saveFile = L"", int autolog=0, boolean reload = false);
+	static void startGameFile(CString gameFile, CString gameName, int autolog = 0, boolean reload = false);
     static CString RunInterpreter(CString command); //Запуск интерпретатора, с определенной игрой и командой на обработку
 	static void endInterpreter();
-	static bool loadSave(CString fname); //Загрузить сохранение
+	static bool loadSave(CString fname, boolean reload = false); //Загрузить сохранение
 	static bool saveGame(CString fname); //Сохранить игру
 	static bool wasNewCommand(); //Была получена новая команда от игрока
 	static void clearNewCommandFlag(); //очистить флаг новой команды
 	static CString lastCommand(); //последняя команда от игрока
 protected:
-	static void startGameFile(CString gameFile, CString gameName, CString saveFile, int autolog);
 private:
     static CString m_gameFile;
 	static void InterpreterController::loadFile(CString gameFile, CString gameName);

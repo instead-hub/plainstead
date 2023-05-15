@@ -1,4 +1,5 @@
 -- some stubs for tiny-instead
+require "theme"
 -- fake game.gui
 -- stat, menu
 -- fake audio
@@ -82,13 +83,15 @@ function menu(v)
 	end
 	return obj(v);
 end
---[[function stead.menu(n)
+--[[function stead.autosave(n) end
+function stead.menu(n)
 end
 
 function stead.restart(v)
 end]]
 stead.restart =instead_restart
 stead.menu_toggle =instead_menu
+stead.autosave=instead_autosave
 -- Audio
 stead.get_music = function()
 	return game._music, game._music_loop;
@@ -233,118 +236,6 @@ function stead.screen_size() return 0,0 end
 unpack = stead.unpack;
 stead.font_load = instead_font_load
 stead.module_init(function(s)
-local theme = obj {
-	nam = 'theme';
-		object_type = true;
-	system_type = true;
-	vars = {};
-	reset_vars = {};
-			win = { gfx = {}};
-		inv = { gfx = {}};
-		menu = { gfx = {}};
-		gfx = {};
-		snd = {};
-	};
-
-function theme.restore()
-end
-
-function theme.set()
-end
-
-function theme.reset()
-end
-
-function theme.name()
-end
-
-function theme.get()
-end
-
-function theme.win.reset()
-end
-
-function theme.win.geom()
-end
-
-function theme.win.color(f)
-end
-
-function theme.win.font()
-end
-
-function theme.win.gfx.reset()
-end
-
-function theme.win.gfx.up()
-end
-
-function theme.win.gfx.down()
-end
-
-function theme.inv.reset()
-end
-
-function theme.inv.geom()
-end
-
-function theme.inv.color(f)
-end
-
-function theme.inv.font()
-end
-
-function theme.inv.mode()
-end
-
-function theme.inv.gfx.reset()
-end
-
-function theme.inv.gfx.up()
-end
-
-function theme.inv.gfx.down()
-end
-
-function theme.menu.reset()
-end
-
-function theme.menu.bw(w)
-end
-
-function theme.menu.color()
-end
-
-function theme.menu.font()
-end
-
-function theme.menu.gfx.reset()
-end
-
-function theme.menu.gfx.button()
-end;
-
-function theme.gfx.reset()
-end
-
-function theme.gfx.cursor()
-end
-
-function theme.gfx.mode()
-end
-
-function theme.gfx.pad()
-end
-
-function theme.gfx.bg()
-end
-
-function theme.snd.reset()
-end
-
-function theme.snd.click()
-end
-
 	timer = obj {
 		nam = 'timer',
 		get = function(s)
