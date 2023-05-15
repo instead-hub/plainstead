@@ -2,6 +2,7 @@
 #include "internals.h"
 extern void getGamePath(char* path);
 extern void getSavePath(char* savepath);
+extern void getAutoSavePath(char* autosavepath);
 static int luaB_get_savepath(lua_State *L) {
 	char savepath[MAX_PATH];
 	getSavePath(savepath);
@@ -9,6 +10,15 @@ static int luaB_get_savepath(lua_State *L) {
 		unix_path(savepath);
 			lua_pushstring(L, savepath);
 	//free(savepath);
+	return 1;
+}
+static int luaB_get_autosavepath(lua_State* L) {
+	char autosavepath[MAX_PATH];
+	getAutoSavePath(autosavepath);
+	//MessageBoxA(0, savepath, "", 0);
+	unix_path(autosavepath);
+	lua_pushstring(L, autosavepath);
+	//free(autosavepath);
 	return 1;
 }
 static int luaB_get_exepath(lua_State* L) {
@@ -28,7 +38,8 @@ static int luaB_get_gamepath(lua_State* L) {
 }
 
 const luaL_Reg paths_funcs[] = {
-	{"instead_savepath", luaB_get_savepath},
+{"instead_savepath", luaB_get_savepath},
+	{"instead_autosavepath",luaB_get_autosavepath},
 	{"instead_exepath", luaB_get_exepath},
 	{"instead_gamepath",luaB_get_gamepath},
 	{"instead_gamespath", luaB_get_gamepath},

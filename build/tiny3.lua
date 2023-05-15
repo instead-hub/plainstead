@@ -56,7 +56,7 @@ instead.sprite_pixels = instead_sprite_pixels
 instead.mouse_pos = function() return instead_mouse_pos() end
 instead.mouse_show = instead_mouse_show
 instead.mouse_filter = instead_mouse_filter
-
+instead.text_input =instead_text_input
 instead.finger_pos = instead_finger_pos
 
 instead.noise1 = instead_noise1
@@ -83,16 +83,17 @@ end
 function instead.need_fading()
 end
 
-function instead.autosave(slot)
+--[[function instead.autosave(slot)
 end
 
---[[function instead.menu(n)
+function instead.menu(n)
 end
 
 function instead.restart(v)
 end]]
 instead.restart =instead_restart
 instead.menu =instead_menu
+instead.autosave =instead_autosave
 function instead.atleast(...)
 	return true
 end
@@ -510,7 +511,7 @@ end;
 end;
 local fnt ={
 	__gc = function(s)
-		instead.font_free(s.fnt)
+		instead_font_free(s.fnt)
 	end;
 height =function()
 return 1

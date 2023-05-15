@@ -282,10 +282,12 @@ void LauncherDialog::RescanInstalled()
 }
 
 void LauncherDialog::updateDataAfterInstalationOfGame(CString gameName, int sel, bool gameWasRemoved) {
+	//CString debug;
 	if (gameWasRemoved) {
-		installedGameNameCache.erase(gameName);
+				installedGameNameCache.erase(gameName);
+				//debug.Format(L"%s %d", gameName,approveInfo[gameName + suffix].second);
+		m_listInstalled.DeleteItem(approveInfo[gameName + suffix].second);
 		approveInfo.erase(gameName + suffix);
-		m_listInstalled.DeleteItem(sel);
 	}
 	else {
 		if (installedGameNameCache.count(gameName) > 0) { //Надо обновить игру
@@ -294,6 +296,7 @@ void LauncherDialog::updateDataAfterInstalationOfGame(CString gameName, int sel,
 		else {
 			installedGameNameCache.insert(gameName);
 			approveInfo[gameName + suffix] = std::make_pair(L"game_index", installedGameNameCache.size() - 1);
+			//debug.Format(L"%s %d", gameName, approveInfo[gameName + suffix].second);
 			int cnt = m_listInstalled.GetItemCount();
 			for (int a = 0; a <= columnCount; a++) {
 				SetCell(m_listInstalled, m_listNew.GetItemText(sel, a), cnt, a);
@@ -301,6 +304,7 @@ void LauncherDialog::updateDataAfterInstalationOfGame(CString gameName, int sel,
 			}
 		}
 	}
+	//AfxMessageBox(debug);
 }
 void LauncherDialog::OnTcnSelchangeTab1(NMHDR* pNMHDR, LRESULT* pResult)
 {
@@ -855,8 +859,8 @@ void LauncherDialog::OnBnClickedBtnInstall()
 	if (installedGameNameCache.count(gameName) > 0)
 	{
 		CString currentVersion = m_listNew.GetItemText(sel, N_SUBITEM_LIST_VERSION);
-		if (approveInfo.count(gameName + suffix) > 0)sel = approveInfo[gameName + suffix].second;
-		CString installedVersion = m_listInstalled.GetItemText(sel, N_SUBITEM_LIST_VERSION);
+		int newSel=approveInfo.count(gameName + suffix) > 0?approveInfo[gameName + suffix].second :sel;
+		CString installedVersion = m_listInstalled.GetItemText(newSel, N_SUBITEM_LIST_VERSION);
 		if (installedVersion != currentVersion) {
 			int update = AfxMessageBox(L"Доступно обновление. Установленная версия - " + installedVersion + L",текущая версия - " + currentVersion + L". Хотите обновить игру?", MB_YESNOCANCEL | MB_ICONQUESTION);
 			if (update == IDYES) {

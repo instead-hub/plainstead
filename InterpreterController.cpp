@@ -50,44 +50,45 @@ static void killProcessByName(CString filename)
     CloseHandle(hSnapShot);
 }
 */
-
-void InterpreterController::startGameFile(CString gameFile, CString gameName, int autolog)
-{
-    startGameFile(gameFile,gameName,L"",autolog);
-}
-
-HANDLE hMachine = NULL;
-DWORD tidMachine = 0;
-
-void InterpreterController::loadFile(CString gameFile,CString gameName) {
+void InterpreterController::loadFile(CString gameFile, CString gameName) {
     instead_set_lang("ru");
     char* str;
     if (instead_load(&str) == 0)
     {
+        GlobalManager::getInstance().setEmptyCmd(true);
         m_gameFile = gameFile;
         m_gameName = gameName;
         m_lastCommand = L"";
         m_wasCommand = true;
         free(str);
     }
-    GlobalManager::getInstance().setEmptyCmd(true);
-    }
-void InterpreterController::startGameFile(CString gameFile, CString gameName, CString saveFile, int autolog)
+}
+void InterpreterController::startGameFile(CString gameFile, CString gameName, CString saveFile, int autolog, boolean reload)
 {
     //„тобы не по€вл€лс€ диалог с предложением сохранитьс€,когда мы начинаем новую игру,или начинаем игру заново.
-GlobalManager::getInstance().userSavedFile();
+    GlobalManager::getInstance().userSavedFile();
+    if (saveFile.IsEmpty())         GlobalManager::getInstance().setEmptyCmd(true);
     //TODO: добавить старт игры
     CT2A ascii(gameFile);
-    if (!saveFile.IsEmpty() && strcmp(instead_get_api(), "stead3") == 0) {
+    if (!saveFile.IsEmpty() && !reload) {
         //Ќичего не делаем,т.к всЄ загрузитс€ автоматом.
          //loadFile(gameFile,gameName);
         return;
-}
+    }
     GlobalManager::getInstance().setUserRestartGame(!saveFile.IsEmpty());
-instead_done();
+    instead_done();
     instead_set_debug(1);
     if (instead_init(ascii) == 0) loadFile(gameFile, gameName);
 }
+void InterpreterController::startGameFile(CString gameFile, CString gameName, int autolog,boolean reload)
+{
+    startGameFile(gameFile,gameName,L"",autolog,reload);
+}
+
+HANDLE hMachine = NULL;
+DWORD tidMachine = 0;
+
+
 
 CString InterpreterController::RunInterpreter(CString command)
 {
@@ -107,9 +108,9 @@ void InterpreterController::endInterpreter()
 	//killProcessByName(L"t2r32.exe");
 }
 //«агрузка сохранени€ в интерпретатор
-bool InterpreterController::loadSave(CString fname)
+bool InterpreterController::loadSave(CString fname, boolean reload)
 {
-	startGameFile(m_gameFile,m_gameName,fname,1);
+    startGameFile(m_gameFile, m_gameName, fname, 1, reload);
 	return true;
 }
 

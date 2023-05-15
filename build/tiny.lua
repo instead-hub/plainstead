@@ -12,14 +12,19 @@ else
 end
 instead_busy =function() return 0 end
 instead_direct=function() return 0 end
+instead_autosave =function(n)
+if not n then n="auto" end
+iface:cmd("save "..instead_autosavepath().."/"..n..".sav")
+end
 instead_themespath =function() return "themes/" end
-instead_theme_name = function() return 'default' end
+instead_theme_name = function() return '.' end
 instead_font_load =function() return "" end
 stead.ticks =instead_ticks
 get_ticks =instead_ticks
 instead_mouse_pos =function() return 0,0 end
 mouse_pos =instead_mouse_pos
 instead_mouse_filter =function() return 0 end
+instead_text_input =function() return 0 end
 function instead_sprite_free() end
 function instead_sprites_free() end
 function instead_font_free() end
@@ -73,8 +78,8 @@ end
 function iface:img(str)
 return "<img></img>"
 end
-function iface:imgl() return '' end
-function iface:imgr() return '' end
+function iface:imgl(str) return iface:img(str) end
+function iface:imgr(str) return iface:img(str) end
 function iface:anchor() return '' end
 function iface:enum(n,str)
 	if str == nil or n == nil then return nil; end;

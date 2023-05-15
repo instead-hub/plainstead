@@ -96,10 +96,10 @@
 #define ID_32807                        32807
 #define ID_VOLUME_DOWN                  32809
 #define ID_VOLUME_UP                    32810
-#define ID_VOLUME_ON                   32811
-#define ID_SOUNDS_VOLUME_DOWN                  32812
-#define ID_SOUNDS_VOLUME_UP                    32813
-#define ID_SOUNDS_VOLUME_ON                   32814
+#define ID_VOLUME_ON                    32811
+#define ID_SOUNDS_VOLUME_DOWN           32812
+#define ID_SOUNDS_VOLUME_UP             32813
+#define ID_SOUNDS_VOLUME_ON             32814
 #define ID_32815                        32815
 #define ID_UPDATE_FORM                  32816
 #define ID_ACCELERATOR32818             32818
@@ -165,15 +165,18 @@
 #define ID_LISTSND_DOWN                 32903
 #define ID_LISTSND_UP                   32904
 #define ID_32909                        32909
-#define ID_MENU_DEBUG                     32910
+#define ID_MENU_DEBUG                   32910
 #define ID_MENU_LOG                     32911
-
+#define ID_32912                        32912
+#define ID_Menu                         32913
+#define ID_Menu32914                    32914
+#define ID_FILE_OPEN_WITH_RELOAD        32915
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        151
-#define _APS_NEXT_COMMAND_VALUE         32911
+#define _APS_NEXT_COMMAND_VALUE         32916
 #define _APS_NEXT_CONTROL_VALUE         1039
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

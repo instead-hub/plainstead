@@ -29,7 +29,7 @@ extern "C" {
 	extern char TadsFileName[200];
 }
 
-
+#define txt text_er + text[debug] + ways_er +(debug?ways:L"") + inv_er + (debug ? inv : L"")
 CPlainInsteadView* CPlainInsteadView::m_curView = 0;
 CEdit* updateEdit = NULL;
 void CALLBACK EXPORT OnTimerUpdateText(HWND, UINT, UINT, DWORD);
@@ -308,7 +308,7 @@ static std::wstring process_instead_text(std::wstring inp, //входной текст
 			map_action.insert(std::make_pair(pos, obj_id));
 			CString oldText;
 			if (pos <= resBox.GetCount() - 1)resBox.GetText(pos, oldText);
-			if (!prev_map.count(pos) || map_action[pos] != (prev_map[pos]<0? -prev_map[pos] : prev_map[pos]) || oldText != addStr) {
+			if (!prev_map.count(pos) || (map_action[pos] != prev_map[pos] && map_action[pos] != -prev_map[pos]) || oldText != addStr) {
 //if(prev_map.count(pos) &&map_action[pos] != prev_map[pos])AfxMessageBox(L"Тест");
 				shouldRedraw = true;
 				/*CString test;
@@ -364,7 +364,8 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLo
 	Utf8ToCString(tmp, cmd);
 	//free(cmd);
 	std::map<int, int> prev_map = pos_id_scene;
-bool onlyInvRedraw = true;
+unsigned int onlyInvRedraw = 1; //Если -1 - перисовываем всё,если 0 - всё,кроме текста,если 1 - ничего.
+CString prev_er=text_er;
 if (!first_er.IsEmpty()) {
 	text_er = first_er;
 	first_er = L"";
@@ -372,7 +373,6 @@ if (!first_er.IsEmpty()) {
 else text_er = L"";
 text_er +=getError(tmp);
 	if (rc ||(p && *p) ||(text_er && text_er.GetLength() >0)) {
-		onlyInvRedraw = false;
 		//act_on_scene.clear();
 		if (p && *p) {
 			Utf8ToCString(tmp, p);
@@ -385,6 +385,7 @@ text_er +=getError(tmp);
 				tmp.ReleaseBuffer();
 				Utf8ToCString(tmp, cmd);
 				text[0] = result.data();
+				onlyInvRedraw = -1;
 				if (/*m_BeepList && */shouldRedraw) {
 					shouldRedraw = false;
 					wave_scene->play();
@@ -396,8 +397,11 @@ text_er +=getError(tmp);
 			mListScene.ResetContent();
 			text[0] = L"";
 			text[1] = L"";
+			onlyInvRedraw = -1;
 }
+		if (text_er != prev_er) onlyInvRedraw = -1; //Если ошибка изменилась,также обновляем текст.
 		p = instead_cmd("way", NULL);
+		prev_er = ways_er;
 		ways_er = getError(L"way");
 		if (p && *p) {
 			Utf8ToCString(tmp, p);
@@ -408,13 +412,14 @@ text_er +=getError(tmp);
 			//text[0].Append(L"\n");
 					//Добавляем пути для отладочной переменной,если они изменились.
 			if (tmp != ways) {
+				if(onlyInvRedraw!=-1)onlyInvRedraw = 0;
 				ways = tmp;
 				prev_map = pos_id_ways;
 				pos_id_ways.clear();
 				std::wstring buf = tmp.GetBuffer();
 				std::wstring result = process_instead_text(buf, mListWays, prev_map, pos_id_ways, shouldRedraw);
 				tmp.ReleaseBuffer();
-				if (/*m_BeepList && */shouldRedraw) {
+if (/*m_BeepList && */shouldRedraw) {
 					shouldRedraw = false;
 					wave_ways->play();
 				}
@@ -425,42 +430,49 @@ text_er +=getError(tmp);
 			mListWays.ResetContent();
 			ways = L"";
 			//ways_er = L"";
+if(onlyInvRedraw!=-1)onlyInvRedraw = 0;
 		}
 	}
+	if (ways_er != prev_er) onlyInvRedraw = -1; //Раз у нас возникла ошибка,обновляем текст.
 	//Если результат команды NULL,перерисовываем только инвентарь.
 	p = instead_cmd("inv", NULL);
-	inv_er = getError(L"inv");
-	if (inv_er &&inv_er.GetLength()>0) onlyInvRedraw = false; //Раз у нас возникла ошибка,обновляем текст.
-	if (p && *p) {
-		Utf8ToCString(tmp, p);
-		free(p);
-		//Добавление инвентаря к окну вывода
-		//text[0].Append(L"** ");
-		//text[0].Append(tmp);
-		//text[0].Append(L"\n");
-		//Добавляем инвентарь для отладочной переменной,если инвентарь изменился.
-		if (tmp != inv) {
-			prev_map = pos_id_inv;
-			pos_id_inv.clear();
-			std::wstring buf = tmp.GetBuffer();
-			std::wstring result = process_instead_text(buf, mListInv, prev_map, pos_id_inv, shouldRedraw);
-			tmp.ReleaseBuffer();
-inv = tmp;
-			if (/*m_BeepList && */shouldRedraw) {
-				//PlaySound(baseSoundDir+_T("inventory.wav"), NULL, SND_MEMORY | SND_FILENAME | SND_ASYNC | SND_NOSTOP);
-				shouldRedraw = false;
-				wave_inv->play();
-			}
+	prev_er = inv_er;
+inv_er = getError(L"inv");
+if (p && *p) {
+	Utf8ToCString(tmp, p);
+	free(p);
+	//Добавление инвентаря к окну вывода
+	//text[0].Append(L"** ");
+	//text[0].Append(tmp);
+	//text[0].Append(L"\n");
+	//Добавляем инвентарь для отладочной переменной,если инвентарь изменился.
+	if (tmp != inv) {
+		if (onlyInvRedraw != -1)onlyInvRedraw = 0;
+		prev_map = pos_id_inv;
+		pos_id_inv.clear();
+		std::wstring buf = tmp.GetBuffer();
+		std::wstring result = process_instead_text(buf, mListInv, prev_map, pos_id_inv, shouldRedraw);
+		tmp.ReleaseBuffer();
+		inv = tmp;
+		if (/*m_BeepList && */shouldRedraw) {
+			//PlaySound(baseSoundDir+_T("inventory.wav"), NULL, SND_MEMORY | SND_FILENAME | SND_ASYNC | SND_NOSTOP);
+			shouldRedraw = false;
+			wave_inv->play();
 		}
 	}
-	else {
-pos_id_inv.clear();
-		mListInv.ResetContent();
-		inv = L"";
-		//inv_er = L"";
 }
-	if (!onlyInvRedraw) {
-		text[0].Replace(L"\n", L"\r\n");
+else {
+	pos_id_inv.clear();
+	mListInv.ResetContent();
+	inv = L"";
+	//inv_er = L"";
+if (onlyInvRedraw != -1)onlyInvRedraw = 0;
+}
+	if (inv_er != prev_er) onlyInvRedraw = -1; //Раз у нас возникла ошибка,обновляем текст.
+	if (onlyInvRedraw ==-1 || onlyInvRedraw == 0 &&debug) {
+		if (onlyInvRedraw == -1) {
+			text[0].Replace(L"\n", L"\r\n");
+		}
 		updateText();
 }
 	if (isLogOn)
@@ -518,18 +530,18 @@ pos_id_inv.clear();
 		flog.Close();
 	}
 }
-void CPlainInsteadView::updateText(char* txt) {
+void CPlainInsteadView::updateText(char* Text) {
 	CString result;
-	if (txt) {
-		Utf8ToCString(result, txt);
+	if (Text) {
+		Utf8ToCString(result, Text);
 		//free(txt);
 		result.ReleaseBuffer(result.GetLength());
 	}
-	else result = text_er + text[debug] + ways_er +(debug?ways:L"") + inv_er + (debug ? inv : L"");
+	else result = txt;
 	m_OutEdit.SetWindowTextW(result);
 	if (!m_jump_to_out) UpdateFocusLogic();
-	if (m_jump_to_out) m_OutEdit.SetFocus();
-	if (m_auto_say) MultiSpeech::getInstance().Say(result);
+	if (m_jump_to_out &&GetFocus() !=&m_OutEdit) m_OutEdit.SetFocus();
+if (m_auto_say) MultiSpeech::getInstance().Say(result);
 }
 
 static std::string utf8_encode(const CStringW srcW)
@@ -568,13 +580,13 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 	std::string newCmd = utf8_encode(textIn);
 	CString er = L"";
 	bool is_saving_or_loading = false;
+	if (GlobalManager::getInstance().isEmptyCmd()) {
+		first_er = getError(!GlobalManager::getInstance().isUserRestartGame() ? L"start" : L"load");
+	}
 	if (textIn.Find(L"save ") == 0 || textIn.Find(L"load ") == 0)
 	{
 		GlobalManager::getInstance().userSavedFile();
 		is_saving_or_loading = true;
-	}
-	if (GlobalManager::getInstance().isEmptyCmd()) {
-		first_er = getError(!GlobalManager::getInstance().isUserRestartGame() ? L"start" : L"restart");
 	}
 	if (!is_saving_or_loading && (!textIn.IsEmpty() && textIn != "look" || isFromEdit)) GlobalManager::getInstance().userNewCommand();
 	//Обработка строки в Instead
@@ -603,6 +615,7 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 			//m_InputEdit.SetWindowTextW(utf8_to_utf16(cmd)); //(Для отладки,чтобы убедиться,что комманда приобразуется правильно)
 			if ((textIn.Find(L"save ") == 0 || textIn.Find(L"load ") == 0) && !isFromEdit)
 			{
+				first_er = getError(textIn);
 				free(p);
 				return rc;
 			}
@@ -930,7 +943,7 @@ void CPlainInsteadView::SetOutputText(CString newText, BOOL useHistory)
 	m_InputEdit.SetWindowTextW(L"");
 	m_InputEdit.SetFocus();
 	//300 мс задержка для выдачи речи
-	SetTimer(ID_TIMER_1, 300, NULL);
+	SetTimer(ID_TIMER_1, 500, NULL);
 }
 void CPlainInsteadView::SendCommand(CString cmd)
 {
@@ -995,7 +1008,7 @@ void CPlainInsteadView::OnEnSetfocusEditOut()
 
 void CPlainInsteadView::OnTimer(UINT uTime)
 {
-	updateText();
+	if (m_auto_say) MultiSpeech::getInstance().Say(txt);
 	KillTimer(ID_TIMER_1);
 }
 
