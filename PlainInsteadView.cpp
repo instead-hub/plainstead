@@ -151,7 +151,9 @@ void CPlainInsteadView::OnInitialUpdate()
 		L"Если вы скачали игру, которой нет в библиотеке, то нажмите CTRL+N и выберите архив с игрой.\r\n"
 		L"Для того чтобы играть выберите пункт в одном из списков - объекты, инвентарь, пути и нажмите клавишу ENTER.\r\n"
 		L"Когда вы находитесь в инвентаре, вам необходимо сначала выбрать пункт, нажать ENTER, а затем выбрать второй пункт и нажать ENTER.\r\n"
-		L"Сохранение и загрузка игр происходит обязательно в каталогах с играми, менять на другой нельзя.\r\n"
+		L"Поле ввода служит для ввода текста в метапарсерных играх (только instead 3),или для ввода команд,если в этом есть необходимость. В метапарсерных играх,скорее всего,взаимодействие с инвентарём не будет работать.\r\n"
+		L"Если при взаимодействием с объектами или при вводе текста ничего не изменилось,значит,скорее всего,текст остался тем же,какой был перед взаимодействием с объектами или ввода команды.\r\n" 
+		L"Сохранение и загрузка игр происходит обязательно в каталоге с текущей игрой (иногда в подкаталоге autosaves,если игра сама сохраняет своё состояние), менять на другой нельзя.\r\n"
 		L"При сохранении, указывайте пожалуйста имя файла латинскими буквами или цифрами.\r\n"
 		L"Внимание! Большие архивы могут не распаковываться программой через менеджер или установку в библиотеку. Попробуйте самостоятельно распаковать их в папку с играми."
 	);
@@ -364,7 +366,7 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLo
 	Utf8ToCString(tmp, cmd);
 	//free(cmd);
 	std::map<int, int> prev_map = pos_id_scene;
-unsigned int onlyInvRedraw = 1; //Если -1 - перисовываем всё,если 0 - всё,кроме текста,если 1 - ничего.
+short onlyInvRedraw = 1; //Если -1 - перисовываем всё,если 0 - всё,кроме текста,если 1 - ничего.
 CString prev_er=text_er;
 if (!first_er.IsEmpty()) {
 	text_er = first_er;
@@ -571,7 +573,7 @@ static CStringW utf8_to_utf16(const std::string_view utf8)
 	}
 	return utf16;
 }
-int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool needSearchVariants, bool isFromEdit)
+int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool needSearchVariants, short isFromEdit)
 {
 	CString resout;
 	int rc;
@@ -601,14 +603,14 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 		if (rc) free(p);
 	}
 	if (!needSearchVariants || rc) {
-		if (isFromEdit) /*Метапарсер?*/
+		if (isFromEdit == 1) /*Метапарсер?*/
 		{
 			snprintf(cmd, sizeof(cmd), "@metaparser \"%s\"", newCmd.data());
 			//m_InputEdit.SetWindowTextW(utf8_to_utf16(cmd)); //(Для отладки,чтобы убедиться,что комманда приобразуется правильно)
 			p = instead_cmd(cmd, &rc);
 			if (rc) free(p);
 		}
-		if (!isFromEdit || rc) {
+		if (!isFromEdit || isFromEdit >1 || rc) {
 			/* try act */
 			snprintf(cmd, sizeof(cmd), "%s", newCmd.data());
 			p = instead_cmd(cmd, &rc);
@@ -692,27 +694,37 @@ code.Format(L"%s",act_on_scene[sel_pos]);
 	}
 	else if (pMsg->message == WM_KEYDOWN && ::GetKeyState(VK_CONTROL) < 0 && (GetFocus() == &m_OutEdit || GetFocus() == &m_InputEdit))
 	{
-		/*if (pMsg->wParam == VK_RETURN && GetFocus() == &m_InputEdit) {
-			struct instead_args args[8];
-			args[0].val = "text";
-			args[0].type = INSTEAD_STR;
-			args[1].val = "e";
-			args[1].type = INSTEAD_STR;
-			args[2].val = NULL;
-			instead_lock();
-			if (!instead_function("iface:input", args)) {
-				MessageBoxA(0, "Тест", "", 0);
-				char* cmd = instead_retval(0);
-					if (cmd) {
-						MessageBoxA(0, cmd, "", 0);
-							free(cmd);
-					}
-			}
-			instead_clear();
-				instead_unlock();
+		if (pMsg->wParam == VK_RETURN && GetFocus() == &m_InputEdit) {
+			/*struct instead_args args[8];
+				args[0].val = "text";
+				args[0].type = INSTEAD_STR;
+				args[1].val = "e";
+				args[1].type = INSTEAD_STR;
+				args[2].val = NULL;
+				instead_lock();
+				if (!instead_function("iface:input", args)) {
+					MessageBoxA(0, "Тест", "", 0);
+					char* cmd = instead_retval(0);
+						if (cmd) {
+							MessageBoxA(0, cmd, "", 0);
+								free(cmd);
+						}
+				}
+				instead_clear();
+					instead_unlock();*/
+			if (GlobalManager::getInstance().isUserStartGame())
+			{
+				was_enter = true;
+				//Добавляем новую команду
+				CString textIn;
+				m_InputEdit.GetWindowTextW(textIn);
+				GlobalManager::getInstance().appendCommand(textIn);
 				m_InputEdit.SetWindowTextW(L"");
+				//m_OutEdit.SetFocus();
+				TryInsteadCommand(textIn, L"Конкретный ввод текста " + textIn, false, 2);
 				return true;
-		}*/
+			}
+		}
 		CEdit* currEdit = (CEdit*)GetFocus();
 		switch (pMsg->wParam)
 		{
@@ -763,7 +775,7 @@ code.Format(L"%s",act_on_scene[sel_pos]);
 			m_InputEdit.GetWindowTextW(textIn);
 			GlobalManager::getInstance().appendCommand(textIn);
 			//Проверяем на специальные команды
-			CString textCheck = textIn;
+			/*CString textCheck = textIn;
 			textCheck.MakeLower();
 			textCheck.Trim();
 			if (textCheck == L"выход")
@@ -773,7 +785,7 @@ code.Format(L"%s",act_on_scene[sel_pos]);
 				m_InputEdit.SetWindowTextW(L"");
 				return TRUE;
 			}
-			/*else if ((textCheck == L"перезапуск") || (textCheck == L"заново"))
+			else if ((textCheck == L"перезапуск") || (textCheck == L"заново"))
 			{
 				AfxGetMainWnd()->PostMessageW(WM_COMMAND, ID_RESTART_MENU, 0L);
 				m_InputEdit.SetWindowTextW(L"");
@@ -793,11 +805,13 @@ code.Format(L"%s",act_on_scene[sel_pos]);
 				m_InputEdit.SetWindowTextW(L"");
 				GlobalManager::getInstance().userNewCommand();
 								return TRUE;
-			}*/
+								}
+			*/
 			//m_OutEdit.SetWindowTextW(L"");
-			m_InputEdit.SetWindowTextW(L"");
+						m_InputEdit.SetWindowTextW(L"");
 			//m_OutEdit.SetFocus();
 			TryInsteadCommand(textIn, L"Ввод текста "+textIn, false, true);
+			return true;
 		}
 		else
 		{

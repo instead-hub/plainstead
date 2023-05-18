@@ -17,7 +17,8 @@ if not n then n="auto" end
 iface:cmd("save "..instead_autosavepath().."/"..n..".sav")
 end
 instead_themespath =function() return "themes/" end
-instead_theme_name = function() return '.' end
+instead_cwdpath =function() return "../.." end
+instead_theme_name = function() return '/default' end
 instead_font_load =function() return "" end
 stead.ticks =instead_ticks
 get_ticks =instead_ticks
@@ -38,7 +39,9 @@ function instead_sprite_copy(...) end
 function instead_sprite_compose() end
 function instead_sprite_draw() end
 function instead_sprite_dup() end
-function instead_sprite_load() return ""
+function instead_sprite_load(name,...)
+local arg ={...}
+return type(name)=='string' and name or type(arg[1])=='string' and arg[1] or type(arg[2])=='string' and arg[2] or ""
 end
 function instead_sprite_pixel() return "" end
 function instead_sprite_pixels()

@@ -30,6 +30,7 @@ instead.noinv = false
 instead.nopic = false
 
 instead.fading_value = 0
+instead.clipboard=instead_clipboard
 instead.theme_name=instead_theme_name
 instead.ticks = instead_ticks
 instead.direct=function() return instead_direct() end
@@ -67,7 +68,6 @@ instead.noise4 = instead_noise4
 instead.render_callback = instead_render_callback
 
 instead.direct = instead_direct
-
 --std.busy = instead_busy
 function instead.mouse_filter()
 	return 0
@@ -99,10 +99,20 @@ function instead.atleast(...)
 end
 
 function instead.version(...)
-end
-
-function instead.text_input()
-	return false
+	if #{...} == 0 then
+		return instead.version_table
+	end
+	if not instead.atleast(...) then
+		local v = false
+		for _, n in std.ipairs({...}) do
+			if std.type(n) ~= 'number' then
+				std.err([[Wrong instead.version argument: ]]..std.tostr(n), 2)
+			end
+			v = (v and (v .. '.') or '').. std.tostr(n)
+		end
+		std.err ([[The game requires instead engine of version ]] ..(v or '???').. [[ or higher.
+		https://instead-hub.github.io]], 2)
+	end
 end
 instead.screen_size = function() return instead_screen_size() end
 instead.screen_dpi = instead_screen_dpi
@@ -110,7 +120,6 @@ instead.screen_dpi = instead_screen_dpi
 std.stat = std.class({
 	__stat_type = true;
 }, std.obj);
-
 -- luacheck: globals menu
 std.menu = std.class({
 	__menu_type = true;
@@ -138,6 +147,41 @@ std.menu = std.class({
 
 std.setmt(std.phr, std.menu) -- make phrases menus
 std.setmt(std.ref '@', std.menu) -- make xact menu
+std.obj { -- input object
+	nam = '@input';
+};
+function iface:input(event, ...)
+	local input = std.ref '@input'
+	if type(input) ~= 'table' then
+		return
+	end
+	if event == 'kbd' then
+		if type(input.key) == 'function' then
+			return input:key(...); -- pressed, event
+		end
+	elseif event == 'mouse' then
+		if type(input.click) == 'function' then
+			return input:click(...); -- pressed, x, y, mb
+		end
+	elseif event == 'wheel' then
+		if type(input.wheel) == 'function' then
+			return input:wheel(...);
+		end
+	elseif event == 'finger' then
+		if type(input.finger) == 'function' then
+			return input:finger(...); -- pressed, x, y, finger
+		end
+	elseif event == 'event' then
+		if type(input.event) == 'function' then
+			return input:event(...);
+		end
+	elseif event == 'text' then
+		if type(input.text) == 'function' then
+			return input:text(...);
+		end
+	end
+	return
+end
 
 function iface:xref(str, o, ...)
 	if type(str) ~= 'string' then
@@ -191,11 +235,9 @@ function iface:cmd(inp)
 	end
 	return iface_cmd(self, inp)
 end
-
 std.obj { -- input object
 	nam = '@input';
 };
-
 -- some aliases
 menu = std.menu
 stat = std.stat

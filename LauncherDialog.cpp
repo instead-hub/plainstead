@@ -65,6 +65,7 @@ void LauncherDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_PLAY_GAMEM, m_btnPlayGame);
 	DDX_Control(pDX, IDC_BTN_RESUMEOLD_GAME2, m_btnResumeGame);
 	DDX_Control(pDX, IDC_COMBO_FILTER, m_comboFiler);
+	DDX_Control(pDX, IDC_CHECK_SANDER, m_checkSander);
 }
 
 
@@ -76,7 +77,8 @@ BEGIN_MESSAGE_MAP(LauncherDialog, CDialog)
 	ON_BN_CLICKED(IDC_BTN_OPEN_LINK, &LauncherDialog::OnBnClickedBtnOpenLink)
 	ON_BN_CLICKED(IDC_BTN_INSTALL, &LauncherDialog::OnBnClickedBtnInstall)
 	ON_BN_CLICKED(IDC_BTN_PLAY_GAMEM, &LauncherDialog::OnBnClickedBtnPlayGamem)
-	ON_BN_CLICKED(IDC_BTN_RESUMEOLD_GAME2, &LauncherDialog::OnBnClickedBtnResumeoldGame2)
+	ON_BN_CLICKED(IDC_BTN_RESUMEOLD_GAME2, &LauncherDialog::OnBnClickedBtnResumeOldGame2)
+	ON_BN_CLICKED(IDC_CHECK_SANDER, &LauncherDialog::OnCbStateChangedMCheckSander)
 	ON_CBN_SELCHANGE(IDC_COMBO_FILTER, &LauncherDialog::OnCbnSelchangeComboFilter)
 	ON_NOTIFY(HDN_ITEMCLICK, 0, &LauncherDialog::OnHdnItemclickListInstalled)
 END_MESSAGE_MAP()
@@ -158,7 +160,7 @@ static  void parseGameInfo(CString line, std::unordered_map<CString, CString,CSt
 }
 void LauncherDialog::updateAllGames(bool updateInstalledGames) {
 	if (PathFileExists(L"temp.xml")) ReadNewGamesFromXMLAndAdd(L"temp.xml", updateInstalledGames);
-	//if (PathFileExists(L"temp2.xml"))ReadNewGamesFromXMLAndAdd(L"temp2.xml", false);
+	if (PathFileExists(L"temp2.xml") &&m_checkSander.GetCheck()== BST_CHECKED)ReadNewGamesFromXMLAndAdd(L"temp2.xml", false);
 	if (updateInstalledGames)RescanInstalled();
 }
 
@@ -198,7 +200,7 @@ BOOL LauncherDialog::OnInitDialog()
 	m_lastSelFilter = mainSettings.GetInt(L"main", L"mRepoFilter", SEL_FILTER_VALID);
 	if (m_lastSelFilter != SEL_FILTER_ALL && m_lastSelFilter != SEL_FILTER_VALID && m_lastSelFilter != SEL_FILTER_PARTIALLY_VALID && m_lastSelFilter != SEL_FILTER_VALID_AND_PARTIALLY_VALID && m_lastSelFilter != SEL_FILTER_VALID_AND_UNK) m_lastSelFilter = SEL_FILTER_VALID;
 	m_comboFiler.SetCurSel(convertFilterToSel(m_lastSelFilter));
-
+	m_checkSander.SetCheck(mainSettings.GetInt(L"main", L"showSander",0)==0 ? BST_UNCHECKED: BST_CHECKED);
 	showInstalledTabControls();
 
 	//Set the style to listControl
@@ -334,6 +336,7 @@ void LauncherDialog::showInstalledTabControls()
 	m_btnInstall.ShowWindow(SW_HIDE);
 	m_btnOpenLink.ShowWindow(SW_HIDE);
 	m_comboFiler.ShowWindow(SW_HIDE);
+	m_checkSander.ShowWindow(SW_HIDE);
 	m_listInstalled.SetFocus();
 }
 
@@ -349,6 +352,7 @@ void LauncherDialog::showNewTabControls()
 	m_btnInstall.ShowWindow(SW_SHOW);
 	m_btnOpenLink.ShowWindow(SW_SHOW);
 	m_comboFiler.ShowWindow(SW_SHOW);
+	m_checkSander.ShowWindow(SW_SHOW);
 	m_listNew.SetFocus();
 }
 
@@ -571,7 +575,7 @@ BOOL LauncherDialog::PreTranslateMessage(MSG* pMsg)
 		(m_tab.GetCurSel() == ID_PAGE_INSTALLED)
 		)
 	{
-		OnBnClickedBtnResumeoldGame2();
+		OnBnClickedBtnResumeOldGame2();
 		return TRUE;
 	}
 	else if (pMsg->message == WM_KEYDOWN &&
@@ -715,13 +719,9 @@ void LauncherDialog::OnBnClickedBtnUpdate()
 	}
 	else {
 		//ClearNewList();
-
-		/*CString strURL = L"http://instead-games.ru/xml.php";
-		UpdateGamesFromUrl(strURL, L"temp.xml");
-		CString strURL2 = L"http://instead-games.ru/xml2.php";
-		UpdateGamesFromUrl(strURL2, L"temp2.xml", false);*/
-		CString strURL = L"http://instead-games.ru/xml3.php";
-		UpdateGamesFromUrl(strURL, L"temp.xml");
+		UpdateGamesFromUrl(L"http://instead-games.ru/xml.php", L"temp.xml");
+		if(m_checkSander.GetCheck() == BST_CHECKED)UpdateGamesFromUrl(L"http://instead-games.ru/xml2.php", L"temp2.xml", false);
+		//UpdateGamesFromUrl(L"http://instead-games.ru/xml3.php", L"temp.xml");
 		RescanInstalled();
 	}
 }
@@ -746,7 +746,7 @@ bool LauncherDialog::UpdateGamesFromUrl(CString url, CString res_path, bool upda
 	return counter > 0;
 }
 
-void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool updateInstalledGames /*Если true,очищаем список установленных игр. */)
+void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool updateInstalledGames /*Если true,очищаем списки с играми. */)
 {
 	FILE* fStream;
 	_tfopen_s(&fStream, temp_xmlfile, L"rt,ccs=UTF-8");
@@ -759,7 +759,9 @@ void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool update
 		m_listInstalled.DeleteAllItems();
 		approveInfo.clear();
 		m_listNew.DeleteAllItems();
+		betaIndex = -1;
 	}
+	else if (m_checkSander.GetCheck() == BST_CHECKED) betaIndex=m_listNew.GetItemCount();
 	CMarkup xml;
 	xml.SetDoc(xmlDoc);
 	while (xml.FindChildElem(L"game"))
@@ -915,7 +917,7 @@ CString LauncherDialog::getStartGameTitle()
 }
 
 
-void LauncherDialog::OnBnClickedBtnResumeoldGame2()
+void LauncherDialog::OnBnClickedBtnResumeOldGame2()
 {
 	CIniFile mainSettings;
 
@@ -926,7 +928,23 @@ void LauncherDialog::OnBnClickedBtnResumeoldGame2()
 	EndDialog(-1);
 }
 
-
+void LauncherDialog::OnCbStateChangedMCheckSander() {
+	CIniFile mainSettings;
+	int needAddSanderGames = m_checkSander.GetCheck() == BST_UNCHECKED ? 0 : 1;
+	mainSettings.WriteNumber(L"main", L"showSander", needAddSanderGames);
+	if (!needAddSanderGames && betaIndex != -1) {
+		int count = m_listNew.GetItemCount();
+		POSITION p = m_listNew.GetFirstSelectedItemPosition();
+		int sel = p == NULL ? m_listNew.GetItemCount() : m_listNew.GetNextSelectedItem(p);
+		for (int a = betaIndex; a < count; a++) m_listNew.DeleteItem(m_listNew.GetItemCount() - 1);
+			betaIndex = -1;
+			if (sel<0 || sel>m_listNew.GetItemCount() - 1) m_listNew.SetItemState(sel < 0 ? 0 : m_listNew.GetItemCount() - 1, LVIS_SELECTED, LVIS_SELECTED);
+}
+	else if (PathFileExists(L"temp2.xml")) {
+		ReadNewGamesFromXMLAndAdd(L"temp2.xml", false);
+		m_listNew.SetItemState(betaIndex, LVIS_SELECTED, LVIS_SELECTED);
+}
+}
 void LauncherDialog::OnCbnSelchangeComboFilter()
 {
 	//Изменение фильтра

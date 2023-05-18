@@ -85,10 +85,12 @@ public:
 	afx_msg void OnBnClickedBtnPlayGamem();
 	CButton m_btnPlayGame;
 	CString currDir;
-	afx_msg void OnBnClickedBtnResumeoldGame2();
+	int betaIndex=-1; //Индекс начала игр из песочницы.
+	afx_msg void OnBnClickedBtnResumeOldGame2();
+	afx_msg void OnCbStateChangedMCheckSander();
 	CButton m_btnResumeGame;
 	CComboBox m_comboFiler;
+	CButton m_checkSander;
 	afx_msg void OnCbnSelchangeComboFilter();
 	afx_msg void OnHdnItemclickListInstalled(NMHDR *pNMHDR, LRESULT *pResult);
-private:
 };

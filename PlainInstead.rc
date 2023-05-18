@@ -146,7 +146,7 @@ BEGIN
     END
     POPUP "&Справка"
     BEGIN
-        MENUITEM "&О проекте PlainInstead...",  ID_APP_ABOUT
+        MENUITEM "&Узнать текущий способ вывода",  ID_APP_ABOUT
     END
 END
 
@@ -291,6 +291,7 @@ BEGIN
     PUSHBUTTON      "&ИГРАТЬ  (ENTER)",IDC_BTN_PLAY_GAMEM,66,199,64,14
     PUSHBUTTON      "&Продолжить последнюю игру (F3)",IDC_BTN_RESUMEOLD_GAME2,129,199,139,14
     COMBOBOX        IDC_COMBO_FILTER,317,7,187,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Включая бета-версии",IDC_CHECK_SANDER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,224,8,90,10
 END
 
 IDD_URLFILE_DIALOG DIALOGEX 0, 0, 285, 42
