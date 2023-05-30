@@ -83,7 +83,7 @@ extern int instead_sprites_init(void);
 		GetCurrentDirectoryA(MAX_PATH, buf);
 	}
 }
-
+static FILE *er, *out;
 	static int tiny_init(void)
 	{
 		int rc;
@@ -189,7 +189,25 @@ static void RecursiveDelete(CString szPath)
 			DeleteFile(ff.GetFilePath());
 	}
 }
-
+static boolean reopen_stderr(const char* fname)
+{
+	if (*fname) er = freopen(fname, "w", stderr);
+	if (*fname && er != stderr) {
+		fprintf(stderr, "Error opening '%s': %s\n", fname, strerror(errno));
+return false;
+	}
+	return true;
+}
+static boolean reopen_stdout(const char* fname)
+{
+	if (*fname) out = freopen(fname, "w", stdout);
+	if (out != stdout) {
+		fprintf(stderr, "Error opening '%s': %s\n", fname, strerror(errno));
+		return false;
+	}
+	return true;
+}
+extern void createLogsDirIfNeedAndGetFileName(char* buff);
 BOOL CPlainInsteadApp::InitInstance()
 {
 	// InitCommonControlsEx() требуются для Windows XP, если манифест
@@ -272,6 +290,15 @@ BOOL CPlainInsteadApp::InitInstance()
     {
         std::cerr << "Failed set locale" << std::endl;
     }
+	char buff[MAX_PATH];
+	createLogsDirIfNeedAndGetFileName(buff);
+#if defined(_WIN32)
+	if (GetStdHandle(STD_OUTPUT_HANDLE) == NULL) {
+#else
+	if (1) {
+#endif
+		if (!reopen_stderr(buff) || !reopen_stdout(buff)) return false;
+	}
 	ext.init = tiny_init;
 	if (instead_extension(&ext)) {
 		std::cerr << "Failed set tiny" << std::endl;
@@ -320,7 +347,6 @@ BOOL CPlainInsteadApp::InitInstance()
 	// Одно и только одно окно было инициализировано, поэтому отобразите и обновите его
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
-
 	// вызов DragAcceptFiles только при наличии суффикса
 	//  В приложении SDI это должно произойти после ProcessShellCommand
 	return TRUE;
@@ -761,7 +787,8 @@ void CPlainInsteadApp::OnAppExit()
 			GlobalManager::getInstance().isIgnoreExitDialog = true;
 			instead_done();
 			if (gBassInit) BASS_Free();
-
+			fclose(er);
+			fclose(out);
 			CWinApp::CloseAllDocuments(FALSE);
 			ASSERT(AfxGetApp()->m_pMainWnd != NULL);
 			AfxGetApp()->m_pMainWnd->SendMessage(WM_CLOSE);

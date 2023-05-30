@@ -1,12 +1,51 @@
 ﻿#include "externals.h"
 #include "internals.h"
-
-#include "bass.h"
 static int game_grab_events = 0;
 static int game_wait_use = 1;
-static int luaB_clipboard(lua_State* L) {
-	return 0;
+static char* GetClipboardText()
+{
+	if (!IsClipboardFormatAvailable(CF_TEXT) || !OpenClipboard(NULL)) return NULL;
+	char* buf;
+	HANDLE hData = GetClipboardData(CF_TEXT);
+	if (hData != NULL) {
+		buf = GlobalLock(hData);
+		GlobalUnlock(hData);
+	}
+	CloseClipboard();
+		return buf;
 }
+static BOOL SetClipboardText(char* buf) {
+	if (!OpenClipboard(NULL)) return FALSE;
+		EmptyClipboard();
+		const size_t len = strlen(buf) + 1;
+		HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, len);
+		if (hglbCopy == NULL) {
+			CloseClipboard();
+			return FALSE;
+}
+		memcpy(GlobalLock(hglbCopy), buf, len);
+		GlobalUnlock(hglbCopy);
+		SetClipboardData(CF_TEXT, hglbCopy);
+	return TRUE;
+}
+static int luaB_clipboard(lua_State* L) {
+const char* text = luaL_optstring(L, 1, NULL);
+	if (!text) {
+		char* buf = GetClipboardText();
+		if (buf) {
+			lua_pushstring(L, buf);
+			//free(buf);
+}
+		else lua_pushboolean(L, 0);
+		return 1;
+	}
+	else {
+		lua_pushboolean(L, SetClipboardText(text));
+//free(text);
+		return 1;
+}
+	return 0;
+	}
 static int luaB_wait_use(lua_State* L) {
 	return 0;
 }

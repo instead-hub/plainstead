@@ -25,6 +25,7 @@ get_ticks =instead_ticks
 instead_mouse_pos =function() return 0,0 end
 mouse_pos =instead_mouse_pos
 instead_mouse_filter =function() return 0 end
+instead_mouse_show() = function() end
 instead_text_input =function() return 0 end
 function instead_sprite_free() end
 function instead_sprites_free() end

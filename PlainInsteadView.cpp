@@ -351,6 +351,11 @@ static CString getLogsDir() {
 	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
 	return baseDir + L"logs\\";
 }
+void createLogsDirIfNeedAndGetFileName(char* buff) {	CString logsDir = getLogsDir();
+	if (GetFileAttributes(logsDir) == INVALID_FILE_ATTRIBUTES) SHCreateDirectoryEx(NULL, logsDir, NULL);
+	logsDir += "debug.txt";
+	strcpy(buff, CT2A(logsDir));
+}
 void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLog,int rc) {
 	if (inv_save_index >= 0) //Снимаем выбор и восстанавливаем item
 	{
