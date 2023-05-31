@@ -57,7 +57,6 @@ public:
 
 protected:
 	static CPlainInsteadView* m_curView;
-	BOOL m_auto_say;
 	BOOL m_jump_to_out;
 	//BOOL m_BeepList;
 // Созданные функции схемы сообщений

@@ -30,6 +30,7 @@ extern "C" {
 }
 
 #define txt text_er + text[debug] + ways_er +(debug?ways:L"") + inv_er + (debug ? inv : L"")
+static BOOL m_auto_say;
 CPlainInsteadView* CPlainInsteadView::m_curView = 0;
 CEdit* updateEdit = NULL;
 void CALLBACK EXPORT OnTimerUpdateText(HWND, UINT, UINT, DWORD);
@@ -43,7 +44,7 @@ CPlainInsteadView* CPlainInsteadView::GetCurrentView()
 
 static UINT WM_FINDREPLACE = ::RegisterWindowMessage(FINDMSGSTRING);
 static CString text[2];
-static CString first_er,text_er,inv_er,ways_er,inv,ways;
+static CString first_er, text_er, inv_er, ways_er, inv, ways;
 static bool debug;
 IMPLEMENT_DYNCREATE(CPlainInsteadView, CFormView)
 
@@ -152,7 +153,7 @@ void CPlainInsteadView::OnInitialUpdate()
 		L"Для того чтобы играть выберите пункт в одном из списков - объекты, инвентарь, пути и нажмите клавишу ENTER.\r\n"
 		L"Когда вы находитесь в инвентаре, вам необходимо сначала выбрать пункт, нажать ENTER, а затем выбрать второй пункт и нажать ENTER.\r\n"
 		L"Поле ввода служит для ввода текста в метапарсерных играх (только instead 3),или для ввода команд,если в этом есть необходимость. В метапарсерных играх,скорее всего,взаимодействие с инвентарём не будет работать.\r\n"
-		L"Если при взаимодействием с объектами или при вводе текста ничего не изменилось,значит,скорее всего,текст остался тем же,какой был перед взаимодействием с объектами или ввода команды.\r\n" 
+		L"Если при взаимодействием с объектами или при вводе текста ничего не изменилось,значит,скорее всего,текст остался тем же,какой был перед взаимодействием с объектами или ввода команды.\r\n"
 		L"Сохранение и загрузка игр происходит обязательно в каталоге с текущей игрой (иногда в подкаталоге autosaves,если игра сама сохраняет своё состояние), менять на другой нельзя.\r\n"
 		L"При сохранении, указывайте пожалуйста имя файла латинскими буквами или цифрами.\r\n"
 		L"Внимание! Большие архивы могут не распаковываться программой через менеджер или установку в библиотеку. Попробуйте самостоятельно распаковать их в папку с играми."
@@ -311,15 +312,15 @@ static std::wstring process_instead_text(std::wstring inp, //входной текст
 			CString oldText;
 			if (pos <= resBox.GetCount() - 1)resBox.GetText(pos, oldText);
 			if (!prev_map.count(pos) || (map_action[pos] != prev_map[pos] && map_action[pos] != -prev_map[pos]) || oldText != addStr) {
-//if(prev_map.count(pos) &&map_action[pos] != prev_map[pos])AfxMessageBox(L"Тест");
+				//if(prev_map.count(pos) &&map_action[pos] != prev_map[pos])AfxMessageBox(L"Тест");
 				shouldRedraw = true;
 				/*CString test;
 				test.Format(L"%s %d %d", addStr,pos,resBox.GetCount());
 					AfxMessageBox(test);*/
 				resBox.DeleteString(pos);
-								resBox.InsertString(pos, addStr);
-								if (sel == pos) sel = 0;
-}
+				resBox.InsertString(pos, addStr);
+				if (sel == pos) sel = 0;
+			}
 			pos++;
 		}
 		next++;
@@ -329,15 +330,15 @@ static std::wstring process_instead_text(std::wstring inp, //входной текст
 		map_action.erase(resBox.GetCount() - 1);
 		resBox.DeleteString(resBox.GetCount() - 1);
 	}
-		resBox.SetRedraw(true);
-		if (resBox.GetCount() == 0) pos = 0;
+	resBox.SetRedraw(true);
+	if (resBox.GetCount() == 0) pos = 0;
 	if (pos == 0) resBox.ResetContent();
 	else if (resBox.GetCurSel() < 0 || resBox.GetCurSel() > pos - 1) {
 		/*CString a;
 		a.Format(L"%d %d",resBox.GetCurSel(),pos-1);
 		AfxMessageBox(a);*/
 		resBox.SetCurSel(sel<0 ? 0 : sel>pos - 1 ? pos - 1 : sel);
-}
+	}
 	std::wstring result;
 	std::regex_replace(std::back_inserter(result), inp.begin(), inp.end(), regex, L"$1");
 	return result;
@@ -351,35 +352,36 @@ static CString getLogsDir() {
 	baseDir = baseDir.Left(baseDir.ReverseFind(_T('\\')) + 1);
 	return baseDir + L"logs\\";
 }
-void createLogsDirIfNeedAndGetFileName(char* buff) {	CString logsDir = getLogsDir();
+void createLogsDirIfNeedAndGetFileName(char* buff) {
+	CString logsDir = getLogsDir();
 	if (GetFileAttributes(logsDir) == INVALID_FILE_ATTRIBUTES) SHCreateDirectoryEx(NULL, logsDir, NULL);
 	logsDir += "debug.txt";
 	strcpy(buff, CT2A(logsDir));
 }
-void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLog,int rc) {
+void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLog, int rc) {
 	if (inv_save_index >= 0) //Снимаем выбор и восстанавливаем item
 	{
 		int pos = mListInv.GetCurSel();
-				mListInv.SetDlgItemTextW(inv_save_index, savedSelInvM);
+		mListInv.SetDlgItemTextW(inv_save_index, savedSelInvM);
 		mListInv.DeleteString(inv_save_index);
 		mListInv.InsertString(inv_save_index, savedSelInvM);
 		mListInv.SetCurSel(pos);
 		inv_save_index = -1;
-			}
+	}
 	bool shouldRedraw = false;
-	CString er,tmp;
+	CString er, tmp;
 	Utf8ToCString(tmp, cmd);
 	//free(cmd);
 	std::map<int, int> prev_map = pos_id_scene;
-short onlyInvRedraw = 1; //Если -1 - перисовываем всё,если 0 - всё,кроме текста,если 1 - ничего.
-CString prev_er=text_er;
-if (!first_er.IsEmpty()) {
-	text_er = first_er;
-	first_er = L"";
-}
-else text_er = L"";
-text_er +=getError(tmp);
-	if (rc ||(p && *p) ||(text_er && text_er.GetLength() >0)) {
+	short onlyInvRedraw = 1; //Если -1 - перисовываем всё,если 0 - всё,кроме текста,если 1 - ничего.
+	CString prev_er = text_er;
+	if (!first_er.IsEmpty()) {
+		text_er = first_er;
+		first_er = L"";
+	}
+	else text_er = L"";
+	text_er += getError(tmp);
+	if (rc || (p && *p) || (text_er && text_er.GetLength() > 0)) {
 		//act_on_scene.clear();
 		if (p && *p) {
 			Utf8ToCString(tmp, p);
@@ -405,7 +407,7 @@ text_er +=getError(tmp);
 			text[0] = L"";
 			text[1] = L"";
 			onlyInvRedraw = -1;
-}
+		}
 		if (text_er != prev_er) onlyInvRedraw = -1; //Если ошибка изменилась,также обновляем текст.
 		p = instead_cmd("way", NULL);
 		prev_er = ways_er;
@@ -413,20 +415,20 @@ text_er +=getError(tmp);
 		if (p && *p) {
 			Utf8ToCString(tmp, p);
 			free(p);
-						//Добавление путей к окну вывода
-			//text[0].Append(L">> ");
-			//text[0].Append(tmp);
-			//text[0].Append(L"\n");
-					//Добавляем пути для отладочной переменной,если они изменились.
+			//Добавление путей к окну вывода
+//text[0].Append(L">> ");
+//text[0].Append(tmp);
+//text[0].Append(L"\n");
+		//Добавляем пути для отладочной переменной,если они изменились.
 			if (tmp != ways) {
-				if(onlyInvRedraw!=-1)onlyInvRedraw = 0;
+				if (onlyInvRedraw != -1)onlyInvRedraw = 0;
 				ways = tmp;
 				prev_map = pos_id_ways;
 				pos_id_ways.clear();
 				std::wstring buf = tmp.GetBuffer();
 				std::wstring result = process_instead_text(buf, mListWays, prev_map, pos_id_ways, shouldRedraw);
 				tmp.ReleaseBuffer();
-if (/*m_BeepList && */shouldRedraw) {
+				if (/*m_BeepList && */shouldRedraw) {
 					shouldRedraw = false;
 					wave_ways->play();
 				}
@@ -437,51 +439,51 @@ if (/*m_BeepList && */shouldRedraw) {
 			mListWays.ResetContent();
 			ways = L"";
 			//ways_er = L"";
-if(onlyInvRedraw!=-1)onlyInvRedraw = 0;
+			if (onlyInvRedraw != -1)onlyInvRedraw = 0;
 		}
 	}
 	if (ways_er != prev_er) onlyInvRedraw = -1; //Раз у нас возникла ошибка,обновляем текст.
 	//Если результат команды NULL,перерисовываем только инвентарь.
 	p = instead_cmd("inv", NULL);
 	prev_er = inv_er;
-inv_er = getError(L"inv");
-if (p && *p) {
-	Utf8ToCString(tmp, p);
-	free(p);
-	//Добавление инвентаря к окну вывода
-	//text[0].Append(L"** ");
-	//text[0].Append(tmp);
-	//text[0].Append(L"\n");
-	//Добавляем инвентарь для отладочной переменной,если инвентарь изменился.
-	if (tmp != inv) {
-		if (onlyInvRedraw != -1)onlyInvRedraw = 0;
-		prev_map = pos_id_inv;
-		pos_id_inv.clear();
-		std::wstring buf = tmp.GetBuffer();
-		std::wstring result = process_instead_text(buf, mListInv, prev_map, pos_id_inv, shouldRedraw);
-		tmp.ReleaseBuffer();
-		inv = tmp;
-		if (/*m_BeepList && */shouldRedraw) {
-			//PlaySound(baseSoundDir+_T("inventory.wav"), NULL, SND_MEMORY | SND_FILENAME | SND_ASYNC | SND_NOSTOP);
-			shouldRedraw = false;
-			wave_inv->play();
+	inv_er = getError(L"inv");
+	if (p && *p) {
+		Utf8ToCString(tmp, p);
+		free(p);
+		//Добавление инвентаря к окну вывода
+		//text[0].Append(L"** ");
+		//text[0].Append(tmp);
+		//text[0].Append(L"\n");
+		//Добавляем инвентарь для отладочной переменной,если инвентарь изменился.
+		if (tmp != inv) {
+			if (onlyInvRedraw != -1)onlyInvRedraw = 0;
+			prev_map = pos_id_inv;
+			pos_id_inv.clear();
+			std::wstring buf = tmp.GetBuffer();
+			std::wstring result = process_instead_text(buf, mListInv, prev_map, pos_id_inv, shouldRedraw);
+			tmp.ReleaseBuffer();
+			inv = tmp;
+			if (/*m_BeepList && */shouldRedraw) {
+				//PlaySound(baseSoundDir+_T("inventory.wav"), NULL, SND_MEMORY | SND_FILENAME | SND_ASYNC | SND_NOSTOP);
+				shouldRedraw = false;
+				wave_inv->play();
+			}
 		}
 	}
-}
-else {
-	pos_id_inv.clear();
-	mListInv.ResetContent();
-	inv = L"";
-	//inv_er = L"";
-if (onlyInvRedraw != -1)onlyInvRedraw = 0;
-}
+	else {
+		pos_id_inv.clear();
+		mListInv.ResetContent();
+		inv = L"";
+		//inv_er = L"";
+		if (onlyInvRedraw != -1)onlyInvRedraw = 0;
+	}
 	if (inv_er != prev_er) onlyInvRedraw = -1; //Раз у нас возникла ошибка,обновляем текст.
-	if (onlyInvRedraw ==-1 || onlyInvRedraw == 0 &&debug) {
+	if (onlyInvRedraw == -1 || onlyInvRedraw == 0 && debug) {
 		if (onlyInvRedraw == -1) {
 			text[0].Replace(L"\n", L"\r\n");
 		}
 		updateText();
-}
+	}
 	if (isLogOn)
 	{
 		CString logsDir = getLogsDir();
@@ -537,6 +539,9 @@ if (onlyInvRedraw != -1)onlyInvRedraw = 0;
 		flog.Close();
 	}
 }
+static void speak(CString result) {
+	if (m_auto_say) MultiSpeech::getInstance().Say(result);
+}
 void CPlainInsteadView::updateText(char* Text) {
 	CString result;
 	if (Text) {
@@ -547,8 +552,8 @@ void CPlainInsteadView::updateText(char* Text) {
 	else result = txt;
 	m_OutEdit.SetWindowTextW(result);
 	if (!m_jump_to_out) UpdateFocusLogic();
-	if (m_jump_to_out &&GetFocus() !=&m_OutEdit) m_OutEdit.SetFocus();
-if (m_auto_say) MultiSpeech::getInstance().Say(result);
+	if (m_jump_to_out && GetFocus() != &m_OutEdit) m_OutEdit.SetFocus();
+	speak(result);
 }
 
 static std::string utf8_encode(const CStringW srcW)
@@ -615,7 +620,7 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 			p = instead_cmd(cmd, &rc);
 			if (rc) free(p);
 		}
-		if (!isFromEdit || isFromEdit >1 || rc) {
+		if (!isFromEdit || isFromEdit > 1 || rc) {
 			/* try act */
 			snprintf(cmd, sizeof(cmd), "%s", newCmd.data());
 			p = instead_cmd(cmd, &rc);
@@ -628,7 +633,7 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 			}
 		}
 	}
-	onNewInsteadCommand(cmd, p, cmdForLog,rc);
+	onNewInsteadCommand(cmd, p, cmdForLog, rc);
 	return rc;
 }
 
@@ -636,7 +641,7 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 
 BOOL CPlainInsteadView::PreTranslateMessage(MSG* pMsg)
 {
-bool was_enter = false;
+	bool was_enter = false;
 	// TODO: добавьте специализированный код или вызов базового класса
 	if ((pMsg->message == WM_CHAR) && (GetFocus() == &m_OutEdit))
 	{
@@ -662,7 +667,7 @@ bool was_enter = false;
 			else {
 				CString res;
 				int res_pos = pos_id_scene[sel_pos];
-				if (res_pos <0) res_pos =-res_pos;
+				if (res_pos < 0) res_pos = -res_pos;
 				res.Format(L"%d", res_pos);
 				if (inv_save_index >= 0) {
 					res.Format(L"%d,%s", pos_id_inv[inv_save_index], res);
@@ -813,9 +818,9 @@ code.Format(L"%s",act_on_scene[sel_pos]);
 								}
 			*/
 			//m_OutEdit.SetWindowTextW(L"");
-						m_InputEdit.SetWindowTextW(L"");
+			m_InputEdit.SetWindowTextW(L"");
 			//m_OutEdit.SetFocus();
-			TryInsteadCommand(textIn, L"Ввод текста "+textIn, false, true);
+			TryInsteadCommand(textIn, L"Ввод текста " + textIn, false, true);
 			return true;
 		}
 		else
@@ -868,7 +873,7 @@ code.Format(L"%s",act_on_scene[sel_pos]);
 			}
 			else {
 				CString res;
-				bool isMenuItem = (pos_id_inv[sel_pos]<0);
+				bool isMenuItem = (pos_id_inv[sel_pos] < 0);
 				if (isMenuItem) res.Format(L"%d", -pos_id_inv[sel_pos]);
 				else res.Format(L"%d", pos_id_inv[sel_pos]);
 				if (inv_save_index < 0 && !isMenuItem) {
@@ -1027,7 +1032,7 @@ void CPlainInsteadView::OnEnSetfocusEditOut()
 
 void CPlainInsteadView::OnTimer(UINT uTime)
 {
-	if (m_auto_say) MultiSpeech::getInstance().Say(txt);
+	speak(txt);
 	KillTimer(ID_TIMER_1);
 }
 
@@ -1420,7 +1425,7 @@ void CPlainInsteadView::OnUpdateOutView()
 	// TODO: добавьте свой код обработчика команд
 	if (GlobalManager::getInstance().isUserStartGame())
 	{
-		int sel_pos = 0;
+		/*int sel_pos = 0;
 		CListBox* curr_box = 0;
 		if (GetFocus() == &mListInv) {
 			sel_pos = mListInv.GetCurSel();
@@ -1433,8 +1438,8 @@ void CPlainInsteadView::OnUpdateOutView()
 		else if (GetFocus() == &mListWays) {
 			sel_pos = mListWays.GetCurSel();
 			curr_box = &mListWays;
-		}
-		TryInsteadCommand(L"", L"обновить", false);
+		}*/
+		speak(txt);
 		/*if (!m_jump_to_out && curr_box)
 		{
 			if (curr_box->GetCount() > sel_pos) {

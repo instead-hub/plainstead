@@ -486,7 +486,7 @@ void CPlainInsteadApp::OnFileOpen(boolean reload)
 			if (userFilePath== saveDir+L"\\" + fileDialog.GetFileName() || userFilePath == autoSaveDir+L"\\" + fileDialog.GetFileName())
 			{
 								InterpreterController::loadSave(userFilePath, reload);
-				int load =CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + userFilePath,false);
+				int load =CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + userFilePath,L"", false);
 				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"look",L"загрузка",false);
 				AfxMessageBox(load? L"Не удалось восстановить сохранение":L"Восстановлено!");
 				millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
@@ -579,7 +579,7 @@ void CPlainInsteadApp::OnFileSave()
 		if (userFilePath == saveDir)
 		{
 			CString userFileName = saveGameNameDir + L"/" + fileDialog.GetFileName();
-			int save = CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + userFileName, false);
+			int save = CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"save " + userFileName, L"",false);
 			CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"look", L"сохранение игры", false);
 			AfxMessageBox(save ? L"Не удалось сохранить игру!" : L"Сохранено!");
 		}
