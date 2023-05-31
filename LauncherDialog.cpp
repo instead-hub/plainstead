@@ -777,7 +777,7 @@ void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool update
 		xml.FindChildElem(L"author");
 		CString csAuthor = xml.GetChildData();
 		xml.FindChildElem(L"description");
-		CString csDescription = xml.GetChildData();
+		CString csDescription = CMarkup::UnescapeText(xml.GetChildData());
 		xml.FindChildElem(L"image");
 		CString csImageUrl = xml.GetChildData();
 		xml.FindChildElem(L"version");
