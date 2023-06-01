@@ -5,13 +5,13 @@ end
 if not URQ_PATH then
 	URQ_PATH="../urq/"
 end
-dofile (URQ_PATH.."expr.lua")
-dofile (URQ_PATH.."xlat866.lua")
-dofile (URQ_PATH.."xlat1251.lua")
-dofile (URQ_PATH.."kbd-win.lua")
-dofile (URQ_PATH.."kbd-dos.lua")
-dofile (URQ_PATH.."kbd-en.lua")
-dofile (URQ_PATH.."kbd-utf8.lua")
+require (URQ_PATH.."expr")
+require (URQ_PATH.."xlat866")
+require (URQ_PATH.."xlat1251")
+require (URQ_PATH.."kbd-win")
+require (URQ_PATH.."kbd-dos")
+require (URQ_PATH.."kbd-en")
+require (URQ_PATH.."kbd-utf8")
 
 urq = {
 	version = "2.0",
@@ -30,7 +30,7 @@ urq = {
 	cursor = '_',
 	lastcmd = 'go',
 	last_com = 'common',
-	examine = "���������",
+	examine = "α쮲𥲼",
 	selector = "<b>>></b> ",
 	nam = 'urq',
 	object_type = true,
@@ -53,6 +53,7 @@ urq = {
 	cur_loc = '',
 	branches = { n = 0 },
 	ibranch = 0,
+	dict,strdict ={},
 	stack = { },
 	vars = { ["fp_prec"] = 2, ["urq_instead"] = 2.0 },
 	str = { n = 0 },
@@ -87,9 +88,16 @@ urq = {
 		savevar(h, self.vars, name..".vars", true)
 		savevar(h, self.str, name..".str", true)
 		savevar(h, self.cur_loc, name..".cur_loc", true)
+		savevar(h, self.dict, name..".dict", true)
+				savevar(h, self.strdict, name..".strdict", true)
 	end
 }
 
+local function reset_dicts()
+urq.dict ={}
+urq.strdict={}
+end
+reset_dicts()
 function tolow(s)
 	if not s then
 		return
@@ -172,7 +180,7 @@ function lurq(name)
 	end
 	file:close();
 	if game.codepage == "cp866" or game.codepage == "CP866" then -- hack for 866 cp
-		urq.examine = '�ᬮ����';
+		urq.examine = 'ᬮ⠥⬧';
 	end
 end
 
@@ -183,14 +191,26 @@ function label(s)
 	s = strip(s);
 	return tolow(s),s
 end
-
+local function add_link(type,str,obj)
+if not urq.dict[obj] or urq.strdict[obj] ~=str then
+if not urq.dict[obj] then table.insert(urq.dict,obj)
+urq.dict[obj]=#urq.dict
+end
+--Для получения путей
+if urq.strdict[obj] ~=str then
+urq.strdict[urq.dict[obj]]=str
+urq.strdict[obj]=type
+end
+end
+return obj and type ~= "way" and stead.string.format("[a]%s#%d[/a]",str,-urq.dict[obj]) or obj and type =="way" and "" or str
+end
 local function urqlink(loc, str)
 	local lloc
 	if loc == nil or str == nil then
 		error ("Error in link at line: "..urq.ip);
 	end
 	local loc_link = false 
-
+local result
 	if type(loc) == 'string' and loc:find("^[ \t]*[!%%]") then
 		loc = loc:gsub("^[!%%][ \t]*", "")
 		loc_link = true
@@ -204,11 +224,15 @@ local function urqlink(loc, str)
 		lloc = '!'..lloc
 	end
 	if not urq.labels[loc] then
-		return "<a:nop>"..str.."</a>";
+		if not stead.tiny then return "<a:nop>"..str.."</a>";
+else
+return add_link("o",str)
+end;
 	end
-	return "<a:go "..lloc..","..strip(tostring(str)):gsub(">","\\>")..">"..str.."</a>";
+if not stead.tiny then return "<a:go "..lloc..","..strip(tostring(str)):gsub(">","\\>")..">"..str.."</a>";
+else return add_link("way",strip(tostring(str)),lloc);
+end;
 end
-
 local function do_links(s)
 	s = s:gsub("%[%[[^%]|]+%]%]", function(s)
 		local l = s:gsub("^%[%[", ""):gsub("%]%]$","");
@@ -239,7 +263,7 @@ function urqprint(str, nl)
 	if urq.paused then
 		return
 	end
-	if urq.extension_furq and str and not str:find("^[ \t]*$") then
+	if urq.extension_furq and str and not str:find("^[ \t]*$") and not stead.tiny then
 		local a = tonumber(urq.vars["textalign"])
 		if a == 1 then
 			pre = "<j>"
@@ -255,7 +279,7 @@ function urqprint(str, nl)
 	if str then
 		if urq.extension_print_spaces then
 			str = str:gsub("^[ \t]+", function(s)
-				return "<w:"..s:gsub("\t","        ")..">"
+				return stead.tiny and s:gsub("\t","    ") or ("<w:"..s:gsub("\t","        ")..">")
 			end)
 		end
 		if urq.extension_furq then
@@ -350,7 +374,9 @@ function urqbtn(loc, str)
 	end
 	if str:find('^[ \t]*$') then str = '...' end
 	loc, lloc  = urqargs(loc);
-	return "<l>"..urq.selector.."<a:go "..lloc..","..strip(tostring(str)):gsub(">","\\>")..">"..str.."</a></l>\n";
+	if not stead.tiny then return "<l>"..urq.selector.."<a:go "..lloc..","..strip(tostring(str)):gsub(">","\\>")..">"..str.."</a></l>\n";
+else return add_link("way",strip(tostring(str)),lloc);
+end;
 end
 
 function urqend(s)
@@ -736,7 +762,7 @@ function subst(str, eval)
 	end
 	if eval then
 		if str:find("^[ \t]*$") then
-			str = "<w: >"
+			str = not stead.tiny and "<w: >" or " "
 		elseif str:find("^[ \t]*/[ \t]*") then
 			str = urq.eol;
 		elseif str:find("^%%") then
@@ -1351,7 +1377,8 @@ function inv()
 				local d = urq.orig_labels[k];
 				if not d then error ("Fatal error in: "..urq.ip) end
 				if r ~= '' then r = r..stead.delim; end
-				r = r..'<a:act '..k..'>'..urq.examine..'</a>';
+				if not stead.tiny then r = r..'<a:act '..k..'>'..urq.examine..'</a>'; else r=r..add_link("o",urq.examine,k)
+			end
 			end
 		end
 	end
@@ -1367,7 +1394,11 @@ function inv()
 			if r ~= '' then
 				r = r..stead.delim;
 			end
+if not stead.tiny then 
 			r = r..'<a:act '..k..'>'..idisp(d:sub(9))..'</a>';
+else
+r =r..add_link("o",idisp(d:sub(9)),k)
+end;
 		end
 	end
 	for kk,vv in ipairs(urq.invo) do
@@ -1382,15 +1413,29 @@ function inv()
 				pre = tostring(fprec(v.n))..txtnb(" ");
 			end
 			if k == urq.inv_selected then
-				r = r..'<u><a:act '..k..'>'..pre..idisp(v.name)..'</a></u>'..inv_actions(k);
+if not stead.tiny then r = r..'<u><a:act '..k..'>'..pre..idisp(v.name)..'</a></u>'..inv_actions(k); 
+else
+r=r..add_link("o",pre..idisp(v.name),k)..inv_actions(k);
+end
 			else
-				r = r..'<a:act '..k..'>'..pre..idisp(v.name)..'</a>';
+if not stead.tiny then
+r = r..'<a:act '..k..'>'..pre..idisp(v.name)..'</a>';
+else
+r=r..add_link("o",pre..idisp(v.name),k)
+end
 			end
 		end
 	end
 	return r;
 end
-
+function way()
+local r=''
+for k,v in pairs(urq.dict) do
+if stead.type(k) =="string" and urq.strdict[urq.dict[v]] =="way" then r=r..stead.string.format("[a]%s#%d[/a]",urq.strdict[v],v)
+end
+end
+return r
+end
 function is_actions(o)
 	local k,v
 	if not o then
@@ -1413,7 +1458,10 @@ function inv_actions(o)
 		local what = urq.examine
 		if (not urq.extension_furq) or (not urq.vars[k.."_hide"]) or ( tonumber(urq.vars[k.."_hide"]) == 0) then
 			r = r..stead.delim
-			r = r ..'[ <a:act '..k..','..what..'>'..idisp(what)..'</a> ]'
+if not stead.tiny then r = r ..'[ <a:act '..k..','..what..'>'..idisp(what)..'</a> ]'
+else
+r =r..add_link("o",idisp(what),k)
+end
 		end
 	end
 
@@ -1428,7 +1476,11 @@ function inv_actions(o)
 			end
 			if (not urq.extension_furq) or (not urq.vars[k.."_hide"]) or ( tonumber(urq.vars[k.."_hide"]) == 0) then
 				r = r..stead.delim
+if not stead.tiny then
 				r = r ..'[ <a:act '..k..','..what..'>'..idisp(what)..'</a> ]'
+else
+r = r..add_link("o",idisp(what),k)
+end
 			end
 		end
 	end
@@ -1470,7 +1522,8 @@ function reset_pause()
 	if not urq.paused then
 		urq.branches = {};
 	else
-		urq.output = urq.last_output
+urq.output = urq.last_output
+		
 	end
 end
 
@@ -1529,12 +1582,27 @@ iface.cmd = function(s, inp)
 	cmd,a = stead.getcmd(inp);
 	start_cmd()
 --	print ("CMD:", inp);
+if stead.tiny then
+if a[1] and stead.tonum(a[1])then 
+a[1]=urq.dict[stead.tonum(a[1])]
+end
+if urq.strdict[a[1]]=="way" then cmd="go" end
+if a[2] and stead.tonum(a[2]) then
+a[2]=urq.dict[stead.tonum(a[2])]
+end
+if a[1] and a[2] and cmd =="" then cmd ="use"
+elseif a[1] and cmd=="" then cmd="act"
+elseif cmd =="" then cmd="look"
+elseif inp:find("^@") then return false,false
+end
+end
 	if cmd == "look" then
 		if urq.last then
 			return par('',urq.last, cat(urq.input,'\n'),"\n");
 		end
 -- first run
 		reset_pause();
+--reset_dicts();
 		r = exec(urq.ip);
 		r = output_txt(r);
 		urq.last_loc = r;
@@ -1554,7 +1622,7 @@ iface.cmd = function(s, inp)
 				urq.inv_selected = nil
 			elseif is_actions(a[1]) then -- select
 				urq.inv_selected = a[1];
-				r = urq.last;
+				--r = urq.last; --Не имеет смысла.
 				return nil
 			elseif urq.use_labels["use_"..a[1]] then -- use
 				cmd = "act";
@@ -1565,7 +1633,7 @@ iface.cmd = function(s, inp)
 		end
 --		r = par("", inv_actions(a[1]));--, urq.last);
 	elseif cmd == "way" then
-		r = ''
+		r = stead.tiny and way() or ''
 	elseif cmd == "save" then
 		r = game:save(unpack(a));
 	elseif cmd == "load" then
@@ -1614,7 +1682,6 @@ iface.cmd = function(s, inp)
 			a[1] = a[1]:gsub("^[!%%][ \t]*", "");
 			loc_go = true
 		end
-
 		reset_pause();
 		if not rmode and inp:find(",") then -- user pressed
 			local s,e = inp:find(",", 1, true);
@@ -1637,6 +1704,7 @@ iface.cmd = function(s, inp)
 				update_count(a[1]);
 			end
 			urq.lastip  = urq.labels[a[1]];
+reset_dicts();
 			r = exec(urq.lastip, a[1]);
 			r = output_txt(r);
 		end
