@@ -44,7 +44,7 @@ instead.sprite_rotate = instead_sprite_rotate
 instead.sprite_text = instead_sprite_text
 instead.sprite_text_size = instead_sprite_text_size
 instead.sprite_draw = instead_sprite_draw
-instead.sprite_copy = instead_sprite_copy
+instead.sprite_copy = function() return instead_sprite_copy() end
 instead.sprite_compose = instead_sprite_compose
 instead.sprite_fill = instead_sprite_fill
 instead.sprite_pixel = instead_sprite_pixel
@@ -622,7 +622,10 @@ local pxl = {
 }
 
 pxl.__index = pxl
-
+function pxl:blend()
+end
+function pxl:clear()
+end
 function pxl:dup()
 	local w, h, s = self:size()
 	local p = instead.sprite_pixels(w, h, s)
@@ -666,10 +669,20 @@ function pxl:compose_spr(fx, fy, fw, fh, d, x, y, alpha)
 	instead.sprite_compose(self, fx, fy, fw, fh, spr_get(d), x, y, alpha);
 	return d
 end
+function pxl:circle() end
+function pxl:circleAA() end
 
+function pxl:line()
+end
+function pxl:lineAA() end
+function pxl:new_scaled() end
+
+function pxl:pixel()
+end
 function pxl:scale(...)
 	return pxl:new(self:new_scaled(...))
 end
+function pxl:new_rotated() end
 
 function pxl:rotate(...)
 	return pxl:new(self:new_rotated(...))
@@ -693,16 +706,19 @@ local function poly(self, fn, t, ...)
 end
 
 function pxl:poly(t, ...)
-	--poly(self, self.line, t, ...)
+	poly(self, self.line, t, ...)
 end
 
 function pxl:polyAA(t, ...)
 --poly(self, self.lineAA, t, ...)
 end
-function pxl:fill_poly() end
 function pxl:val(...) return 0,0,1,1 end
 function pxl:size() return 1,1 end
 function pxl:fill() end
+function pxl:fill_poly() end
+function pxl:fill_circle() end
+function pxl:fill_triangle() end
+
 function pxl:new(p)
 	if type(p) ~= 'string' then
 		std.err("Wrong argument to pxl:new(): "..std.tostr(nam), 2)
