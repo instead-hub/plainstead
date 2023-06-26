@@ -12,7 +12,7 @@
 #include "Markup.h"
 #include "urlfileDlg.h"
 #include "IniFile.h"
-#include <chrono>
+//#include <chrono>
 
 // диалоговое окно LauncherDialog
 
@@ -145,22 +145,49 @@ static CString get_game_property(std::wstring property, std::wstring inp) //вход
 	}
 	return CString();
 }
-static  void parseGameInfo(CString line, std::unordered_map<CString, CString,CString_hash>& props) {
-	line.Trim(L" \t");
-	if (line.GetLength() == 0 || line[line.GetLength() - 1] != '$') return;
-	CString comment = L"--";
-	if (line.Mid(0, comment.GetLength()) != comment) return; //сравниваем подстроку,т.к поиск по всей строке занимает больше времени.
-	line = line.Mid(comment.GetLength());
-	line.TrimLeft(L" \t"); //Удаляем пробелы только слева,т.к справа мы их уже удаляли методом Trim.
-	if (line[0] != '$') return; //Убедились,что начальные и конечные символы $ существуют.
-	int valPos = line.Find(L":", 1); //Нам нужно получить подстроку от символа $ до символа :,не включая его.
-	if (valPos < 0) return;
-	props[line.Mid(1, valPos - 1).MakeLower()] = line.Mid(valPos + 1, line.GetLength() - 1 - (valPos + 1)).TrimLeft(L" \t"); //Берём всю строку от :,кроме последнего символа,т.к он равен $
+static  void parseGameInfo(CString line, std::unordered_map<CString, CString, CString_hash>& props) {
+	line.TrimRight(L" \t");
+	int len = line.GetLength();
+	if (len < 5 || line[len - 1] != '$') return; //Минимально возможная строка - --$:$
+	//if (line[0] =='-' && line[1] == '-') return; //сравниваем символы строки с символами коментария,т.к поиск по всей строке занимает больше времени.
+	bool comment = false;
+	CString key;
+	int keyPos = -1, valPos = 0;
+	for (; valPos < len; valPos++) {
+		if (valPos == len - 1 && !comment) return;
+		char c = line[valPos];
+		if (c <= ' ' && keyPos == -1) continue;
+		else if (c == '-' && !comment) {
+			//Если комментарий,продолжаем,иначе останавливаемся.
+			if (line[valPos + 1] == '-') {
+				comment = true;
+				valPos++;
+				continue;
+			}
+			else return; //Строка не начинается с комментария (widespace не считаем).
+		}
+		else if ((c > ' ' && !comment) || (c != '$' && keyPos == -1)) return; //Текст не начинается с комментария (widespace не считаем) или перед долларом есть лишний текст,значит эта строка нам не подходит.
+		else if (c == '$' && keyPos == -1) {
+			if (valPos == len - 1)
+				return; //Это последний символ,а значит  эта строка не содержит пару.
+			else {
+				keyPos = valPos + 1;
+			}
+		}
+		else if (c == ':') {
+			valPos++; //Значение начинается с позиции после двоеточия.
+			if (line[valPos] <= ' ')
+				valPos++; //После двоеточия может быть пробел.
+			break;
+		}
+		else key.AppendChar(tolower(c));
+	}
+	props[key] = line.Mid(valPos, len - 1 - valPos); //Берём всю строку от :,кроме последнего символа,т.к он равен $
 	//AfxMessageBox(line.Mid(1, valPos-1).GetString());
 }
 void LauncherDialog::updateAllGames(bool updateInstalledGames) {
 	if (PathFileExists(L"temp.xml")) ReadNewGamesFromXMLAndAdd(L"temp.xml", updateInstalledGames);
-	if (PathFileExists(L"temp2.xml") &&m_checkSander.GetCheck()== BST_CHECKED)ReadNewGamesFromXMLAndAdd(L"temp2.xml", false);
+	if (PathFileExists(L"temp2.xml") && m_checkSander.GetCheck() == BST_CHECKED)ReadNewGamesFromXMLAndAdd(L"temp2.xml", false);
 	if (updateInstalledGames)RescanInstalled();
 }
 
@@ -200,7 +227,7 @@ BOOL LauncherDialog::OnInitDialog()
 	m_lastSelFilter = mainSettings.GetInt(L"main", L"mRepoFilter", SEL_FILTER_VALID);
 	if (m_lastSelFilter != SEL_FILTER_ALL && m_lastSelFilter != SEL_FILTER_VALID && m_lastSelFilter != SEL_FILTER_PARTIALLY_VALID && m_lastSelFilter != SEL_FILTER_VALID_AND_PARTIALLY_VALID && m_lastSelFilter != SEL_FILTER_VALID_AND_UNK) m_lastSelFilter = SEL_FILTER_VALID;
 	m_comboFiler.SetCurSel(convertFilterToSel(m_lastSelFilter));
-	m_checkSander.SetCheck(mainSettings.GetInt(L"main", L"showSander",0)==0 ? BST_UNCHECKED: BST_CHECKED);
+	m_checkSander.SetCheck(mainSettings.GetInt(L"main", L"showSander", 0) == 0 ? BST_UNCHECKED : BST_CHECKED);
 	showInstalledTabControls();
 
 	//Set the style to listControl
@@ -225,7 +252,7 @@ void LauncherDialog::RescanInstalled()
 {
 	//UINT64 result = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 	std::vector<std::pair<CString, CString> > filePathsAndNames;
-	std::unordered_map<CString, CString,CString_hash> props;
+	std::unordered_map<CString, CString, CString_hash> props;
 	/*installedGameNameCache.clear();
 	m_listInstalled.DeleteAllItems();*/
 	ListFilesGamInDirectory(getGamesDir(), filePathsAndNames);
@@ -260,7 +287,7 @@ void LauncherDialog::RescanInstalled()
 					if (props[L"version"] != m_listInstalled.GetItemText(approveInfo[filePathsAndNames[i].second + suffix].second, N_SUBITEM_LIST_VERSION))SetCell(m_listInstalled, props[L"version"], approveInfo[filePathsAndNames[i].second + suffix].second, N_SUBITEM_LIST_VERSION);
 					break;
 				}
-								else if (!gameWasAdded &&(props.count(L"date") > 0 && props.count(L"name(ru)") > 0 && props.count(L"info") > 0 && props.count(L"version") > 0 && props.count(L"author(ru)") > 0 && props.count(L"lan") > 0))
+				else if (!gameWasAdded && (props.count(L"date") > 0 && props.count(L"name(ru)") > 0 && props.count(L"info") > 0 && props.count(L"version") > 0 && props.count(L"author(ru)") > 0 && props.count(L"lan") > 0))
 				{
 					AddNewGame(props[L"date"], props[L"name(ru)"], props[L"author(ru)"], props[L"info"], props[L"version"], props[L"lan"], filePathsAndNames[i], m_listInstalled);
 					break;
@@ -286,8 +313,8 @@ void LauncherDialog::RescanInstalled()
 void LauncherDialog::updateDataAfterInstalationOfGame(CString gameName, int sel, bool gameWasRemoved) {
 	//CString debug;
 	if (gameWasRemoved) {
-				installedGameNameCache.erase(gameName);
-				//debug.Format(L"%s %d", gameName,approveInfo[gameName + suffix].second);
+		installedGameNameCache.erase(gameName);
+		//debug.Format(L"%s %d", gameName,approveInfo[gameName + suffix].second);
 		m_listInstalled.DeleteItem(approveInfo[gameName + suffix].second);
 		approveInfo.erase(gameName + suffix);
 	}
@@ -720,7 +747,7 @@ void LauncherDialog::OnBnClickedBtnUpdate()
 	else {
 		//ClearNewList();
 		UpdateGamesFromUrl(L"http://instead-games.ru/xml.php", L"temp.xml");
-		if(m_checkSander.GetCheck() == BST_CHECKED)UpdateGamesFromUrl(L"http://instead-games.ru/xml2.php", L"temp2.xml", false);
+		if (m_checkSander.GetCheck() == BST_CHECKED)UpdateGamesFromUrl(L"http://instead-games.ru/xml2.php", L"temp2.xml", false);
 		//UpdateGamesFromUrl(L"http://instead-games.ru/xml3.php", L"temp.xml");
 		RescanInstalled();
 	}
@@ -761,7 +788,7 @@ void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool update
 		m_listNew.DeleteAllItems();
 		betaIndex = -1;
 	}
-	else if (m_checkSander.GetCheck() == BST_CHECKED) betaIndex=m_listNew.GetItemCount();
+	else if (m_checkSander.GetCheck() == BST_CHECKED) betaIndex = m_listNew.GetItemCount();
 	CMarkup xml;
 	xml.SetDoc(xmlDoc);
 	while (xml.FindChildElem(L"game"))
@@ -861,7 +888,7 @@ void LauncherDialog::OnBnClickedBtnInstall()
 	if (installedGameNameCache.count(gameName) > 0)
 	{
 		CString currentVersion = m_listNew.GetItemText(sel, N_SUBITEM_LIST_VERSION);
-		int newSel=approveInfo.count(gameName + suffix) > 0?approveInfo[gameName + suffix].second :sel;
+		int newSel = approveInfo.count(gameName + suffix) > 0 ? approveInfo[gameName + suffix].second : sel;
 		CString installedVersion = m_listInstalled.GetItemText(newSel, N_SUBITEM_LIST_VERSION);
 		if (installedVersion != currentVersion) {
 			int update = AfxMessageBox(L"Доступно обновление. Установленная версия - " + installedVersion + L",текущая версия - " + currentVersion + L". Хотите обновить игру?", MB_YESNOCANCEL | MB_ICONQUESTION);
@@ -937,13 +964,13 @@ void LauncherDialog::OnCbStateChangedMCheckSander() {
 		POSITION p = m_listNew.GetFirstSelectedItemPosition();
 		int sel = p == NULL ? m_listNew.GetItemCount() : m_listNew.GetNextSelectedItem(p);
 		for (int a = betaIndex; a < count; a++) m_listNew.DeleteItem(m_listNew.GetItemCount() - 1);
-			betaIndex = -1;
-			if (sel<0 || sel>m_listNew.GetItemCount() - 1) m_listNew.SetItemState(sel < 0 ? 0 : m_listNew.GetItemCount() - 1, LVIS_SELECTED, LVIS_SELECTED);
-}
+		betaIndex = -1;
+		if (sel<0 || sel>m_listNew.GetItemCount() - 1) m_listNew.SetItemState(sel < 0 ? 0 : m_listNew.GetItemCount() - 1, LVIS_SELECTED, LVIS_SELECTED);
+	}
 	else if (PathFileExists(L"temp2.xml")) {
 		ReadNewGamesFromXMLAndAdd(L"temp2.xml", false);
 		m_listNew.SetItemState(betaIndex, LVIS_SELECTED, LVIS_SELECTED);
-}
+	}
 }
 void LauncherDialog::OnCbnSelchangeComboFilter()
 {
