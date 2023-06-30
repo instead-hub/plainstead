@@ -48,7 +48,7 @@ function instead_sprite_pixel() return "" end
 function instead_sprite_pixels()
 return ""
 end
-function instead_sprite_scale() return 0
+function instead_sprite_scale() return ""
 end
 function instead_sprite_size() return 1,1
 end
