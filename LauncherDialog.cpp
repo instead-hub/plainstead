@@ -25,7 +25,7 @@ IMPLEMENT_DYNAMIC(LauncherDialog, CDialog)
 #define SEL_FILTER_VALID         16 //доступные
 #define SEL_FILTER_PARTIALLY_VALID         8 //частично доступные
 #define SEL_FILTER_VALID_AND_PARTIALLY_VALID         24 //доступные и частично доступные (16|8)
-#define SEL_FILTER_VALID_AND_UNK 4 //доступные и непроверенные
+#define SEL_FILTER_VALID_AND_UNK 17 //доступные и непроверенные
 #define N_SUBITEM_LIST_CAPTION 0 //название
 #define N_SUBITEM_LIST_AUTHOR       1 //автор
 #define N_SUBITEM_LIST_ACCESSABLE 2 //доступна
@@ -800,7 +800,7 @@ void LauncherDialog::ReadNewGamesFromXMLAndAdd(CString temp_xmlfile, bool update
 		xml.FindChildElem(L"date");
 		CString csDate = xml.GetChildData();
 		xml.FindChildElem(L"title");
-		CString csTitle = xml.GetChildData();
+		CString csTitle = CMarkup::UnescapeText(xml.GetChildData());
 		xml.FindChildElem(L"author");
 		CString csAuthor = xml.GetChildData();
 		xml.FindChildElem(L"description");
