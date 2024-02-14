@@ -1,7 +1,7 @@
 ﻿#include "externals.h"
 #include "internals.h"
 static int game_grab_events = 0;
-static int game_wait_use = 1;
+int game_wait_use = 1;
 static char* GetClipboardText()
 {
 	if (!IsClipboardFormatAvailable(CF_TEXT) || !OpenClipboard(NULL)) return NULL;
@@ -47,6 +47,7 @@ const char* text = luaL_optstring(L, 1, NULL);
 	return 0;
 	}
 static int luaB_wait_use(lua_State* L) {
+	if (lua_isboolean(L, 1)) game_wait_use = lua_toboolean(L, 1);
 	return 0;
 }
 static int luaB_grab_events(lua_State* L) {

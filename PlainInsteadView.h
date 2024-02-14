@@ -110,7 +110,6 @@ void onNewInsteadCommand(char*cmd, char* p,CString cmdForLog = L"",int rc=0);
 	CListBox mListWays;
 	CListBox mListInv;
 	std::map<int, int> pos_id_inv;
-	int inv_save_index=-1; //Индекс в map Сохраненного результата инвентаря
 	afx_msg void OnUpdateOutView();
 	afx_msg void OnStnClickedStaticScene();
 	CStatic mStaticScene;

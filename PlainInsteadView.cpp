@@ -27,8 +27,8 @@ extern "C" {
 	extern BOOL IsNeedSaveTadsGame; //Необходимо сохранение игры
 	extern BOOL IsOkSaveLoadTadsGame; //Успешность сохранения/загрузки
 	extern char TadsFileName[200];
+	int inv_save_index = -1; //Индекс в map Сохраненного результата инвентаря
 }
-
 #define txt text_er + text[debug] + ways_er +(debug?ways:L"") + inv_er + (debug ? inv : L"")
 static BOOL m_auto_say;
 CPlainInsteadView* CPlainInsteadView::m_curView = 0;

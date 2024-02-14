@@ -92,6 +92,7 @@ end]]
 stead.restart =instead_restart
 stead.menu_toggle =instead_menu
 stead.autosave=instead_autosave
+stead.wait_use=instead_wait_use
 -- Audio
 stead.get_music = function()
 	return game._music, game._music_loop;
@@ -231,6 +232,7 @@ restore_music = stead.restore_music
 is_music = stead.is_music
 function stead.mouse_filter() return 0 end
 	function stead.mouse_pos() return 0,0 end
+function stead.grab_events() return true end
 function stead.screen_size() return 0,0 end
 --Для космический рейнджеров
 unpack = stead.unpack;

@@ -6,6 +6,7 @@
 	static UINT_PTR timer_id = 0;
 	static int volatile unsigned instead_timer_nr = 0;
 	extern BOOLEAN isSaving;
+	extern int inv_save_index, game_wait_use;
 	static void CALLBACK instead_fn(HWND window, UINT interval, UINT timer_id, DWORD dword);
 	extern void onNewInsteadCommand(char* cmd, char* p,int rc);
 	extern uint64_t getTicks();
@@ -30,7 +31,7 @@ if (!delay)
 	static void onTimer() {
 instead_timer_nr = 0;
 		instead_lock();
-		if (instead_busy() || !timer_id ||isSaving) {
+		if (instead_busy() || !timer_id ||isSaving || (game_wait_use &&inv_save_index>-1)) {
 			instead_unlock();
 			return;
 		}
