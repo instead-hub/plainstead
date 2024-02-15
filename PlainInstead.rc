@@ -113,7 +113,7 @@ BEGIN
         MENUITEM "&Менеджер игр\t\tCtrl+M",     ID_OPEN_MANAGER
         MENUITEM "&Добавить игру в библиотеку\t\tCtrl+N", ID_ADD_GAME_TO_LIB
         MENUITEM "&Открыть сохранение\tCtrl+O", ID_FILE_OPEN
-        MENUITEM "&Открыть сохранение с перезагрузкой библиотеки\tCtrl+Shift+O", ID_FILE_OPEN_WITH_RELOAD
+        MENUITEM "&Открыть сохранение без перезагрузки библиотеки\tCtrl+Shift+O", ID_FILE_OPEN_WITHOUT_RELOAD
         MENUITEM "Со&хранить игру\tCtrl+S",     ID_FILE_SAVE_GAME
         MENUITEM "Начать игру &заново\tCtrl+R", ID_RESTART_MENU
         MENUITEM SEPARATOR
@@ -170,7 +170,7 @@ BEGIN
     "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
     "T",            ID_ENTER_SETUP,         VIRTKEY, CONTROL, NOINVERT
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
-    "O",            ID_FILE_OPEN_WITH_RELOAD, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN_WITHOUT_RELOAD, VIRTKEY, SHIFT, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE_GAME,      VIRTKEY, CONTROL, NOINVERT
     VK_F3,          ID_FIND_NEXT,           VIRTKEY, NOINVERT
     "F",            ID_FIND_TEXT,           VIRTKEY, CONTROL, NOINVERT

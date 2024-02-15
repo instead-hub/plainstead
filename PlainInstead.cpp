@@ -109,10 +109,10 @@ BEGIN_MESSAGE_MAP(CPlainInsteadApp, CWinApp)
 	//ON_COMMAND(ID_FILE_NEW, &CWinApp::OnFileNew)
 	//ON_COMMAND(ID_FILE_NEW_GAME, OnFileNewGame)
 	ON_COMMAND(	ID_FILE_OPEN,  OnFileOpen)
-	ON_COMMAND(ID_FILE_OPEN_WITH_RELOAD, OnFileOpenWithReload)
+	ON_COMMAND(ID_FILE_OPEN_WITHOUT_RELOAD, OnFileOpenWithoutReload)
 	ON_COMMAND(ID_FILE_SAVE_GAME, OnFileSave)
 	ON_UPDATE_COMMAND_UI(ID_FILE_OPEN, &CPlainInsteadApp::OnUpdateFileOpen)
-	ON_UPDATE_COMMAND_UI(ID_FILE_OPEN_WITH_RELOAD, &CPlainInsteadApp::OnUpdateFileOpen)
+	ON_UPDATE_COMMAND_UI(ID_FILE_OPEN_WITHOUT_RELOAD, &CPlainInsteadApp::OnUpdateFileOpen)
 	ON_UPDATE_COMMAND_UI(ID_FILE_SAVE_GAME, &CPlainInsteadApp::OnUpdateFileSaveGame)
 	ON_COMMAND(ID_VIEW_FULL_HIST, &CPlainInsteadApp::OnViewFullHist)
 	ON_COMMAND(ID_VIEW_PREV_HIST, &CPlainInsteadApp::OnViewPrevHist)
@@ -504,10 +504,10 @@ void CPlainInsteadApp::OnFileOpen(boolean reload)
 		}
 	}
 void CPlainInsteadApp::OnFileOpen() {
-	OnFileOpen(false);
-}
-void CPlainInsteadApp::OnFileOpenWithReload() {
 	OnFileOpen(true);
+}
+void CPlainInsteadApp::OnFileOpenWithoutReload() {
+	OnFileOpen(false);
 }
 void CPlainInsteadApp::StartNewGameFile(CString file, CString name)
 {

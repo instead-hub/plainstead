@@ -171,7 +171,7 @@
 #define ID_32912                        32912
 #define ID_Menu                         32913
 #define ID_Menu32914                    32914
-#define ID_FILE_OPEN_WITH_RELOAD        32915
+#define ID_FILE_OPEN_WITHOUT_RELOAD        32915
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

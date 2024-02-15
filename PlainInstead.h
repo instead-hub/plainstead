@@ -38,7 +38,7 @@ public:
 protected:
 void OnFileOpen(boolean reload);
 void OnFileOpen();
-	void OnFileOpenWithReload();
+	void OnFileOpenWithoutReload();
 	void OnFileSave();
     //void OnFileNewGame();
 	afx_msg void OnAppAbout();
