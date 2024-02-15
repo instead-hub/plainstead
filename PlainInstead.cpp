@@ -601,13 +601,13 @@ void CPlainInsteadApp::OnFileSave()
 void CPlainInsteadApp::OnUpdateFileOpen(CCmdUI *pCmdUI)
 {
 	// TODO: добавьте свой код обработчика ИП обновления команд
-	//pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() );
+	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() );
 }
 
 void CPlainInsteadApp::OnUpdateFileSaveGame(CCmdUI *pCmdUI)
 {
 	// TODO: добавьте свой код обработчика ИП обновления команд
-	//pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() && fThreadRunning);
+	pCmdUI->Enable(GlobalManager::getInstance().isUserStartGame() /* && fThreadRunning*/);
 }
 
 void CPlainInsteadApp::OnViewFullHist()
