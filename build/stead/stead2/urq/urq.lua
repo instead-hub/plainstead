@@ -1571,31 +1571,19 @@ function do_common()
 	urq.last_com = com;
 	return r
 end
-
-iface.cmd = function(s, inp)
-	local a = { };
-	local cmd;
+--Предобработка команды
+local pre_cmd=function(inp)
+	local cmd,a = stead.getcmd(inp);
+--	print ("CMD:", inp);
+return cmd,a
+end
+local urq_cmd=function(inp,cmd,a)
+--if not cmd and not a then cmd,a=pre_cmd(inp) end
 	local r = nil
 	local rmode = false
 	stead.cache = {}
 	urq.fading = false
-	cmd,a = stead.getcmd(inp);
 	start_cmd()
---	print ("CMD:", inp);
-if stead.tiny then
-if a[1] and stead.tonum(a[1])then 
-a[1]=urq.dict[stead.tonum(a[1])]
-end
-if urq.strdict[a[1]]=="way" then cmd="go" end
-if a[2] and stead.tonum(a[2]) then
-a[2]=urq.dict[stead.tonum(a[2])]
-end
-if a[1] and a[2] and cmd =="" then cmd ="use"
-elseif a[1] and cmd=="" then cmd="act"
-elseif cmd =="" then cmd="look"
-elseif inp:find("^@") then return false,false
-end
-end
 	if cmd == "look" then
 		if urq.last then
 			return par('',urq.last, cat(urq.input,'\n'),"\n");
@@ -1729,6 +1717,56 @@ reset_dicts();
 	end
 --	urq.last_output = urq.output
 	return cat(r, "\n");
+end
+local iface_cmd=function(inp)
+return urq_cmd(inp,pre_cmd(inp))
+end
+iface.cmd = function(s, inp)
+cmd,a=pre_cmd(inp)
+if stead.tiny then
+if a[1] and stead.tonum(a[1])then 
+a[1]=urq.dict[stead.tonum(a[1])]
+end
+if urq.strdict[a[1]]=="way" then cmd="go" end
+if a[2] and stead.tonum(a[2]) then
+a[2]=urq.dict[stead.tonum(a[2])]
+end
+if a[1] and a[2] and cmd =="" then cmd ="use"
+elseif a[1] and cmd=="" then cmd="act"
+elseif cmd =="" then cmd="look"
+elseif cmd=="metaparser" then 
+if not input.key then return false,false end
+--Убираем команду из текста,чтобы объеденить всё в один аргумент
+inp=inp:sub(inp:find(cmd)+#cmd+1)
+--Убираем кавычки в начале и в конце,т.к наш интерпретатор автоматически подставляет их.
+inp=inp:sub(2,#inp-1)
+--Функция для эметации нажатия клавиш
+local function downandup(key)
+local cmd,status,cmd1,status1
+local result =input:key(true,key)
+if result then --print(result)
+cmd,status=iface_cmd(result)
+end
+result =input:key(false,key)
+if result then cmd1,status1=iface_cmd(result) end
+--Приоритет отдаём результату,который вернулся при отпущенном нажатии клавиши.
+return cmd1 or cmd,status1 or status
+end
+local cmd,status
+for a= 1,#inp do
+--Эметируем нажатие клавиш:
+local b=inp:sub(a,a)
+local c=b==" " and "space" or b
+cmd,status=downandup(c)
+--cmd,status=downandup(b)
+end
+--urq.input=""
+--return cmd,status
+return downandup("return")
+--elseif inp:find("^@") then return false,false
+end
+end
+return urq_cmd(inp,cmd,a)
 end
 
 function resume()
