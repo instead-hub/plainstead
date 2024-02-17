@@ -363,7 +363,28 @@ local iface_cmd = iface.cmd -- save old
 
 function iface:cmd(inp)
 	local cmd, a = stead.getcmd(inp)
-	if cmd =='metaparser' then return false,false; end
+	if cmd =='metaparser' then
+if not input.key then return false,false end
+--Убираем кавычки в начале и в конце,т.к наш интерпретатор автоматически подставляет их.
+a[1]=a[1]:sub(2,#a[1]-1)
+--Функция для эметации нажатия клавиш
+local function downandup(key)
+local cmd,status,cmd1,status1
+local result =input:key(true,key)
+if result then print(result)
+cmd,status=iface_cmd(self,result)
+end
+result =input:key(false,key)
+if result then cmd1,status1=iface_cmd(self,result) end
+--Приоритет отдаём результату,который вернулся при отпущенном нажатии клавиши.
+return cmd1 or cmd,status1 or status
+end
+for b in a[1]:gmatch(".") do
+--Эметируем нажатие клавиш:
+downandup(b)
+end
+return downandup("return")
+	end
 	if stead.tonum(cmd) then
 		stead.table.insert(a, 1, cmd)
 		cmd = 'act'
