@@ -63,8 +63,8 @@ is_sound = function()
 end
 instead_sound_channel =function() end]]
 function instead_theme_var(a,b) return "1" end
-function instead_screen_size() return 0,0 end
-function instead_screen_dpi() return 0 end
+function instead_screen_size() return 1,1 end
+function instead_screen_dpi() return 1 end
 function hideinv() end
 -- fake themes
 local function getstr(str)

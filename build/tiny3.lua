@@ -193,7 +193,7 @@ function iface:xref(str, o, ...)
 	local a = { ... }
 	local args = ''
 	for i = 1, #a do
-		if type(a[i]) ~= 'string' and type(a[i]) ~= 'number' then
+		if type(a[i]) ~= 'string' and type(a[i]) ~= 'number' and type(a[i]) ~= 'boolean' then
 			std.err ("Wrong argument to iface:xref: "..std.tostr(a[i]), 2)
 		end
 		args = args .. ' '..std.dump(a[i])
@@ -783,10 +783,10 @@ function theme.get(...)
 return instead_theme_var(...)
 end
 function theme.scr.w()
-return 0
+return 1
 end
 function theme.scr.h()
-return 0
+return 1
 end
 function theme.win.reset()
 end
@@ -896,4 +896,3 @@ std.mod_step(function(state)
 		dict = {}
 	end
 end)
---require("ext/paths")

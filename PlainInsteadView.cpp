@@ -435,11 +435,13 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLo
 			}
 		}
 		else {
-			pos_id_ways.clear();
-			mListWays.ResetContent();
-			ways = L"";
-			//ways_er = L"";
-			if (onlyInvRedraw != -1)onlyInvRedraw = 0;
+			if (ways!=L"") {
+				pos_id_ways.clear();
+				mListWays.ResetContent();
+				ways = L"";
+				//ways_er = L"";
+				if (onlyInvRedraw != -1)onlyInvRedraw = 0;
+			}
 		}
 	}
 	if (ways_er != prev_er) onlyInvRedraw = -1; //Раз у нас возникла ошибка,обновляем текст.
@@ -471,24 +473,26 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLo
 		}
 	}
 	else {
-		pos_id_inv.clear();
-		mListInv.ResetContent();
-		inv = L"";
-		//inv_er = L"";
-		if (onlyInvRedraw != -1)onlyInvRedraw = 0;
+		if (inv != L"") {
+			pos_id_inv.clear();
+			mListInv.ResetContent();
+			inv = L"";
+			//inv_er = L"";
+			if (onlyInvRedraw != -1)onlyInvRedraw = 0;
+		}
 	}
 	if (inv_er != prev_er) onlyInvRedraw = -1; //Раз у нас возникла ошибка,обновляем текст.
 	if (onlyInvRedraw == -1 || onlyInvRedraw == 0 && debug) {
 		if (onlyInvRedraw == -1) {
 			text[0].Replace(L"\n", L"\r\n");
 		}
-		updateText();
+updateText();
 	}
 	if (isLogOn)
 	{
 		CString logsDir = getLogsDir();
-		if (GetFileAttributes(logsDir) == INVALID_FILE_ATTRIBUTES) SHCreateDirectoryEx(NULL, logsDir, NULL);
 		FILE* fStream;
+		if (GetFileAttributes(logsDir) == INVALID_FILE_ATTRIBUTES) SHCreateDirectoryEx(NULL, logsDir, NULL);
 		//errno = 0;
 		int result = _tfopen_s(&fStream, logFileName, L"at,ccs=UTF-8");
 		if (result)
@@ -591,15 +595,11 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 	char* p;
 	std::string newCmd = utf8_encode(textIn);
 	CString er = L"";
-	bool is_saving_or_loading = false;
 	if (GlobalManager::getInstance().isEmptyCmd()) {
 		first_er = getError(!GlobalManager::getInstance().isUserRestartGame() ? L"start" : L"load");
 	}
-	if (textIn.Find(L"save ") == 0 || textIn.Find(L"load ") == 0)
-	{
-		GlobalManager::getInstance().userSavedFile();
-		is_saving_or_loading = true;
-	}
+	byte is_saving_or_loading = textIn.Find(L"save ")==0?1: textIn.Find(L"load ")==0?2:0;
+	if (is_saving_or_loading) GlobalManager::getInstance().userSavedFile();
 	if (!is_saving_or_loading && (!textIn.IsEmpty() && textIn != "look" || isFromEdit)) GlobalManager::getInstance().userNewCommand();
 	//Обработка строки в Instead
 	if (needSearchVariants) {
@@ -625,9 +625,9 @@ int CPlainInsteadView::TryInsteadCommand(CString textIn, CString cmdForLog, bool
 			snprintf(cmd, sizeof(cmd), "%s", newCmd.data());
 			p = instead_cmd(cmd, &rc);
 			//m_InputEdit.SetWindowTextW(utf8_to_utf16(cmd)); //(Для отладки,чтобы убедиться,что комманда приобразуется правильно)
-			if ((textIn.Find(L"save ") == 0 || textIn.Find(L"load ") == 0) && !isFromEdit)
+			if (is_saving_or_loading && !isFromEdit)
 			{
-				first_er = getError(textIn);
+				first_er += getError(textIn);
 				free(p);
 				return rc;
 			}
