@@ -486,8 +486,10 @@ void CPlainInsteadView::onNewInsteadCommand(char* cmd, char* p, CString cmdForLo
 		if (onlyInvRedraw == -1) {
 			text[0].Replace(L"\n", L"\r\n");
 		}
-updateText();
+		updateText();
 	}
+	else if (onlyInvRedraw == 0) UpdateFocusLogic();
+
 	if (isLogOn)
 	{
 		CString logsDir = getLogsDir();
@@ -555,7 +557,7 @@ void CPlainInsteadView::updateText(char* Text) {
 	}
 	else result = txt;
 	m_OutEdit.SetWindowTextW(result);
-	if (!m_jump_to_out) UpdateFocusLogic();
+	/*if (!m_jump_to_out)*/ UpdateFocusLogic();
 	if (m_jump_to_out && GetFocus() != &m_OutEdit) m_OutEdit.SetFocus();
 	speak(result);
 }

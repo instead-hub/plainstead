@@ -65,7 +65,7 @@ extern int instead_sprites_init(void);
 		GlobalManager::getInstance().userNewCommand();
 	}
 	uint64_t getTicks() {
-		return millis - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();;
+		return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count() - millis;
 	}
 	void updateText(char* text) {
 		CPlainInsteadView::GetCurrentView()->updateText(text);
@@ -489,7 +489,7 @@ void CPlainInsteadApp::OnFileOpen(boolean reload)
 				int load =CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"load " + userFilePath,L"", false);
 				CPlainInsteadView::GetCurrentView()->TryInsteadCommand(L"look",L"загрузка",false);
 				AfxMessageBox(load? L"Не удалось восстановить сохранение":L"Восстановлено!");
-				millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+				//millis = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 				return;
 			}
 			else
