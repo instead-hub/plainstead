@@ -776,6 +776,10 @@ void CPlainInsteadApp::OnResetAllSettings()
 		MessageBox(NULL,L"Для полного сброса настроек, перезапустите программу",L"Завершение сброса", MB_OK);
 	}
 }
+void closeOutputStreams() {
+	fclose(er);
+	fclose(out);
+}
 void CPlainInsteadApp::OnAppExit()
 {
 	// TODO: добавьте свой код обработчика команд
@@ -787,8 +791,7 @@ void CPlainInsteadApp::OnAppExit()
 			GlobalManager::getInstance().isIgnoreExitDialog = true;
 			instead_done();
 			if (gBassInit) BASS_Free();
-			fclose(er);
-			fclose(out);
+			closeOutputStreams();
 			CWinApp::CloseAllDocuments(FALSE);
 			ASSERT(AfxGetApp()->m_pMainWnd != NULL);
 			AfxGetApp()->m_pMainWnd->SendMessage(WM_CLOSE);
@@ -802,6 +805,7 @@ void CPlainInsteadApp::OnAppExit()
 	{
 		instead_done();
 		if (gBassInit) BASS_Free();
+		closeOutputStreams();
 				CWinApp::CloseAllDocuments(FALSE);
 		ASSERT(AfxGetApp()->m_pMainWnd != NULL);
 		AfxGetApp()->m_pMainWnd->SendMessage(WM_CLOSE);

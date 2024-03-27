@@ -15,7 +15,7 @@ extern "C" {
 	#include "instead\instead.h"
 	extern int gBassInit;
 }
-
+extern void closeOutputStreams();
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -119,7 +119,7 @@ void CMainFrame::OnClose()
 			return;
 		}
 	}
-
+	closeOutputStreams();
 	instead_done();
 	if (gBassInit) BASS_Free();
 	MultiSpeech::getInstance().Unload();
@@ -129,13 +129,12 @@ void CMainFrame::OnClose()
 	CIniFile mainSettings;
 	mainSettings.WriteNumber(L"MainFrame", L"WPlen", (INT)wp.length );
 	mainSettings.WriteStruct(L"MainFrame", L"WP", &wp, wp.length );
-
 	//Временный хак, чтобы всегда закрывать приложение, ОПАСНО!
 	InterpreterController::endInterpreter();
-	exit(0);
-
+	MessageBox(L"Тест", NULL, 0);
 	CFrameWnd::OnClose();
-}
+	exit(0);
+	}
 
 void CMainFrame::OnShowWindow(BOOL bShow, UINT nStatus) 
 {

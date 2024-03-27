@@ -29,7 +29,7 @@ CPlainInsteadDoc::CPlainInsteadDoc()
 
 CPlainInsteadDoc::~CPlainInsteadDoc()
 {
-	CDocument::OnCloseDocument();
+	//CDocument::OnCloseDocument();
 }
 
 BOOL CPlainInsteadDoc::OnNewDocument()
