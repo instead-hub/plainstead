@@ -18,7 +18,7 @@ iface:cmd("save "..instead_autosavepath().."/"..n..".sav")
 end
 instead_themespath =function() return "themes/" end
 instead_cwdpath =function() return "../.." end
-instead_theme_name = function() return '/default' end
+instead_theme_name = function() return '.' end
 instead_font_load =function() return "" end
 stead.ticks =instead_ticks
 get_ticks =instead_ticks
@@ -39,18 +39,20 @@ function instead_sprite_colorkey() return "" end
 function instead_sprite_copy(...) end
 function instead_sprite_compose() end
 function instead_sprite_draw() end
-function instead_sprite_dup() end
+function instead_sprite_dup(...) return ... end
 function instead_sprite_load(name,...)
 local arg ={...}
-return type(name)=='string' and name or type(arg[1])=='string' and arg[1] or type(arg[2])=='string' and arg[2] or ""
+return "spr:a.png"
+--return type(name)=='string' and name or type(arg[1])=='string' and arg[1] or type(arg[2])=='string' and arg[2] or ""
 end
 function instead_sprite_pixel() return "" end
 function instead_sprite_pixels()
 return ""
 end
+function instead_sprite_rotate() end
 function instead_sprite_scale() return ""
 end
-function instead_sprite_size() return 2,2
+function instead_sprite_size() return 200,200
 end
 --function instead_sprite_text() return "" end
 function instead_sprite_text_size() return 1,1 end

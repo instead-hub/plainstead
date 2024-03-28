@@ -43,9 +43,9 @@ instead.sprite_scale = instead_sprite_scale
 instead.sprite_rotate = instead_sprite_rotate
 instead.sprite_text = instead_sprite_text
 instead.sprite_text_size = instead_sprite_text_size
-instead.sprite_draw = instead_sprite_draw
-instead.sprite_copy = function() return instead_sprite_copy() end
-instead.sprite_compose = instead_sprite_compose
+instead.sprite_draw = function(...) return instead_sprite_draw(...) end
+instead.sprite_copy = function(...) return instead_sprite_copy(...) end
+instead.sprite_compose = function(...) return instead_sprite_compose(...) end
 instead.sprite_fill = instead_sprite_fill
 instead.sprite_pixel = instead_sprite_pixel
 instead.sprite_load = instead_sprite_load
@@ -205,7 +205,7 @@ table.insert(dict, xref)
 		dict[xref] = #dict
 end
 	xref = std.tostr(dict[xref])
-if o:type 'menu' or std.is_system(o) then
+if std.is_obj(o, 'menu') or std.is_system(o) then
 		return "[a]"..str..std.string.format("#%s", -xref).."[/a]"
 		end
 	return "[a]"..str..std.string.format("#%s", xref).."[/a]"

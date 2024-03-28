@@ -123,15 +123,14 @@ void CMainFrame::OnClose()
 	instead_done();
 	if (gBassInit) BASS_Free();
 	MultiSpeech::getInstance().Unload();
-
-	WINDOWPLACEMENT wp;
+		WINDOWPLACEMENT wp;
     GetWindowPlacement(&wp);
 	CIniFile mainSettings;
 	mainSettings.WriteNumber(L"MainFrame", L"WPlen", (INT)wp.length );
 	mainSettings.WriteStruct(L"MainFrame", L"WP", &wp, wp.length );
 	//Временный хак, чтобы всегда закрывать приложение, ОПАСНО!
 	InterpreterController::endInterpreter();
-	MessageBox(L"Тест", NULL, 0);
+	//MessageBox(L"Тест", NULL, 0);
 	CFrameWnd::OnClose();
 	exit(0);
 	}
