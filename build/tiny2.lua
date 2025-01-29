@@ -356,6 +356,8 @@ local tag_all = stead.player_tagall -- save old
 
 stead.player_tagall = function(self)
 	dict = {}
+local p = stead.ref 'parser'
+if p then p.scroll=false end
 	return tag_all(self)
 end
 
@@ -379,15 +381,20 @@ end
 result =input:key(false,key)
 if result then cmd1,status1=iface_cmd(self,result) end
 --Приоритет отдаём результату,который вернулся при отпущенном нажатии клавиши.
-return cmd1 or cmd,status1 or status
+return cmd1 or cmd,true
 end
+--[[local p = stead.ref 'parser'
+if p then
+input._txt=inp
+parser_menu_items:fill()
+	parser_menu_items:completion()
+return p:enter(),true
+end]]
 local cmd,status
-for a= 1,#inp do
+for a in inp:gmatch(".") do
 --Эметируем нажатие клавиш:
-local b=inp:sub(a,a)
-local c=b==" " and "space" or b
-cmd,status=downandup(c)
---cmd,status=downandup(b)
+a=a==" " and "space" or a
+cmd,status=downandup(a)
 end
 --return cmd,status
 return downandup("return")

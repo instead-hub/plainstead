@@ -82,7 +82,7 @@ if type(str) ~= 'string' then return end
 	return getstr(str)
 end
 function iface:img(str)
-return "<img></img>"
+return ""
 end
 function iface:imgl(str) return iface:img(str) end
 function iface:imgr(str) return iface:img(str) end

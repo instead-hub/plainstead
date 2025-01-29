@@ -188,7 +188,7 @@ function iface:xref(str, o, ...)
 		std.err ("Wrong parameter to iface:xref: "..std.tostr(str), 2)
 	end
 	if not std.is_obj(o) or std.is_obj(o, 'stat') or o:disabled() then
-		return str
+			return str and #str >0 and "[a]"..str.."#0[/a]" or str
 	end
 	local a = { ... }
 	local args = ''
@@ -720,15 +720,13 @@ function pxl:fill_circle() end
 function pxl:fill_triangle() end
 
 function pxl:new(p)
-	if type(p) ~= 'string' then
-		std.err("Wrong argument to pxl:new(): "..std.tostr(nam), 2)
+	if type(p) ~= 'userdata' then
+		--return p
+return self
 	end
- 	local o = {
-		pxl = p;
-		__save = function() end;
-	}
-	std.setmt(o, self)
-	return std.proxy(o)
+	local t = getmetatable(p).__index
+	setmetatable(t, self)
+	return p
 end
 
 function pfnt:new(nam)
